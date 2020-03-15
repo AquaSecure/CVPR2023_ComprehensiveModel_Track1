@@ -49,4 +49,62 @@ dataloader.test = [
                 drop_last=False, 
                 shuffle=False,
                 num_classes=seg_num_classes,
-               
+                is_train=False,
+            ),
+        ),
+    ),
+
+    L(MultiTaskDataLoader)(
+        cfg=dict(sample_mode='batch',),
+        task_loaders=L(OrderedDict)(
+            fgvc=L(build_reid_test_loader_lazy)(
+                test_set=L(build_hierachical_test_set)(
+                    dataset_name = "FGVCInferDataset",
+                    test_dataset_dir = _root + '/track1_test_data/cls/test/',
+                    transforms=L(build_transforms_lazy)(
+                        is_train=False,
+                        size_test=[448, 448],
+                        mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
+                        std=[0.229 * 255, 0.224 * 255, 0.225 * 255],
+                    ),
+                    is_train=False,  # infer mode
+                    
+                ),
+                test_batch_size=8,
+                num_workers=8,
+            ),
+        ),
+    ),
+
+    L(MultiTaskDataLoader)(
+        cfg=dict(sample_mode='batch',),
+        task_loaders=L(OrderedDict)(           
+            trafficsign=L(build_cocodet_loader_lazy)(
+                data_set=L(build_cocodet_set)(
+                    is_padding=True,
+                    dataset_name="COCOInferDataSet",
+                    transforms=[
+                        dict(Decode=dict(),),
+                        dict(Resize=dict(
+                            target_size=[608, 608], 
+                            keep_ratio=False)
+                            ),
+                        dict(NormalizeImage=dict(
+                            is_scale=True, 
+                            mean=[0.485, 0.456, 0.406], 
+                            std=[0.229, 0.224, 0.225])
+                            ),
+                        dict(Permute=dict()),
+                    ],
+                    image_dir='test.txt',
+                    anno_path='val.json',  # 可以采用验证集或训练集json,只是为了获取类别ID映射关系
+                    dataset_dir= _root + '/track1_test_data/dec/',
+                    data_fields=['image', 'im_id', 'im_file'],
+                ),
+                total_batch_size=8,
+                num_workers=4,
+                batch_transforms=[
+                    dict(PadMaskBatch=dict(pad_to_stride=32, return_pad_mask=False),),
+                ],
+                is_train=False,
+  
