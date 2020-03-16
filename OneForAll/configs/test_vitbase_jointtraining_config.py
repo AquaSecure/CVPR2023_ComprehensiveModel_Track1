@@ -107,4 +107,95 @@ dataloader.test = [
                     dict(PadMaskBatch=dict(pad_to_stride=32, return_pad_mask=False),),
                 ],
                 is_train=False,
-  
+                shuffle=False, 
+                drop_last=False, 
+                collate_batch=False,
+            ),
+        ),    
+    ),
+]
+
+# NOTE
+# trian/eval模式用于eval;
+# infer模式则用于生成测试集预测结果(可直接提交评测), 在训练时可注释该部分代码减少不必要评测
+
+dataloader.evaluator = [
+    # segmentation
+    L(SegEvaluatorInfer)(
+    ),  # infer mode
+
+    # classification
+    L(CommonClasEvaluatorSingleTaskInfer)(
+        cfg=dict(), num_classes=196
+    ),   # infer mode
+
+    # detection
+    L(CocoDetEvaluatorSingleTaskInfer)(
+        classwise=False, 
+        output_eval=None,     
+        bias=0, 
+        IouType='bbox', 
+        save_prediction_only=False,
+        parallel_evaluator=True,
+        num_valid_samples=3067, 
+    ),  # infer mode
+
+]
+
+
+
+from ppdet.modeling import ShapeSpec
+from modeling.backbones.vit import ViT
+from modeling.heads.simple_cls_head import ClsHead
+from modeling.heads.setr_head import SegmentationTransformer
+from modeling.losses.seg_loss import SegSETRLoss
+
+from modeling.heads.detr import DETR
+from ppdet.modeling.transformers.dino_transformer import DINOTransformer
+from ppdet.modeling.transformers.matchers import HungarianMatcher
+from ppdet.modeling.heads.detr_head import DINOHead
+from ppdet.modeling.post_process import DETRBBoxPostProcess
+from ppdet.modeling.losses.detr_loss import DINOLoss
+
+
+backbone=L(ViT)(
+    img_size=896,
+    embed_dim=768,
+    depth=12,
+    num_heads=12,
+    mlp_ratio=4,
+    qkv_bias=True,
+    drop_rate=0.0,
+    attn_drop_rate=0.0,
+    drop_path_rate=0.5,
+    use_abs_pos_emb=False,
+    use_checkpoint=False,
+    out_shape=[768, 768, 768],
+    out_indices=[1, 2, 3],
+    extra_level=1,
+    lr_mult=1.5,
+)
+
+trafficsign_num_classes=45
+use_focal_loss=True
+
+model=L(MultiTaskBatchFuse)(
+    backbone=backbone,
+    heads=L(OrderedDict)(
+        segmentation=L(SegmentationTransformer)(
+            num_classes=seg_num_classes,
+            backbone_embed_dim=768,
+            backbone_indices=(5, 7, 9, 11),
+            head='pup',
+            align_corners=True,
+            loss=L(SegSETRLoss)(),
+        ),
+
+        fgvc=L(ClsHead)(
+            embedding_size=768, 
+            class_num=196,
+        ),
+
+        trafficsign=L(DETR)(
+            transformer=L(DINOTransformer)(
+                            num_classes=trafficsign_num_clas
