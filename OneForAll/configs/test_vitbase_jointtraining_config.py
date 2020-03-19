@@ -198,4 +198,49 @@ model=L(MultiTaskBatchFuse)(
 
         trafficsign=L(DETR)(
             transformer=L(DINOTransformer)(
-                            num_classes=trafficsign_num_clas
+                            num_classes=trafficsign_num_classes,
+                            hidden_dim=256,
+                            num_queries=900,
+                            position_embed_type='sine',
+                            return_intermediate_dec=True,
+                            backbone_feat_channels=[768, 768, 768, 768],
+                            num_levels=4,
+                            num_encoder_points=4,
+                            num_decoder_points=4,
+                            nhead=8,
+                            num_encoder_layers=6,
+                            num_decoder_layers=6,
+                            dim_feedforward=2048,
+                            dropout=0.0,
+                            activation="relu",
+                            num_denoising=100,
+                            label_noise_ratio=0.5,
+                            box_noise_scale=1.0,
+                            learnt_init_query=True,
+                            eps=1e-2),
+            detr_head=L(DINOHead)(loss=L(DINOLoss)(
+                            num_classes=trafficsign_num_classes,
+                            loss_coeff={"class": 1, "bbox": 5, "giou": 2, "no_object": 0.1, "mask": 1, "dice": 1},
+                            aux_loss=True,
+                            use_focal_loss=use_focal_loss,
+                            matcher=L(HungarianMatcher)(
+                                matcher_coeff={"class": 2, "bbox": 5, "giou": 2},
+                                use_focal_loss=use_focal_loss,)   
+                            )
+           ),
+            post_process=L(DETRBBoxPostProcess)(
+                            num_classes=trafficsign_num_classes,
+                            num_top_queries=50,
+                            use_focal_loss=use_focal_loss,
+                            ),
+        ),
+    ),
+    pixel_mean=[0.485 * 255, 0.456 * 255, 0.406 * 255],
+    pixel_std=[0.229 * 255, 0.224 * 255, 0.225 * 255],
+)
+
+
+train.amp.enabled = False
+train.init_checkpoint = 'outputs/threetask_allinone_model.pdmodel'
+
+train.output_dir = 'outputs/test_vitbase_joint_training'
