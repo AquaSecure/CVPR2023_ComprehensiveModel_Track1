@@ -127,4 +127,68 @@ def build_reid_test_loader_lazy(test_set, test_batch_size, num_workers, dp_degre
     return test_loader
 
 
-def build_test_set(
+def build_test_set(dataset_name=None, transforms=None, **kwargs):
+    """
+    build test_set for the tasks of Person, Veri and Sop
+    """
+    data = DATASET_REGISTRY.get(dataset_name)(root=_root, **kwargs)
+    if comm.is_main_process():
+        data.show_test()
+    data.show_test()
+    test_items = data.query + data.gallery
+    #在末尾随机填充若干data.gallery数据使得test_items的长度能被world_size整除，以保证每个卡上的数据量均分；
+    world_size = comm.get_world_size()
+    if len(test_items)%world_size != 0:
+        test_items += [random.choice(data.query + data.gallery) for _ in range(world_size - len(test_items)%world_size)]
+    if dataset_name == 'SOP':
+        test_set = CommDataset(test_items, transforms, relabel=True, dataset_name=data.dataset_name)
+    else:
+        test_set = CommDataset(test_items, transforms, relabel=False, dataset_name=data.dataset_name)
+
+    # Update query number
+    test_set.num_query = len(data.query)
+    #记录data.query和data.gallery的有效长度，在评估模块中，只取出来前有效长度的数据，丢弃末尾填充的数据
+    test_set.num_valid_samples = len(data.query + data.gallery)
+    return test_set
+
+
+def build_train_set(names=None, transforms=None, **kwargs):
+    """
+    build test_set for the tasks of Face, Person, Veri and Sop
+    """
+    train_items = list()
+    for d in names:
+        data = DATASET_REGISTRY.get(d)(root=_root, **kwargs)
+        if comm.is_main_process():
+            data.show_train()
+        train_items.extend(data.train)
+
+    train_set = CommDataset(train_items, transforms, relabel=True)
+    return train_set
+
+
+
+class TestFaceDataset(CommDataset):
+    """TestFaceDataset
+    """
+    def __init__(self, img_items, labels, transforms=None, dataset_name=None):
+        self.img_items = img_items
+        self.labels = labels
+        self.transforms = transforms
+        self.dataset_name = dataset_name
+
+    def __getitem__(self, index):
+        img = read_image(self.img_items[index])
+        if self.transforms is not None: img = self.transforms(img)
+        return {"images": img,}
+
+
+def build_face_test_set(dataset_name=None, transforms=None, **kwargs):
+    """build_face_test_set
+    """
+    data = DATASET_REGISTRY.get(dataset_name)(root=_root, **kwargs)
+    if comm.is_main_process():
+        data.show_test()
+    data.show_test()
+    # style1
+    # test_set = TestFaceDat
