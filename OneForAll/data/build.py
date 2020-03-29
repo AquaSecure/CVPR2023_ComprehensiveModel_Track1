@@ -191,4 +191,70 @@ def build_face_test_set(dataset_name=None, transforms=None, **kwargs):
         data.show_test()
     data.show_test()
     # style1
-    # test_set = TestFaceDat
+    # test_set = TestFaceDataset(data.img_paths, data.is_same, transforms, data.dataset_name)
+    # test_set.num_query = len(data.img_paths)
+    
+    # style2
+    # 在末尾随机填充若干data.gallery数据使得test_items的长度能被world_size整除，以保证每个卡上的数据量均分；
+    test_items = data.img_paths
+    test_is_same_list = data.is_same
+    world_size = comm.get_world_size()
+    if len(test_items)%world_size != 0:
+        idx_list = list(range(len(data.img_paths)))
+        random_idx_list = [random.choice(idx_list) for _ in range(world_size - len(test_items)%world_size)]
+        test_items += [data.img_paths[idx] for idx in random_idx_list]
+        # test_is_same_list += [data.is_same[idx] for idx in random_idx_list]
+    test_set = TestFaceDataset(test_items, test_is_same_list, transforms, data.dataset_name)
+
+    # Update query number
+    test_set.num_query = len(data.img_paths)
+    # 记录data.query和data.gallery的有效长度，在评估模块中，只取出来前有效长度的数据，丢弃末尾填充的数据
+    test_set.num_valid_samples = len(data.img_paths)
+    return test_set
+
+
+def build_imagenet_train_set(names=None, transforms=None, **kwargs):
+    """build_imagenet_train_set for decathlon datasets
+    """
+    train_items = list()
+    for d in names:
+        data = DATASET_REGISTRY.get(d)(root=_root, **kwargs)
+        if comm.is_main_process():
+            data.show_train()
+        train_items.extend(data.train)
+
+    train_set = CommDataset(train_items, transforms, relabel=False)
+    return train_set
+
+
+def build_reid_train_imagenet_loader_lazy(
+        train_set, sampler_config=None, total_batch_size=0, num_workers=0, batch_ops=None
+):
+    """
+    Build a dataloader for object re-identification with some default features.
+    This interface is experimental.
+
+    Returns:
+        torch.utils.data.DataLoader: a dataloader.
+    """
+    def transform(data, ops=[]):
+        """ transform """
+        for op in ops:
+            data = op(data)
+        return data
+
+    def mix_collate_fn(batched_inputs):
+        """
+        #batch[0] -> {
+        #     "images": img,
+        #     "targets": pid,
+        #     "camids": camid,
+        #     # "img_paths": img_path,
+        # }
+        """
+        batch = []
+        for batched_input in batched_inputs:
+            batch.append((batched_input["images"], batched_input["targets"]))
+        # batch = transform(batch, batch_ops)
+        batch = batch_ops(batch)
+        # batch each fiel
