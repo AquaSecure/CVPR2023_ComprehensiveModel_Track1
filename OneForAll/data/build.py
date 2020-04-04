@@ -257,4 +257,63 @@ def build_reid_train_imagenet_loader_lazy(
             batch.append((batched_input["images"], batched_input["targets"]))
         # batch = transform(batch, batch_ops)
         batch = batch_ops(batch)
-        # batch each fiel
+        # batch each field
+        slots = []
+        for items in batch:
+            for i, item in enumerate(items):
+                if len(slots) < len(items):
+                    slots.append([item])
+                else:
+                    slots[i].append(item)
+        batch_data = [np.stack(slot, axis=0) for slot in slots]
+
+        return {"images": batch_data[0], 
+                "targets": batch_data[1], 
+                "camids": np.array([int(batched_input["camids"]) for batched_input in batched_inputs])}
+
+    sampler_name = sampler_config.get('sampler_name', 'TrainingSampler')
+    num_instance = sampler_config.get('num_instance', 4)
+    mini_batch_size = total_batch_size // comm.get_world_size()
+
+    logger = logging.getLogger(__name__)
+    logger.info("Using training sampler {}".format(sampler_name))
+    assert sampler_name == "TrainingSampler"
+    sampler = samplers.TrainingSampler(train_set)
+
+    batch_sampler = paddle.io.BatchSampler(sampler=sampler, batch_size=mini_batch_size, drop_last=True)
+    train_loader = paddle.io.DataLoader( #TODO make a distributed version
+        dataset=train_set,
+        batch_sampler=batch_sampler,
+        collate_fn=mix_collate_fn,
+        num_workers=num_workers,
+        )
+
+    return train_loader
+
+
+def build_cocodet_test_loader_lazy(data_set, total_batch_size=0, num_workers=0, is_train=False,
+        batch_transforms=[], shuffle=True, drop_last=True, collate_batch=True):
+    """
+    Build a dataloader for coco detection with some default features.
+
+    Returns:
+        paddle.io.DataLoader: a dataloader.
+    """
+    assert is_train == False
+    num_classes = 80    # hard code
+    batch_transforms = BatchCompose(batch_transforms, num_classes, collate_batch)
+    batch_sampler = paddle.io.BatchSampler(dataset=data_set, batch_size=total_batch_size, drop_last=False, shuffle=False)
+    data_loader = paddle.io.DataLoader(
+        dataset=data_set,
+        batch_sampler=batch_sampler,
+        collate_fn=batch_transforms,
+        num_workers=num_workers,
+        return_list=False,
+        use_shared_memory=False,
+    )
+    return data_loader
+
+def build_cocodet_loader_lazy(data_set, total_batch_size=0, num_workers=0, is_train=False,
+        batch_transforms=[], shuffle=True, drop_last=True, collate_batch=True):
+    """
+    Build a dataloader for coco dete
