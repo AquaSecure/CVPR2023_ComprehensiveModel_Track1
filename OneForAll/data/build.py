@@ -372,4 +372,51 @@ def build_cocodet_set(dataset_name=None, transforms=[], dataset_dir=_root, image
             test_items += [test_items[idx] for idx in random_idx_list]
         data_set.roidbs = test_items
         print('{} has {} samples after padding'.format(dataset_name, len(data_set))) #data_set.roidbs
-    return
+    return data_set
+
+def build_voc_set(dataset_name=None, transforms=[], dataset_dir=_root, image_dir='voc',
+        anno_path='trainval.txt',
+        data_fields=['image', 'gt_bbox', 'gt_class', 'difficult'], **kwargs):
+    """
+    build train_set for detection
+    """
+    import ppdet
+    data_set = ppdet.data.voc.VOCDataSet(dataset_dir=os.path.join(dataset_dir, image_dir),
+        anno_path=anno_path, label_list='label_list.txt', data_fields=data_fields)
+    num_classes = 20    # hard code
+    transforms = Compose(transforms, num_classes=num_classes)
+    data_set.parse_dataset()
+    data_set.set_transform(transforms)
+    data_set.set_kwargs(**kwargs)
+    data_set.dataset_name = dataset_name
+    
+    # to use coco evaluator, add catid2clsid and get_anno()
+    data_set.catid2clsid = dict({catid: i for i, catid in 
+                enumerate([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20])
+                })
+    def get_anno():
+        return os.path.join(dataset_dir, image_dir, 'test.cocostyle.json')
+    data_set.get_anno = get_anno
+    print('{} has {} samples'.format(dataset_name, len(data_set))) #data_set.roidbs
+    return data_set
+
+def build_obj365det_set(dataset_name=None, transforms=[], dataset_dir=_root, image_dir='train2017',
+        anno_path='annotations/instances_train2017.json',
+        data_fields=['image', 'gt_bbox', 'gt_class', 'is_crowd'], **kwargs):
+    """
+    build train_set for detection
+    """
+    import ppdet
+    data_set = ppdet.data.COCODataSet(
+        dataset_dir=os.path.join(dataset_dir, 'Objects365'), 
+        image_dir=image_dir,
+        anno_path=anno_path, 
+        data_fields=data_fields)
+    num_classes = 365   # hard code
+    transforms = Compose(transforms, num_classes=num_classes)
+    data_set.parse_dataset()
+    data_set.set_transform(transforms)
+    data_set.set_kwargs(**kwargs)
+    data_set.dataset_name = dataset_name
+    print('{} has {} samples'.format(dataset_name, len(data_set))) #data_set.roidbs
+    return data_set
