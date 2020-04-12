@@ -81,4 +81,74 @@ class HierachicalCommDataset(Dataset):
                 "img_paths": img_path,
                 "im_id": im_id,
                 "id2imgname": self.id2imgname,
-            
+            }
+        else:
+            return {
+                "image": img,
+                "im_shape": im_shape,
+                "scale_factor": scale_factor,
+                "img_paths": img_path,
+                "im_id": im_id,
+                "id2imgname": self.id2imgname,
+            }
+
+    @property
+    def num_classes(self):
+        """get number of classes
+        """
+        return self._num_classes
+
+    @property
+    def num_cameras(self):
+        """get number of cameras
+        """
+        return len(self.cams)
+
+
+def build_hierachical_test_set(dataset_name=None, transforms=None, is_train=True, **kwargs):
+    """
+    build test_set for the tasks of Person, Veri and Sop
+    """
+    data = DATASET_REGISTRY.get(dataset_name)(root=_root, **kwargs)
+    test_items = data.query + data.gallery
+    
+    #在末尾随机填充若干data.gallery数据使得test_items的长度能被world_size整除，以保证每个卡上的数据量均分；
+    world_size = comm.get_world_size()
+    
+    if len(test_items)%world_size != 0:
+        test_items += [random.choice(data.query + data.gallery) for _ in range(world_size - len(test_items)%world_size)]
+    
+    test_set = HierachicalCommDataset(test_items, transforms, relabel=False, \
+        dataset_name=data.dataset_name, num_classes=kwargs.get('num_classes', 0), is_train=is_train)
+
+    # Update query number
+    test_set.num_query = len(data.query)
+    
+    #记录data.query和data.gallery的有效长度，在评估模块中，只取出来前有效长度的数据，丢弃末尾填充的数据
+    test_set.num_valid_samples = len(data.query + data.gallery)
+    
+    return test_set
+
+
+def build_hierachical_softmax_train_set(names=None, transforms=None, num_classes=1000, **kwargs):
+    """build_hierachical_softmax_train_set for decathlon datasets
+    """
+    train_items = list()
+    for d in names:
+        data = DATASET_REGISTRY.get(d)(root=_root, **kwargs)
+        # if comm.is_main_process():
+        #     data.show_train()
+        train_items.extend(data.train)
+
+    train_set = HierachicalCommDataset(train_items, transforms, relabel=False, num_classes=num_classes)
+    return train_set
+
+
+def build_vehiclemulti_train_loader_lazy(
+    train_set, sampler_config=None, total_batch_size=0, num_workers=0, dp_degree=None, alive_rank_list=None):
+    """
+    Build a dataloader for object re-identification with some default features.
+    This interface is experimental.
+
+    Returns:
+        to
