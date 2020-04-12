@@ -151,4 +151,33 @@ def build_vehiclemulti_train_loader_lazy(
     This interface is experimental.
 
     Returns:
-        to
+        torch.utils.data.DataLoader: a dataloader.
+    """
+    if dp_degree is not None:
+        if (alive_rank_list is not None) and (comm.get_rank() not in alive_rank_list):
+            return {}
+        dp_group = moe_group_utils.get_dp_group(dp_degree)
+        moe_group = moe_group_utils.get_moe_group(dp_degree)
+    else:
+        dp_group = None
+        moe_group = None
+    sampler_name = sampler_config.get('sampler_name', 'TrainingSampler')
+    num_instance = sampler_config.get('num_instance', 4)
+    mini_batch_size = total_batch_size // comm.get_world_size(dp_group)
+
+    if sampler_name == "TrainingSampler": 
+        sampler = samplers.TrainingSampler(train_set, dp_group=dp_group, moe_group=moe_group)
+        batch_sampler = paddle.io.BatchSampler(sampler=sampler, batch_size=mini_batch_size)
+    elif sampler_name == 'ClassAwareSampler':
+        batch_sampler = VehicleMultiTaskClassAwareSampler(dataset=train_set, batch_size=mini_batch_size)
+    else:
+        raise ValueError("Unknown training sampler: {}".format(sampler_name))
+
+    train_loader = paddle.io.DataLoader( #TODO make a distributed version
+        dataset=train_set,
+        batch_sampler=batch_sampler,
+        collate_fn=fast_batch_collator,
+        num_workers=num_workers,
+        )
+
+    return train_loader
