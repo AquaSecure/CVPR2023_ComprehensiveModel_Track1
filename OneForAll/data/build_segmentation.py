@@ -83,4 +83,9 @@ def build_segementation_test_dataset(dataset_name=None, transforms=[], dataset_r
         if len(test_items)%world_size != 0:
             idx_list = list(range(len(test_items)))
             random_idx_list = [random.choice(idx_list) for _ in range(world_size - len(test_items)%world_size)]
+            test_items += [test_items[idx] for idx in random_idx_list]
+        data_set.file_list = test_items
+        print('{} has {} samples after padding'.format(dataset_name, len(data_set))) #data_set.roidbs
     
+    return data_set
+
