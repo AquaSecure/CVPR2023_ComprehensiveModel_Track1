@@ -95,4 +95,56 @@ class BatchCompose(Compose):
         else:
             batch_data = {}
             for k in data[0].keys():
-    
+                tmp_data = []
+                for i in range(len(data)):
+                    tmp_data.append(data[i][k])
+                if not 'gt_' in k and not 'is_crowd' in k and not 'difficult' in k:
+                    tmp_data = np.stack(tmp_data, axis=0)
+                batch_data[k] = tmp_data
+        return batch_data
+
+
+class BaseDataLoader(object):
+    """
+    Base DataLoader implementation for detection models
+
+    Args:
+        sample_transforms (list): a list of transforms to perform
+                                  on each sample
+        batch_transforms (list): a list of transforms to perform
+                                 on batch
+        batch_size (int): batch size for batch collating, default 1.
+        shuffle (bool): whether to shuffle samples
+        drop_last (bool): whether to drop the last incomplete,
+                          default False
+        num_classes (int): class number of dataset, default 80
+        collate_batch (bool): whether to collate batch in dataloader.
+            If set to True, the samples will collate into batch according
+            to the batch size. Otherwise, the ground-truth will not collate,
+            which is used when the number of ground-truch is different in 
+            samples.
+        use_shared_memory (bool): whether to use shared memory to
+                accelerate data loading, enable this only if you
+                are sure that the shared memory size of your OS
+                is larger than memory cost of input datas of model.
+                Note that shared memory will be automatically
+                disabled if the shared memory of OS is less than
+                1G, which is not enough for detection models.
+                Default False.
+    """
+
+    def __init__(self,
+                 sample_transforms=[],
+                 batch_transforms=[],
+                 batch_size=1,
+                 shuffle=False,
+                 drop_last=False,
+                 num_classes=80,
+                 collate_batch=True,
+                 use_shared_memory=False,
+                 cls_aware_sample=False,
+                 multi_task_sample=False,
+                 **kwargs):
+        # sample transform
+        self._sample_transforms = Compose(
+            sa
