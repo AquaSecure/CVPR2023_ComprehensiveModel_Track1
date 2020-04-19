@@ -147,4 +147,61 @@ class BaseDataLoader(object):
                  **kwargs):
         # sample transform
         self._sample_transforms = Compose(
-            sa
+            sample_transforms, num_classes=num_classes)
+
+        # batch transfrom 
+        self._batch_transforms = BatchCompose(batch_transforms, num_classes,
+                                              collate_batch)
+        self.batch_size = batch_size
+        self.shuffle = shuffle
+        self.drop_last = drop_last
+        self.use_shared_memory = use_shared_memory
+        self.kwargs = kwargs
+        self.cls_aware_sample = cls_aware_sample
+        self.multi_task_sample = multi_task_sample
+
+    def __call__(self,
+                 dataset,
+                 worker_num,
+                 batch_sampler=None,
+                 return_list=False):
+        self.dataset = dataset
+        self.dataset.check_or_download_dataset()
+        self.dataset.parse_dataset()
+        # get data
+        self.dataset.set_transform(self._sample_transforms)
+        # set kwargs
+        self.dataset.set_kwargs(**self.kwargs)
+        # batch sampler
+        if batch_sampler is None:
+            if self.cls_aware_sample:
+                print('using class aware sampler')
+                self._batch_sampler = ClassAwareSampler(
+                    self.dataset,
+                    batch_size=self.batch_size,
+                    shuffle=self.shuffle,
+                    drop_last=self.drop_last)
+            elif self.multi_task_sample:
+                print('using multi task sampler')
+                self._batch_sampler = MultiTaskSampler(
+                    self.dataset,
+                    batch_size=self.batch_size,
+                    shuffle=self.shuffle,
+                    drop_last=self.drop_last)
+            else:
+                self._batch_sampler = DistributedBatchSampler(
+                    self.dataset,
+                    batch_size=self.batch_size,
+                    shuffle=self.shuffle,
+                    drop_last=self.drop_last)
+        else:
+            self._batch_sampler = batch_sampler
+
+        # DataLoader do not start sub-process in Windows and Mac
+        # system, do not need to use shared memory
+        use_shared_memory = self.use_shared_memory and \
+                            sys.platform not in ['win32', 'darwin']
+
+        self.dataloader = DataLoader(
+            dataset=self.dataset,
+            batch_sampler=sel
