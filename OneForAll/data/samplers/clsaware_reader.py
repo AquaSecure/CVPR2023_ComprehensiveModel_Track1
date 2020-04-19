@@ -37,4 +37,33 @@ class VehicleMultiTaskClassAwareSampler(DistributedBatchSampler):
         # counter = [0 for _ in range(len(self.category_imgids))]
         # for i in range(len(self.category_imgids)):
         #     counter += len(self.category_imgids[i])
-        #
+        # self.class_sampler_prob = np.array(counter) / sum(counter)
+        self.class_sampler_prob = [1.0/len(self.category_imgids) for _ in range(len(self.category_imgids))]
+        
+    def __iter__(self):
+
+        while True:
+            batch_index = []
+            random_categories = list(np.random.choice(list(range(len(self.category_imgids))), 
+                                                    self.batch_size, replace=True, 
+                                                    p=self.class_sampler_prob))
+            for cls, count in Counter(random_categories).items(): 
+                cur_ids = list(np.random.choice(self.category_imgids[cls], count, replace=False))
+                batch_index.extend(cur_ids)
+            if self.shuffle:
+                np.random.RandomState(self.epoch).shuffle(batch_index)
+                self.epoch += 1
+
+            if not self.drop_last or len(batch_index) == self.batch_size:
+                yield batch_index
+
+    def _classaware_sampler(self, roidbs):
+        category_imgids = {}
+        for i, roidb in enumerate(roidbs):
+            label = roidb[1] # label
+            if label not in category_imgids:
+                category_imgids[label] = []
+            category_imgids[label].append(i)  # 每个类别对应的图片id
+
+        return category_imgids
+
