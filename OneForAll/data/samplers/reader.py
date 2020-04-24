@@ -204,4 +204,69 @@ class BaseDataLoader(object):
 
         self.dataloader = DataLoader(
             dataset=self.dataset,
-            batch_sampler=sel
+            batch_sampler=self._batch_sampler,
+            collate_fn=self._batch_transforms,
+            num_workers=worker_num,
+            return_list=return_list,
+            use_shared_memory=use_shared_memory)
+        self.loader = iter(self.dataloader)
+
+        return self
+
+    def __len__(self):
+        return len(self._batch_sampler)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            return next(self.loader)
+        except StopIteration:
+            self.loader = iter(self.dataloader)
+            six.reraise(*sys.exc_info())
+
+    def next(self):
+        # python2 compatibility
+        return self.__next__()
+
+
+class ClassAwareSampler(DistributedBatchSampler):
+    def __init__(self, dataset, batch_size, shuffle=True, drop_last=True):
+        super(ClassAwareSampler, self).__init__(dataset, batch_size, shuffle=shuffle, drop_last=drop_last)
+        self.batch_size = batch_size
+        self.category_imgids = self._classaware_sampler(dataset.roidbs)
+        
+    def __iter__(self):
+        for _ in range(len(self)):
+            batch = []
+            # # plate head detection
+            random_categories = list(np.random.choice([1,    2 ], self.batch_size, replace=True, 
+                                                    p=[0.5, 0.5]))
+            category_counts = defaultdict(int)
+            for cls in random_categories:
+                category_counts[cls] += 1
+            for cls, count in category_counts.items(): 
+                if cls not in self.category_imgids:
+                    cls = 1
+                if count == 0:
+                    continue
+                cur_ids = list(np.random.choice(self.category_imgids[cls], count, replace=False))
+                for cur_id in cur_ids:
+                    batch.append(cur_id)
+            if not self.drop_last or len(batch) == self.batch_size:
+                yield batch
+
+    def _classaware_sampler(self, roidbs):
+        category_imgids = {}
+        for i, roidb in enumerate(roidbs):
+            img_cls = set([k for cls in roidbs[i]['gt_categories'] for k in cls])
+            for c in img_cls:
+                if c not in category_imgids:
+                    category_imgids[c] = []
+                category_imgids[c].append(i)
+
+        return category_imgids
+
+
+class Mul
