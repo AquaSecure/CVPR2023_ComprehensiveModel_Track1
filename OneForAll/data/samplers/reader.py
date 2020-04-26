@@ -269,4 +269,51 @@ class ClassAwareSampler(DistributedBatchSampler):
         return category_imgids
 
 
-class Mul
+class MultiTaskSampler(DistributedBatchSampler):
+    def __init__(self, dataset, batch_size, shuffle=True, drop_last=True):
+        super(MultiTaskSampler, self).__init__(dataset, batch_size, shuffle=shuffle, drop_last=drop_last)
+        self.batch_size = batch_size
+        # self.num_img = len(dataset.roidbs)
+        # self.cls_num_img = len(dataset.images)
+        # print("# det img:", self.dataset.det_num_img)
+        # print("# cls img:", self.dataset.cls_num_img)
+        self.dataset.total_num_img = self.dataset.det_num_img + self.dataset.cls_num_img
+        # sample ratio of cls and det task (TODO)
+        self.cls_sample_ratio = 0.5
+        self.det_sample_ratio = 1 - self.cls_sample_ratio
+
+        # for detection task
+        self.det_img_per_batch = int(self.det_sample_ratio * batch_size)
+        # self.det_cls_prob_list = [0.15, 0.15, 0.15, 0.1, 0.15, 0.15, 0.15]
+        self.det_cls_prob_list = [0.5, 0.5]
+        self.det_num_per_cls = []
+        for prob in self.det_cls_prob_list:
+            self.det_num_per_cls.append(int(prob * self.det_img_per_batch))
+        print("det_num_per_cls:", self.det_num_per_cls)
+        # for classification task
+        self.cls_samples = list()
+        self.cls_task_num = 5 #4
+        self.cls_task_prob_list = [1/4, 3/8, 1/8, 1/8, 1/8]
+        # self.cls_task_num = 4
+        # self.cls_task_prob_list = [9/32, 13/32, 5/32, 5/32]
+
+        for i in range(self.cls_task_num):
+            self.cls_samples.append(defaultdict(list))
+        
+        self.category_imgids = defaultdict(list)
+        for idx, roidb in enumerate(self.dataset.roidbs):
+            # classification
+            for i in range(self.cls_task_num):
+                label = roidb['cls_label_{}'.format(i)]
+                if label != -1:
+                    self.cls_samples[i][label].append(idx)
+            # detection
+            img_cls = set([k for cls in roidb['gt_categories'] for k in cls])
+            for c in img_cls:
+                self.category_imgids[c].append(idx)
+
+        self.num_per_task = list()
+        for i in range(self.cls_task_num - 1):
+            self.num_per_task.append(int(self.cls_task_prob_list[i] * batch_size * self.cls_sample_ratio))
+        self.num_per_task.append(batch_size - sum(self.num_per_task) - sum(self.det_num_per_cls))
+        print("***cls_n
