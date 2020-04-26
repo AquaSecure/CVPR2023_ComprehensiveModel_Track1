@@ -316,4 +316,56 @@ class MultiTaskSampler(DistributedBatchSampler):
         for i in range(self.cls_task_num - 1):
             self.num_per_task.append(int(self.cls_task_prob_list[i] * batch_size * self.cls_sample_ratio))
         self.num_per_task.append(batch_size - sum(self.num_per_task) - sum(self.det_num_per_cls))
-        print("***cls_n
+        print("***cls_num_per_task:***", self.num_per_task)
+        self.cls_prob_list = list()
+        # use sample_avg for brand, cls_avg for color3
+        counter = []
+        self.brand_label_list = list(self.cls_samples[0])
+        for label_i in self.brand_label_list:
+            counter.append(len(self.cls_samples[0][label_i]))
+        self.cls_prob_list.append(np.array(counter) / sum(counter))
+        # color prob list
+        self.cls_prob_list.append(np.array([1 / len(self.cls_samples[1])] *
+                              len(self.cls_samples[1])))
+        self.cls_prob_list.append(np.array([1 / len(self.cls_samples[2])] *
+                              len(self.cls_samples[2])))
+        self.cls_prob_list.append(np.array([1 / len(self.cls_samples[3])] *
+                              len(self.cls_samples[3])))
+        self.cls_prob_list.append(np.array([1 / len(self.cls_samples[4])] *
+                              len(self.cls_samples[4])))
+        
+
+    def __iter__(self):
+        while True:
+            batch_index = []
+            # select samples for classification tasks
+            for i in range(self.cls_task_num):
+                batch_label_list = np.random.choice(
+                    list(self.cls_samples[i]),
+                    size=self.num_per_task[i],
+                    replace=True,
+                    p=self.cls_prob_list[i])
+    
+                counter = Counter(batch_label_list)
+                for label_i, num in counter.items():
+                    label_i_indexes = self.cls_samples[i][label_i]
+                    batch_index.extend(
+                        np.random.choice(
+                            label_i_indexes,
+                            size=num,
+                            replace=True))           
+
+            # select samples for detection tasks
+            for idx, count in enumerate(self.det_num_per_cls):
+                cls = idx + 1
+                if cls not in self.category_imgids:
+                    cls = 1
+                batch_index.extend(
+                    np.random.choice(
+                        self.category_imgids[cls],
+                        size=count,
+                        replace=False
+                    )
+                )
+            if self.shuffle:
+                np.ra
