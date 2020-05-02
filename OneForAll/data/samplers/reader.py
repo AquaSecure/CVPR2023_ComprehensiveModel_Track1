@@ -368,4 +368,7 @@ class MultiTaskSampler(DistributedBatchSampler):
                     )
                 )
             if self.shuffle:
-                np.ra
+                np.random.RandomState(self.epoch).shuffle(batch_index)
+                self.epoch += 1
+            if not self.drop_last or len(batch_index) == self.batch_size:
+                yield batch_index
