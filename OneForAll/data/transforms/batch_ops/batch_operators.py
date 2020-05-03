@@ -63,4 +63,78 @@ class MixupOperator(BatchOperator):
 
     """
 
-    def __init__(self
+    def __init__(self, class_num, alpha: float=1.):
+        """Build Mixup operator
+
+        Args:
+            alpha (float, optional): The parameter alpha of mixup. Defaults to 1..
+
+        Raises:
+            Exception: The value of parameter is illegal.
+        """
+        if alpha <= 0:
+            raise Exception(
+                f"Parameter \"alpha\" of Mixup should be greater than 0. \"alpha\": {alpha}."
+            )
+        if not class_num:
+            msg = "Please set \"Arch.class_num\" in config if use \"MixupOperator\"."
+            logger.error(Exception(msg))
+            raise Exception(msg)
+
+        self._alpha = alpha
+        self.class_num = class_num
+
+    def __call__(self, batch):
+        imgs, labels, bs = self._unpack(batch)
+        idx = np.random.permutation(bs)
+        lam = np.random.beta(self._alpha, self._alpha)
+        imgs = lam * imgs + (1 - lam) * imgs[idx]
+        targets = self._mix_target(labels, labels[idx], lam)
+        return list(zip(imgs, targets))
+
+
+class CutmixOperator(BatchOperator):
+    """ Cutmix operator
+    reference: https://arxiv.org/abs/1905.04899
+
+    """
+
+    def __init__(self, class_num, alpha=0.2):
+        """Build Cutmix operator
+
+        Args:
+            alpha (float, optional): The parameter alpha of cutmix. Defaults to 0.2.
+
+        Raises:
+            Exception: The value of parameter is illegal.
+        """
+        if alpha <= 0:
+            raise Exception(
+                f"Parameter \"alpha\" of Cutmix should be greater than 0. \"alpha\": {alpha}."
+            )
+        if not class_num:
+            msg = "Please set \"Arch.class_num\" in config if use \"CutmixOperator\"."
+            logger.error(Exception(msg))
+            raise Exception(msg)
+
+        self._alpha = alpha
+        self.class_num = class_num
+
+    def _rand_bbox(self, size, lam):
+        """ _rand_bbox """
+        w = size[2]
+        h = size[3]
+        cut_rat = np.sqrt(1. - lam)
+        cut_w = int(w * cut_rat)
+        cut_h = int(h * cut_rat)
+
+        # uniform
+        cx = np.random.randint(w)
+        cy = np.random.randint(h)
+
+        bbx1 = np.clip(cx - cut_w // 2, 0, w)
+        bby1 = np.clip(cy - cut_h // 2, 0, h)
+        bbx2 = np.clip(cx + cut_w // 2, 0, w)
+        bby2 = np.clip(cy + cut_h // 2, 0, h)
+
+        return bbx1, bby1
