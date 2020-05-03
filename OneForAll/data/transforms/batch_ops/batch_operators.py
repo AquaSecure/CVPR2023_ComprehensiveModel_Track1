@@ -137,4 +137,72 @@ class CutmixOperator(BatchOperator):
         bbx2 = np.clip(cx + cut_w // 2, 0, w)
         bby2 = np.clip(cy + cut_h // 2, 0, h)
 
-        return bbx1, bby1
+        return bbx1, bby1, bbx2, bby2
+
+    def __call__(self, batch):
+        imgs, labels, bs = self._unpack(batch)
+        idx = np.random.permutation(bs)
+        lam = np.random.beta(self._alpha, self._alpha)
+
+        bbx1, bby1, bbx2, bby2 = self._rand_bbox(imgs.shape, lam)
+        imgs[:, :, bbx1:bbx2, bby1:bby2] = imgs[idx, :, bbx1:bbx2, bby1:bby2]
+        lam = 1 - (float(bbx2 - bbx1) * (bby2 - bby1) /
+                   (imgs.shape[-2] * imgs.shape[-1]))
+        targets = self._mix_target(labels, labels[idx], lam)
+        return list(zip(imgs, targets))
+
+
+class FmixOperator(BatchOperator):
+    """ Fmix operator 
+    reference: https://arxiv.org/abs/2002.12047
+    
+    """
+
+    def __init__(self,
+                 class_num,
+                 alpha=1,
+                 decay_power=3,
+                 max_soft=0.,
+                 reformulate=False):
+        if not class_num:
+            msg = "Please set \"Arch.class_num\" in config if use \"FmixOperator\"."
+            logger.error(Exception(msg))
+            raise Exception(msg)
+
+        self._alpha = alpha
+        self._decay_power = decay_power
+        self._max_soft = max_soft
+        self._reformulate = reformulate
+        self.class_num = class_num
+
+    def __call__(self, batch):
+        imgs, labels, bs = self._unpack(batch)
+        idx = np.random.permutation(bs)
+        size = (imgs.shape[2], imgs.shape[3])
+        lam, mask = sample_mask(self._alpha, self._decay_power, \
+                size, self._max_soft, self._reformulate)
+        imgs = mask * imgs + (1 - mask) * imgs[idx]
+        targets = self._mix_target(labels, labels[idx], lam)
+        return list(zip(imgs, targets))
+
+
+class OpSampler(object):
+    """ Sample a operator from  """
+
+    def __init__(self, class_num, **op_dict):
+        """Build OpSampler
+
+        Raises:
+            Exception: The parameter \"prob\" of operator(s) are be set error.
+        """
+        if not class_num:
+            msg = "Please set \"Arch.class_num\" in config if use \"OpSampler\"."
+            logger.error(Exception(msg))
+            raise Exception(msg)
+
+        if len(op_dict) < 1:
+            msg = f"ConfigWarning: No operator in \"OpSampler\". \"OpSampler\" has been skipped."
+            logger.warning(msg)
+
+        self.ops = {}
+    
