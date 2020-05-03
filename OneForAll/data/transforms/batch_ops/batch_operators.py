@@ -205,4 +205,36 @@ class OpSampler(object):
             logger.warning(msg)
 
         self.ops = {}
-    
+        total_prob = 0
+        for op_name in op_dict:
+            param = op_dict[op_name]
+            if "prob" not in param:
+                msg = f"ConfigWarning: Parameter \"prob\" should be set when use operator in \"OpSampler\". The operator \"{op_name}\"'s prob has been set \"0\"."
+                logger.warning(msg)
+            prob = param.pop("prob", 0)
+            total_prob += prob
+            param.update({"class_num": class_num})
+            op = eval(op_name)(**param)
+            self.ops.update({op: prob})
+
+        if total_prob > 1:
+            msg = f"ConfigError: The total prob of operators in \"OpSampler\" should be less 1."
+            logger.error(Exception(msg))
+            raise Exception(msg)
+
+        # add "None Op" when total_prob < 1, "None Op" do nothing
+        self.ops[None] = 1 - total_prob
+
+    def __call__(self, batch):
+        op = random.choices(
+            list(self.ops.keys()), weights=list(self.ops.values()), k=1)[0]
+        # return batch directly when None Op
+        return op(batch) if op else batch
+
+
+
+if __name__  == '__main__':
+    batch = [(np.random.rand(3, 224, 224), random.choice(list(range(1000)))) for _ in range(16)]
+    opsampler = OpSampler(class_num=1000, CutmixOperator={"prob": 0.5, "alpha": 0.8}, MixupOperator={"prob": 0.5, "alpha": 1.0})
+    ret = opsampler(batch)
+    print(ret)
