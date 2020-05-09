@@ -87,4 +87,59 @@ class RandomApply(object):
 #                                            interpolation=3,
 #                                            scale=crop_scale, ratio=crop_ratio))
 #         if do_pad:
-#          
+#             res.extend([T.Pad(padding_size, padding_mode=padding_mode),
+#                         T.RandomCrop(size_train[0] if len(size_train) == 1 else size_train)])
+#         if do_flip:
+#             res.append(T.RandomHorizontalFlip(p=flip_prob))
+
+#         if do_cj:
+#             res.append(T.RandomApply([T.ColorJitter(cj_brightness, cj_contrast, cj_saturation, cj_hue)], p=cj_prob))
+#         if do_affine:
+#             res.append(T.RandomAffine(degrees=10, translate=None, scale=[0.9, 1.1], shear=0.1, resample=False,
+#                                       fillcolor=0))
+#         if do_augmix:
+#             res.append(AugMix(prob=augmix_prob))
+#         res.append(ToTensor())
+#         res.append(T.Normalize(mean=mean, std=std))
+#         if do_rea:
+#             # res.append(T.RandomErasing(p=rea_prob, value=rea_value))
+#             res.append(RandomErasing(probability=rea_prob, mode='pixel', max_count=1, device='cpu'))
+#         if do_rpt:
+#             res.append(RandomPatch(prob_happen=rpt_prob))
+#     else:
+#         size_test = kwargs.get('size_test', [256, 128])
+#         do_crop = kwargs.get('do_crop', False)
+#         crop_size = kwargs.get('crop_size', [224, 224])
+#         # normalize
+#         mean = kwargs.get('mean', [0.485*255, 0.456*255, 0.406*255])
+#         std = kwargs.get('std', [0.229*255, 0.224*255, 0.225*255])
+
+#         if size_test[0] > 0:
+#             res.append(T.Resize(size_test[0] if len(size_test) == 1 else size_test, interpolation=3))
+#         if do_crop:
+#             res.append(T.CenterCrop(size=crop_size[0] if len(crop_size) == 1 else crop_size))
+#         res.append(ToTensor())
+#         res.append(T.Normalize(mean=mean, std=std))
+#     return T.Compose(res)
+
+class ToArray(object):
+    """ToArray
+    """
+    def __call__(self, img):
+        img = np.array(img)
+        img = np.transpose(img, [2, 0, 1])
+        # img = img / 255.
+        return img.astype('float32')
+
+
+def build_transforms_lazy(is_train=True, **kwargs):
+    """
+    build transforms of image data,
+    only support `is_train=False`
+    """
+    res = []
+    if is_train:
+        size_train = kwargs.get('size_train', [256, 128])
+        # crop
+        do_crop = kwargs.get('do_crop', False)
+        crop_size = kwargs.get('crop_size', [224, 
