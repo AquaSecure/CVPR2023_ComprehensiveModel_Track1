@@ -32,4 +32,26 @@ class RandomErasing(object):
         self.r1 = r1
 
     def __call__(self, img):
-        if random.unifor
+        if random.uniform(0, 1) > self.EPSILON:
+            return img
+
+        for _ in range(100):
+            area = img.shape[0] * img.shape[1]
+
+            target_area = random.uniform(self.sl, self.sh) * area
+            aspect_ratio = random.uniform(self.r1, 1 / self.r1)
+
+            h = int(round(math.sqrt(target_area * aspect_ratio)))
+            w = int(round(math.sqrt(target_area / aspect_ratio)))
+
+            if w < img.shape[1] and h < img.shape[0]:
+                x1 = random.randint(0, img.shape[0] - h)
+                y1 = random.randint(0, img.shape[1] - w)
+                if img.shape[0] == 3:
+                    img[x1:x1 + h, y1:y1 + w, 0] = self.mean[0]
+                    img[x1:x1 + h, y1:y1 + w, 1] = self.mean[1]
+                    img[x1:x1 + h, y1:y1 + w, 2] = self.mean[2]
+                else:
+                    img[0, x1:x1 + h, y1:y1 + w] = self.mean[1]
+                return img
+        return img
