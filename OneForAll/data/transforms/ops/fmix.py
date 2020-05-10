@@ -178,4 +178,41 @@ def sample_and_apply(x,
     :param reformulate: If True, uses the reformulation of [1].
     :return: mixed input, permutation indices, lambda value of mix,
     """
-    lam, mask = sample_mask(alpha, decay_power, shape, m
+    lam, mask = sample_mask(alpha, decay_power, shape, max_soft, reformulate)
+    index = np.random.permutation(x.shape[0])
+
+    x1, x2 = x * mask, x[index] * (1 - mask)
+    return x1 + x2, index, lam
+
+
+class FMixBase:
+    """ FMix augmentation
+
+        Args:
+            decay_power (float): Decay power for frequency decay prop 1/f**d
+            alpha (float): Alpha value for beta distribution from which to sample mean of mask
+            size ([int] | [int, int] | [int, int, int]): Shape of desired mask, list up to 3 dims
+            max_soft (float): Softening value between 0 and 0.5 which smooths hard edges in the mask.
+            reformulate (bool): If True, uses the reformulation of [1].
+    """
+
+    def __init__(self,
+                 decay_power=3,
+                 alpha=1,
+                 size=(32, 32),
+                 max_soft=0.0,
+                 reformulate=False):
+        super().__init__()
+        self.decay_power = decay_power
+        self.reformulate = reformulate
+        self.size = size
+        self.alpha = alpha
+        self.max_soft = max_soft
+        self.index = None
+        self.lam = None
+
+    def __call__(self, x):
+        raise NotImplementedError
+
+    def loss(self, *args, **kwargs):
+        raise NotImplementedError
