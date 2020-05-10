@@ -116,3 +116,66 @@ def binarise_mask(mask, lam, in_shape, max_soft=0.0):
     :param lam: Mean value of final mask
     :param in_shape: Shape of inputs
     :param max_soft: Softening value between 0 and 0.5 which smooths hard edges in the mask.
+    :return:
+    """
+    idx = mask.reshape(-1).argsort()[::-1]
+    mask = mask.reshape(-1)
+    num = math.ceil(lam * mask.size) if random.random() > 0.5 else math.floor(
+        lam * mask.size)
+
+    eff_soft = max_soft
+    if max_soft > lam or max_soft > (1 - lam):
+        eff_soft = min(lam, 1 - lam)
+
+    soft = int(mask.size * eff_soft)
+    num_low = int(num - soft)
+    num_high = int(num + soft)
+
+    mask[idx[:num_high]] = 1
+    mask[idx[num_low:]] = 0
+    mask[idx[num_low:num_high]] = np.linspace(1, 0, (num_high - num_low))
+
+    mask = mask.reshape((1, 1, in_shape[0], in_shape[1]))
+    return mask
+
+
+def sample_mask(alpha, decay_power, shape, max_soft=0.0, reformulate=False):
+    """ Samples a mean lambda from beta distribution parametrised by alpha, creates a low frequency image and binarises
+    it based on this lambda
+
+    :param alpha: Alpha value for beta distribution from which to sample mean of mask
+    :param decay_power: Decay power for frequency decay prop 1/f**d
+    :param shape: Shape of desired mask, list up to 3 dims
+    :param max_soft: Softening value between 0 and 0.5 which smooths hard edges in the mask.
+    :param reformulate: If True, uses the reformulation of [1].
+    """
+    if isinstance(shape, int):
+        shape = (shape, )
+
+    # Choose lambda
+    lam = sample_lam(alpha, reformulate)
+
+    # Make mask, get mean / std
+    mask = make_low_freq_image(decay_power, shape)
+    mask = binarise_mask(mask, lam, shape, max_soft)
+
+    return float(lam), mask
+
+
+def sample_and_apply(x,
+                     alpha,
+                     decay_power,
+                     shape,
+                     max_soft=0.0,
+                     reformulate=False):
+    """
+
+    :param x: Image batch on which to apply fmix of shape [b, c, shape*]
+    :param alpha: Alpha value for beta distribution from which to sample mean of mask
+    :param decay_power: Decay power for frequency decay prop 1/f**d
+    :param shape: Shape of desired mask, list up to 3 dims
+    :param max_soft: Softening value between 0 and 0.5 which smooths hard edges in the mask.
+    :param reformulate: If True, uses the reformulation of [1].
+    :return: mixed input, permutation indices, lambda value of mix,
+    """
+    lam, mask = sample_mask(alpha, decay_power, shape, m
