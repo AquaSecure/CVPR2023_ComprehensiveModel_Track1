@@ -73,3 +73,50 @@ class DetectionCheckpointer(Checkpointer):
                     data = data["blobs"]
                 data = {k: v for k, v in data.items() if not k.endswith("_momentum")}
                 return {"model": data, "__author__": "Caffe2", "matching_heuristics": True}
+        elif filename.endswith(".pyth"):
+            # assume file is from pycls; no one else seems to use the ".pyth" extension
+            with PathManager.open(filename, "rb") as f:
+                data = torch.load(f)
+            assert (
+                "model_state" in data
+            ), "Cannot load .pyth file {filename}; pycls checkpoints must contain 'model_state'."
+            model_state = {
+                k: v
+                for k, v in data["model_state"].items()
+                if not k.endswith("num_batches_tracked")
+            }
+            return {"model": model_state, "__author__": "pycls", "matching_heuristics": True}
+
+        loaded = super()._load_file(filename)  # load native pth checkpoint
+        if "model" not in loaded:
+            loaded = {"model": loaded}
+        return loaded
+
+    def _load_model(self, checkpoint):
+        if checkpoint.get("matching_heuristics", False):
+            self._convert_ndarray_to_tensor(checkpoint["model"])
+            # convert weights by name-matching heuristics
+            checkpoint["model"] = align_and_update_state_dicts(
+                self.model.state_dict(),
+                checkpoint["model"],
+                c2_conversion=checkpoint.get("__author__", None) == "Caffe2",
+            )
+        # for non-caffe2 models, use standard ways to load it
+        incompatible = super()._load_model(checkpoint)
+
+        model_buffers = dict(self.model.named_buffers(recurse=False))
+        for k in ["pixel_mean", "pixel_std"]:
+            # Ignore missing key message about pixel_mean/std.
+            # Though they may be missing in old checkpoints, they will be correctly
+            # initialized from config anyway.
+            if k in model_buffers:
+                try:
+                    incompatible.missing_keys.remove(k)
+                except ValueError:
+                    pass
+        for k in incompatible.unexpected_keys[:]:
+            # Ignore unexpected keys about cell anchors. They exist in old checkpoints
+            # but now they are non-persistent buffers and will not be in new checkpoints.
+            if "anchor_generator.cell_anchors" in k:
+                incompatible.unexpected_keys.remove(k)
+        return incompatible
