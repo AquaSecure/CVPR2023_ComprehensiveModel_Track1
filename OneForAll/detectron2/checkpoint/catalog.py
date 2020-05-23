@@ -51,4 +51,65 @@ class ModelCatalog(object):
         "37697547/e2e_keypoint_rcnn_R-50-FPN_1x": "37697547/12_2017_baselines/e2e_keypoint_rcnn_R-50-FPN_1x.yaml.08_42_54.kdzV35ao",  # noqa B950
         "35998355/rpn_R-50-C4_1x": "35998355/12_2017_baselines/rpn_R-50-C4_1x.yaml.08_00_43.njH5oD9L",  # noqa B950
         "35998814/rpn_R-50-FPN_1x": "35998814/12_2017_baselines/rpn_R-50-FPN_1x.yaml.08_06_03.Axg0r179",  # noqa B950
-        "36225147/fast_R-50-FPN_1x": "36225147/12_2017_baselines/fas
+        "36225147/fast_R-50-FPN_1x": "36225147/12_2017_baselines/fast_rcnn_R-50-FPN_1x.yaml.08_39_09.L3obSdQ2",  # noqa B950
+    }
+
+    @staticmethod
+    def get(name):
+        if name.startswith("Caffe2Detectron/COCO"):
+            return ModelCatalog._get_c2_detectron_baseline(name)
+        if name.startswith("ImageNetPretrained/"):
+            return ModelCatalog._get_c2_imagenet_pretrained(name)
+        raise RuntimeError("model not present in the catalog: {}".format(name))
+
+    @staticmethod
+    def _get_c2_imagenet_pretrained(name):
+        prefix = ModelCatalog.S3_C2_DETECTRON_PREFIX
+        name = name[len("ImageNetPretrained/") :]
+        name = ModelCatalog.C2_IMAGENET_MODELS[name]
+        url = "/".join([prefix, name])
+        return url
+
+    @staticmethod
+    def _get_c2_detectron_baseline(name):
+        name = name[len("Caffe2Detectron/COCO/") :]
+        url = ModelCatalog.C2_DETECTRON_MODELS[name]
+        if "keypoint_rcnn" in name:
+            dataset = ModelCatalog.C2_DATASET_COCO_KEYPOINTS
+        else:
+            dataset = ModelCatalog.C2_DATASET_COCO
+
+        if "35998355/rpn_R-50-C4_1x" in name:
+            # this one model is somehow different from others ..
+            type = "rpn"
+        else:
+            type = "generalized_rcnn"
+
+        # Detectron C2 models are stored in the structure defined in `C2_DETECTRON_PATH_FORMAT`.
+        url = ModelCatalog.C2_DETECTRON_PATH_FORMAT.format(
+            prefix=ModelCatalog.S3_C2_DETECTRON_PREFIX, url=url, type=type, dataset=dataset
+        )
+        return url
+
+
+class ModelCatalogHandler(PathHandler):
+    """
+    Resolve URL like catalog://.
+    """
+
+    PREFIX = "catalog://"
+
+    def _get_supported_prefixes(self):
+        return [self.PREFIX]
+
+    def _get_local_path(self, path, **kwargs):
+        logger = logging.getLogger(__name__)
+        catalog_path = ModelCatalog.get(path[len(self.PREFIX) :])
+        logger.info("Catalog entry {} points to {}".format(path, catalog_path))
+        return PathManager.get_local_path(catalog_path, **kwargs)
+
+    def _open(self, path, mode="r", **kwargs):
+        return PathManager.open(self._get_local_path(path), mode, **kwargs)
+
+
+PathManager.register_handler(ModelCatalogHandler())
