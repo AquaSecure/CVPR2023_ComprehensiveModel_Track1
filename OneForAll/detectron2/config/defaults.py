@@ -118,4 +118,57 @@ _C.DATALOADER.NUM_WORKERS = 4
 # are not batched with portrait images.
 _C.DATALOADER.ASPECT_RATIO_GROUPING = True
 # Options: TrainingSampler, RepeatFactorTrainingSampler
-_C.DATALOADER.SAMPLER_TRAIN = "TrainingSampl
+_C.DATALOADER.SAMPLER_TRAIN = "TrainingSampler"
+# Repeat threshold for RepeatFactorTrainingSampler
+_C.DATALOADER.REPEAT_THRESHOLD = 0.0
+# Tf True, when working on datasets that have instance annotations, the
+# training dataloader will filter out images without associated annotations
+_C.DATALOADER.FILTER_EMPTY_ANNOTATIONS = True
+
+# ---------------------------------------------------------------------------- #
+# Backbone options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.BACKBONE = CN()
+
+_C.MODEL.BACKBONE.NAME = "build_resnet_backbone"
+# Freeze the first several stages so they are not trained.
+# There are 5 stages in ResNet. The first is a convolution, and the following
+# stages are each group of residual blocks.
+_C.MODEL.BACKBONE.FREEZE_AT = 2
+
+
+# ---------------------------------------------------------------------------- #
+# FPN options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.FPN = CN()
+# Names of the input feature maps to be used by FPN
+# They must have contiguous power of 2 strides
+# e.g., ["res2", "res3", "res4", "res5"]
+_C.MODEL.FPN.IN_FEATURES = []
+_C.MODEL.FPN.OUT_CHANNELS = 256
+
+# Options: "" (no norm), "GN"
+_C.MODEL.FPN.NORM = ""
+
+# Types for fusing the FPN top-down and lateral features. Can be either "sum" or "avg"
+_C.MODEL.FPN.FUSE_TYPE = "sum"
+
+
+# ---------------------------------------------------------------------------- #
+# Proposal generator options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.PROPOSAL_GENERATOR = CN()
+# Current proposal generators include "RPN", "RRPN" and "PrecomputedProposals"
+_C.MODEL.PROPOSAL_GENERATOR.NAME = "RPN"
+# Proposal height and width both need to be greater than MIN_SIZE
+# (a the scale used during training or inference)
+_C.MODEL.PROPOSAL_GENERATOR.MIN_SIZE = 0
+
+
+# ---------------------------------------------------------------------------- #
+# Anchor generator options
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ANCHOR_GENERATOR = CN()
+# The generator can be any name in the ANCHOR_GENERATOR registry
+_C.MODEL.ANCHOR_GENERATOR.NAME = "DefaultAnchorGenerator"
+# Anchor sizes (i.e. sqrt of area) in ab
