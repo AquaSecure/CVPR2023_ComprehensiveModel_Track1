@@ -71,4 +71,51 @@ _C.INPUT.RANDOM_FLIP = "horizontal"
 _C.INPUT.CROP = CN({"ENABLED": False})
 # Cropping type. See documentation of `detectron2.data.transforms.RandomCrop` for explanation.
 _C.INPUT.CROP.TYPE = "relative_range"
-# Size of crop in range (0, 1] if CROP.TYPE is "relative" or "relativ
+# Size of crop in range (0, 1] if CROP.TYPE is "relative" or "relative_range" and in number of
+# pixels if CROP.TYPE is "absolute"
+_C.INPUT.CROP.SIZE = [0.9, 0.9]
+
+
+# Whether the model needs RGB, YUV, HSV etc.
+# Should be one of the modes defined here, as we use PIL to read the image:
+# https://pillow.readthedocs.io/en/stable/handbook/concepts.html#concept-modes
+# with BGR being the one exception. One can set image format to BGR, we will
+# internally use RGB for conversion and flip the channels over
+_C.INPUT.FORMAT = "BGR"
+# The ground truth mask format that the model will use.
+# Mask R-CNN supports either "polygon" or "bitmask" as ground truth.
+_C.INPUT.MASK_FORMAT = "polygon"  # alternative: "bitmask"
+
+
+# -----------------------------------------------------------------------------
+# Dataset
+# -----------------------------------------------------------------------------
+_C.DATASETS = CN()
+# List of the dataset names for training. Must be registered in DatasetCatalog
+# Samples from these datasets will be merged and used as one dataset.
+_C.DATASETS.TRAIN = ()
+# List of the pre-computed proposal files for training, which must be consistent
+# with datasets listed in DATASETS.TRAIN.
+_C.DATASETS.PROPOSAL_FILES_TRAIN = ()
+# Number of top scoring precomputed proposals to keep for training
+_C.DATASETS.PRECOMPUTED_PROPOSAL_TOPK_TRAIN = 2000
+# List of the dataset names for testing. Must be registered in DatasetCatalog
+_C.DATASETS.TEST = ()
+# List of the pre-computed proposal files for test, which must be consistent
+# with datasets listed in DATASETS.TEST.
+_C.DATASETS.PROPOSAL_FILES_TEST = ()
+# Number of top scoring precomputed proposals to keep for test
+_C.DATASETS.PRECOMPUTED_PROPOSAL_TOPK_TEST = 1000
+
+# -----------------------------------------------------------------------------
+# DataLoader
+# -----------------------------------------------------------------------------
+_C.DATALOADER = CN()
+# Number of data loading threads
+_C.DATALOADER.NUM_WORKERS = 4
+# If True, each batch should contain only images for which the aspect ratio
+# is compatible. This groups portrait images together, and landscape images
+# are not batched with portrait images.
+_C.DATALOADER.ASPECT_RATIO_GROUPING = True
+# Options: TrainingSampler, RepeatFactorTrainingSampler
+_C.DATALOADER.SAMPLER_TRAIN = "TrainingSampl
