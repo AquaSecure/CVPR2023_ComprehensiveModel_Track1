@@ -298,4 +298,56 @@ _C.MODEL.ROI_BOX_HEAD.BBOX_REG_LOSS_WEIGHT = 1.0
 # Default weights on (dx, dy, dw, dh) for normalizing bbox regression targets
 # These are empirically chosen to approximately lead to unit variance targets
 _C.MODEL.ROI_BOX_HEAD.BBOX_REG_WEIGHTS = (10.0, 10.0, 5.0, 5.0)
-# The transition point from L1 to L2 loss. Set to 0.0 to make the loss simply L1
+# The transition point from L1 to L2 loss. Set to 0.0 to make the loss simply L1.
+_C.MODEL.ROI_BOX_HEAD.SMOOTH_L1_BETA = 0.0
+_C.MODEL.ROI_BOX_HEAD.POOLER_RESOLUTION = 14
+_C.MODEL.ROI_BOX_HEAD.POOLER_SAMPLING_RATIO = 0
+# Type of pooling operation applied to the incoming feature map for each RoI
+_C.MODEL.ROI_BOX_HEAD.POOLER_TYPE = "ROIAlignV2"
+
+_C.MODEL.ROI_BOX_HEAD.NUM_FC = 0
+# Hidden layer dimension for FC layers in the RoI box head
+_C.MODEL.ROI_BOX_HEAD.FC_DIM = 1024
+_C.MODEL.ROI_BOX_HEAD.NUM_CONV = 0
+# Channel dimension for Conv layers in the RoI box head
+_C.MODEL.ROI_BOX_HEAD.CONV_DIM = 256
+# Normalization method for the convolution layers.
+# Options: "" (no norm), "GN", "SyncBN".
+_C.MODEL.ROI_BOX_HEAD.NORM = ""
+# Whether to use class agnostic for bbox regression
+_C.MODEL.ROI_BOX_HEAD.CLS_AGNOSTIC_BBOX_REG = False
+# If true, RoI heads use bounding boxes predicted by the box head rather than proposal boxes.
+_C.MODEL.ROI_BOX_HEAD.TRAIN_ON_PRED_BOXES = False
+
+# ---------------------------------------------------------------------------- #
+# Cascaded Box Head
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ROI_BOX_CASCADE_HEAD = CN()
+# The number of cascade stages is implicitly defined by the length of the following two configs.
+_C.MODEL.ROI_BOX_CASCADE_HEAD.BBOX_REG_WEIGHTS = (
+    (10.0, 10.0, 5.0, 5.0),
+    (20.0, 20.0, 10.0, 10.0),
+    (30.0, 30.0, 15.0, 15.0),
+)
+_C.MODEL.ROI_BOX_CASCADE_HEAD.IOUS = (0.5, 0.6, 0.7)
+
+
+# ---------------------------------------------------------------------------- #
+# Mask Head
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ROI_MASK_HEAD = CN()
+_C.MODEL.ROI_MASK_HEAD.NAME = "MaskRCNNConvUpsampleHead"
+_C.MODEL.ROI_MASK_HEAD.POOLER_RESOLUTION = 14
+_C.MODEL.ROI_MASK_HEAD.POOLER_SAMPLING_RATIO = 0
+_C.MODEL.ROI_MASK_HEAD.NUM_CONV = 0  # The number of convs in the mask head
+_C.MODEL.ROI_MASK_HEAD.CONV_DIM = 256
+# Normalization method for the convolution layers.
+# Options: "" (no norm), "GN", "SyncBN".
+_C.MODEL.ROI_MASK_HEAD.NORM = ""
+# Whether to use class agnostic for mask prediction
+_C.MODEL.ROI_MASK_HEAD.CLS_AGNOSTIC_MASK = False
+# Type of pooling operation applied to the incoming feature map for each RoI
+_C.MODEL.ROI_MASK_HEAD.POOLER_TYPE = "ROIAlignV2"
+
+
+# ---------------------------------------------
