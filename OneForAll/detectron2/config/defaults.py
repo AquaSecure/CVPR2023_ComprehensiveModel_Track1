@@ -256,4 +256,46 @@ _C.MODEL.ROI_HEADS.NUM_CLASSES = 80
 # e.g., ["p2", "p3", "p4", "p5"] is commonly used for FPN
 _C.MODEL.ROI_HEADS.IN_FEATURES = ["res4"]
 # IOU overlap ratios [IOU_THRESHOLD]
-# Overlap threshold for an RoI to be considered background (if < IOU_THRESHO
+# Overlap threshold for an RoI to be considered background (if < IOU_THRESHOLD)
+# Overlap threshold for an RoI to be considered foreground (if >= IOU_THRESHOLD)
+_C.MODEL.ROI_HEADS.IOU_THRESHOLDS = [0.5]
+_C.MODEL.ROI_HEADS.IOU_LABELS = [0, 1]
+# RoI minibatch size *per image* (number of regions of interest [ROIs]) during training
+# Total number of RoIs per training minibatch =
+#   ROI_HEADS.BATCH_SIZE_PER_IMAGE * SOLVER.IMS_PER_BATCH
+# E.g., a common configuration is: 512 * 16 = 8192
+_C.MODEL.ROI_HEADS.BATCH_SIZE_PER_IMAGE = 512
+# Target fraction of RoI minibatch that is labeled foreground (i.e. class > 0)
+_C.MODEL.ROI_HEADS.POSITIVE_FRACTION = 0.25
+
+# Only used on test mode
+
+# Minimum score threshold (assuming scores in a [0, 1] range); a value chosen to
+# balance obtaining high recall with not having too many low precision
+# detections that will slow down inference post processing steps (like NMS)
+# A default threshold of 0.0 increases AP by ~0.2-0.3 but significantly slows down
+# inference.
+_C.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.05
+# Overlap threshold used for non-maximum suppression (suppress boxes with
+# IoU >= this threshold)
+_C.MODEL.ROI_HEADS.NMS_THRESH_TEST = 0.5
+# If True, augment proposals with ground-truth boxes before sampling proposals to
+# train ROI heads.
+_C.MODEL.ROI_HEADS.PROPOSAL_APPEND_GT = True
+
+# ---------------------------------------------------------------------------- #
+# Box Head
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ROI_BOX_HEAD = CN()
+# C4 don't use head name option
+# Options for non-C4 models: FastRCNNConvFCHead,
+_C.MODEL.ROI_BOX_HEAD.NAME = ""
+# Options are: "smooth_l1", "giou", "diou", "ciou"
+_C.MODEL.ROI_BOX_HEAD.BBOX_REG_LOSS_TYPE = "smooth_l1"
+# The final scaling coefficient on the box regression loss, used to balance the magnitude of its
+# gradients with other losses in the model. See also `MODEL.ROI_KEYPOINT_HEAD.LOSS_WEIGHT`.
+_C.MODEL.ROI_BOX_HEAD.BBOX_REG_LOSS_WEIGHT = 1.0
+# Default weights on (dx, dy, dw, dh) for normalizing bbox regression targets
+# These are empirically chosen to approximately lead to unit variance targets
+_C.MODEL.ROI_BOX_HEAD.BBOX_REG_WEIGHTS = (10.0, 10.0, 5.0, 5.0)
+# The transition point from L1 to L2 loss. Set to 0.0 to make the loss simply L1
