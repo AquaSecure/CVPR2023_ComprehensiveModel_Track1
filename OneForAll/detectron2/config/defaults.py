@@ -350,4 +350,45 @@ _C.MODEL.ROI_MASK_HEAD.CLS_AGNOSTIC_MASK = False
 _C.MODEL.ROI_MASK_HEAD.POOLER_TYPE = "ROIAlignV2"
 
 
-# ---------------------------------------------
+# ---------------------------------------------------------------------------- #
+# Keypoint Head
+# ---------------------------------------------------------------------------- #
+_C.MODEL.ROI_KEYPOINT_HEAD = CN()
+_C.MODEL.ROI_KEYPOINT_HEAD.NAME = "KRCNNConvDeconvUpsampleHead"
+_C.MODEL.ROI_KEYPOINT_HEAD.POOLER_RESOLUTION = 14
+_C.MODEL.ROI_KEYPOINT_HEAD.POOLER_SAMPLING_RATIO = 0
+_C.MODEL.ROI_KEYPOINT_HEAD.CONV_DIMS = tuple(512 for _ in range(8))
+_C.MODEL.ROI_KEYPOINT_HEAD.NUM_KEYPOINTS = 17  # 17 is the number of keypoints in COCO.
+
+# Images with too few (or no) keypoints are excluded from training.
+_C.MODEL.ROI_KEYPOINT_HEAD.MIN_KEYPOINTS_PER_IMAGE = 1
+# Normalize by the total number of visible keypoints in the minibatch if True.
+# Otherwise, normalize by the total number of keypoints that could ever exist
+# in the minibatch.
+# The keypoint softmax loss is only calculated on visible keypoints.
+# Since the number of visible keypoints can vary significantly between
+# minibatches, this has the effect of up-weighting the importance of
+# minibatches with few visible keypoints. (Imagine the extreme case of
+# only one visible keypoint versus N: in the case of N, each one
+# contributes 1/N to the gradient compared to the single keypoint
+# determining the gradient direction). Instead, we can normalize the
+# loss by the total number of keypoints, if it were the case that all
+# keypoints were visible in a full minibatch. (Returning to the example,
+# this means that the one visible keypoint contributes as much as each
+# of the N keypoints.)
+_C.MODEL.ROI_KEYPOINT_HEAD.NORMALIZE_LOSS_BY_VISIBLE_KEYPOINTS = True
+# Multi-task loss weight to use for keypoints
+# Recommended values:
+#   - use 1.0 if NORMALIZE_LOSS_BY_VISIBLE_KEYPOINTS is True
+#   - use 4.0 if NORMALIZE_LOSS_BY_VISIBLE_KEYPOINTS is False
+_C.MODEL.ROI_KEYPOINT_HEAD.LOSS_WEIGHT = 1.0
+# Type of pooling operation applied to the incoming feature map for each RoI
+_C.MODEL.ROI_KEYPOINT_HEAD.POOLER_TYPE = "ROIAlignV2"
+
+# ---------------------------------------------------------------------------- #
+# Semantic Segmentation Head
+# ---------------------------------------------------------------------------- #
+_C.MODEL.SEM_SEG_HEAD = CN()
+_C.MODEL.SEM_SEG_HEAD.NAME = "SemSegFPNHead"
+_C.MODEL.SEM_SEG_HEAD.IN_FEATURES = ["p2", "p3", "p4", "p5"]
+# Label in the semantic segmentation ground truth that is ignored, 
