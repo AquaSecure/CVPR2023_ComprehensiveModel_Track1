@@ -563,4 +563,53 @@ _C.SOLVER.BIAS_LR_FACTOR = 1.0
 _C.SOLVER.CLIP_GRADIENTS = CN({"ENABLED": False})
 # Type of gradient clipping, currently 2 values are supported:
 # - "value": the absolute values of elements of each gradients are clipped
-# - "norm": the norm of the gradient for ea
+# - "norm": the norm of the gradient for each parameter is clipped thus
+#   affecting all elements in the parameter
+_C.SOLVER.CLIP_GRADIENTS.CLIP_TYPE = "value"
+# Maximum absolute value used for clipping gradients
+_C.SOLVER.CLIP_GRADIENTS.CLIP_VALUE = 1.0
+# Floating point number p for L-p norm to be used with the "norm"
+# gradient clipping type; for L-inf, please specify .inf
+_C.SOLVER.CLIP_GRADIENTS.NORM_TYPE = 2.0
+
+# Enable automatic mixed precision for training
+# Note that this does not change model's inference behavior.
+# To use AMP in inference, run inference under autocast()
+_C.SOLVER.AMP = CN({"ENABLED": False})
+
+# ---------------------------------------------------------------------------- #
+# Specific test options
+# ---------------------------------------------------------------------------- #
+_C.TEST = CN()
+# For end-to-end tests to verify the expected accuracy.
+# Each item is [task, metric, value, tolerance]
+# e.g.: [['bbox', 'AP', 38.5, 0.2]]
+_C.TEST.EXPECTED_RESULTS = []
+# The period (in terms of steps) to evaluate the model during training.
+# Set to 0 to disable.
+_C.TEST.EVAL_PERIOD = 0
+# The sigmas used to calculate keypoint OKS. See http://cocodataset.org/#keypoints-eval
+# When empty, it will use the defaults in COCO.
+# Otherwise it should be a list[float] with the same length as ROI_KEYPOINT_HEAD.NUM_KEYPOINTS.
+_C.TEST.KEYPOINT_OKS_SIGMAS = []
+# Maximum number of detections to return per image during inference (100 is
+# based on the limit established for the COCO dataset).
+_C.TEST.DETECTIONS_PER_IMAGE = 100
+
+_C.TEST.AUG = CN({"ENABLED": False})
+_C.TEST.AUG.MIN_SIZES = (400, 500, 600, 700, 800, 900, 1000, 1100, 1200)
+_C.TEST.AUG.MAX_SIZE = 4000
+_C.TEST.AUG.FLIP = True
+
+_C.TEST.PRECISE_BN = CN({"ENABLED": False})
+_C.TEST.PRECISE_BN.NUM_ITER = 200
+
+# ---------------------------------------------------------------------------- #
+# Misc options
+# ---------------------------------------------------------------------------- #
+# Directory where output files are written
+_C.OUTPUT_DIR = "./output"
+# Set seed to negative to fully randomize everything.
+# Set seed to positive to use a fixed seed. Note that a fixed seed increases
+# reproducibility but does not guarantee fully deterministic behavior.
+# Disabling all p
