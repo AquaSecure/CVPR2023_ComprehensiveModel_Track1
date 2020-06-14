@@ -612,4 +612,24 @@ _C.OUTPUT_DIR = "./output"
 # Set seed to negative to fully randomize everything.
 # Set seed to positive to use a fixed seed. Note that a fixed seed increases
 # reproducibility but does not guarantee fully deterministic behavior.
-# Disabling all p
+# Disabling all parallelism further increases reproducibility.
+_C.SEED = -1
+# Benchmark different cudnn algorithms.
+# If input images have very different sizes, this option will have large overhead
+# for about 10k iterations. It usually hurts total time, but can benefit for certain models.
+# If input images have the same or similar sizes, benchmark is often helpful.
+_C.CUDNN_BENCHMARK = False
+# The period (in terms of steps) for minibatch visualization at train time.
+# Set to 0 to disable.
+_C.VIS_PERIOD = 0
+
+# global config is for quick hack purposes.
+# You can set them in command line or config files,
+# and access it with:
+#
+# from detectron2.config import global_cfg
+# print(global_cfg.HACK)
+#
+# Do not commit any configs into it.
+_C.GLOBAL = CN()
+_C.GLOBAL.HACK = 1.0
