@@ -218,4 +218,9 @@ class DataLoaderBenchmark:
 
         avg, all_times = self._benchmark(loader, num_iter * max(n, 1), warmup * max(n, 1))
         del loader
-        self._
+        self._log_time(
+            "DataLoader ({gpu} GPUs x {n} workers, total bs={self.total_batch_size})",
+            avg,
+            all_times,
+            True,
+        )
