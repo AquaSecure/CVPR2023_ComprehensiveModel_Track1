@@ -218,4 +218,25 @@ class AspectRatioGroupedDataset(data.IterableDataset):
     all with similar aspect ratios.
     """
 
-    def __init__(self, dataset, batch_
+    def __init__(self, dataset, batch_size):
+        """
+        Args:
+            dataset: an iterable. Each element must be a dict with keys
+                "width" and "height", which will be used to batch data.
+            batch_size (int):
+        """
+        self.dataset = dataset
+        self.batch_size = batch_size
+        self._buckets = [[] for _ in range(2)]
+        # Hard-coded two aspect ratio groups: w > h and w < h.
+        # Can add support for more aspect ratio groups, but doesn't seem useful
+
+    def __iter__(self):
+        for d in self.dataset:
+            w, h = d["width"], d["height"]
+            bucket_id = 0 if w > h else 1
+            bucket = self._buckets[bucket_id]
+            bucket.append(d)
+            if len(bucket) == self.batch_size:
+                yield bucket[:]
+                del bucket[:]
