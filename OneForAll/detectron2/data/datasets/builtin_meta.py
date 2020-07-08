@@ -138,4 +138,56 @@ COCO_CATEGORIES = [
     {"color": [190, 153, 153], "isthing": 0, "id": 185, "name": "fence-merged"},
     {"color": [146, 139, 141], "isthing": 0, "id": 186, "name": "ceiling-merged"},
     {"color": [70, 130, 180], "isthing": 0, "id": 187, "name": "sky-other-merged"},
-    
+    {"color": [134, 199, 156], "isthing": 0, "id": 188, "name": "cabinet-merged"},
+    {"color": [209, 226, 140], "isthing": 0, "id": 189, "name": "table-merged"},
+    {"color": [96, 36, 108], "isthing": 0, "id": 190, "name": "floor-other-merged"},
+    {"color": [96, 96, 96], "isthing": 0, "id": 191, "name": "pavement-merged"},
+    {"color": [64, 170, 64], "isthing": 0, "id": 192, "name": "mountain-merged"},
+    {"color": [152, 251, 152], "isthing": 0, "id": 193, "name": "grass-merged"},
+    {"color": [208, 229, 228], "isthing": 0, "id": 194, "name": "dirt-merged"},
+    {"color": [206, 186, 171], "isthing": 0, "id": 195, "name": "paper-merged"},
+    {"color": [152, 161, 64], "isthing": 0, "id": 196, "name": "food-other-merged"},
+    {"color": [116, 112, 0], "isthing": 0, "id": 197, "name": "building-other-merged"},
+    {"color": [0, 114, 143], "isthing": 0, "id": 198, "name": "rock-merged"},
+    {"color": [102, 102, 156], "isthing": 0, "id": 199, "name": "wall-other-merged"},
+    {"color": [250, 141, 255], "isthing": 0, "id": 200, "name": "rug-merged"},
+]
+
+# fmt: off
+COCO_PERSON_KEYPOINT_NAMES = (
+    "nose",
+    "left_eye", "right_eye",
+    "left_ear", "right_ear",
+    "left_shoulder", "right_shoulder",
+    "left_elbow", "right_elbow",
+    "left_wrist", "right_wrist",
+    "left_hip", "right_hip",
+    "left_knee", "right_knee",
+    "left_ankle", "right_ankle",
+)
+# fmt: on
+
+# Pairs of keypoints that should be exchanged under horizontal flipping
+COCO_PERSON_KEYPOINT_FLIP_MAP = (
+    ("left_eye", "right_eye"),
+    ("left_ear", "right_ear"),
+    ("left_shoulder", "right_shoulder"),
+    ("left_elbow", "right_elbow"),
+    ("left_wrist", "right_wrist"),
+    ("left_hip", "right_hip"),
+    ("left_knee", "right_knee"),
+    ("left_ankle", "right_ankle"),
+)
+
+# rules for pairs of keypoints to draw a line between, and the line color to use.
+KEYPOINT_CONNECTION_RULES = [
+    # face
+    ("left_ear", "left_eye", (102, 204, 255)),
+    ("right_ear", "right_eye", (51, 153, 255)),
+    ("left_eye", "nose", (102, 0, 204)),
+    ("nose", "right_eye", (51, 102, 255)),
+    # upper-body
+    ("left_shoulder", "right_shoulder", (255, 128, 0)),
+    ("left_shoulder", "left_elbow", (153, 255, 204)),
+    ("right_shoulder", "right_elbow", (128, 229, 255)),
+    ("left_elbow", "left_w
