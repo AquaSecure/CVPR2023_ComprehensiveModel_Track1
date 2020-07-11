@@ -228,4 +228,61 @@ CITYSCAPES_CATEGORIES = [
 ADE20K_SEM_SEG_CATEGORIES = [
     "wall", "building", "sky", "floor", "tree", "ceiling", "road, route", "bed", "window ", "grass", "cabinet", "sidewalk, pavement", "person", "earth, ground", "door", "table", "mountain, mount", "plant", "curtain", "chair", "car", "water", "painting, picture", "sofa", "shelf", "house", "sea", "mirror", "rug", "field", "armchair", "seat", "fence", "desk", "rock, stone", "wardrobe, closet, press", "lamp", "tub", "rail", "cushion", "base, pedestal, stand", "box", "column, pillar", "signboard, sign", "chest of drawers, chest, bureau, dresser", "counter", "sand", "sink", "skyscraper", "fireplace", "refrigerator, icebox", "grandstand, covered stand", "path", "stairs", "runway", "case, display case, showcase, vitrine", "pool table, billiard table, snooker table", "pillow", "screen door, screen", "stairway, staircase", "river", "bridge, span", "bookcase", "blind, screen", "coffee table", "toilet, can, commode, crapper, pot, potty, stool, throne", "flower", "book", "hill", "bench", "countertop", "stove", "palm, palm tree", "kitchen island", "computer", "swivel chair", "boat", "bar", "arcade machine", "hovel, hut, hutch, shack, shanty", "bus", "towel", "light", "truck", "tower", "chandelier", "awning, sunshade, sunblind", "street lamp", "booth", "tv", "plane", "dirt track", "clothes", "pole", "land, ground, soil", "bannister, banister, balustrade, balusters, handrail", "escalator, moving staircase, moving stairway", "ottoman, pouf, pouffe, puff, hassock", "bottle", "buffet, counter, sideboard", "poster, posting, placard, notice, bill, card", "stage", "van", "ship", "fountain", "conveyer belt, conveyor belt, conveyer, conveyor, transporter", "canopy", "washer, automatic washer, washing machine", "plaything, toy", "pool", "stool", "barrel, cask", "basket, handbasket", "falls", "tent", "bag", "minibike, motorbike", "cradle", "oven", "ball", "food, solid food", "step, stair", "tank, storage tank", "trade name", "microwave", "pot", "animal", "bicycle", "lake", "dishwasher", "screen", "blanket, cover", "sculpture", "hood, exhaust hood", "sconce", "vase", "traffic light", "tray", "trash can", "fan", "pier", "crt screen", "plate", "monitor", "bulletin board", "shower", "radiator", "glass, drinking glass", "clock", "flag", # noqa
 ]
-# After processed by `prepare_ade20k_sem_seg.py`, id 2
+# After processed by `prepare_ade20k_sem_seg.py`, id 255 means ignore
+# fmt: on
+
+
+def _get_coco_instances_meta():
+    thing_ids = [k["id"] for k in COCO_CATEGORIES if k["isthing"] == 1]
+    thing_colors = [k["color"] for k in COCO_CATEGORIES if k["isthing"] == 1]
+    assert len(thing_ids) == 80, len(thing_ids)
+    # Mapping from the incontiguous COCO category id to an id in [0, 79]
+    thing_dataset_id_to_contiguous_id = {k: i for i, k in enumerate(thing_ids)}
+    thing_classes = [k["name"] for k in COCO_CATEGORIES if k["isthing"] == 1]
+    ret = {
+        "thing_dataset_id_to_contiguous_id": thing_dataset_id_to_contiguous_id,
+        "thing_classes": thing_classes,
+        "thing_colors": thing_colors,
+    }
+    return ret
+
+
+def _get_coco_panoptic_separated_meta():
+    """
+    Returns metadata for "separated" version of the panoptic segmentation dataset.
+    """
+    stuff_ids = [k["id"] for k in COCO_CATEGORIES if k["isthing"] == 0]
+    assert len(stuff_ids) == 53, len(stuff_ids)
+
+    # For semantic segmentation, this mapping maps from contiguous stuff id
+    # (in [0, 53], used in models) to ids in the dataset (used for processing results)
+    # The id 0 is mapped to an extra category "thing".
+    stuff_dataset_id_to_contiguous_id = {k: i + 1 for i, k in enumerate(stuff_ids)}
+    # When converting COCO panoptic annotations to semantic annotations
+    # We label the "thing" category to 0
+    stuff_dataset_id_to_contiguous_id[0] = 0
+
+    # 54 names for COCO stuff categories (including "things")
+    stuff_classes = ["things"] + [
+        k["name"].replace("-other", "").replace("-merged", "")
+        for k in COCO_CATEGORIES
+        if k["isthing"] == 0
+    ]
+
+    # NOTE: I randomly picked a color for things
+    stuff_colors = [[82, 18, 128]] + [k["color"] for k in COCO_CATEGORIES if k["isthing"] == 0]
+    ret = {
+        "stuff_dataset_id_to_contiguous_id": stuff_dataset_id_to_contiguous_id,
+        "stuff_classes": stuff_classes,
+        "stuff_colors": stuff_colors,
+    }
+    ret.update(_get_coco_instances_meta())
+    return ret
+
+
+def _get_builtin_metadata(dataset_name):
+    if dataset_name == "coco":
+        return _get_coco_instances_meta()
+    if dataset_name == "coco_panoptic_separated":
+        return _get_coco_panoptic_separated_meta()
+    elif dataset
