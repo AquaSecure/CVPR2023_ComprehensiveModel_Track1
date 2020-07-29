@@ -96,4 +96,66 @@ def load_cityscapes_instances(image_dir, gt_dir, from_json=True, to_polygons=Tru
 def load_cityscapes_semantic(image_dir, gt_dir):
     """
     Args:
-        image_dir (str): path to th
+        image_dir (str): path to the raw dataset. e.g., "~/cityscapes/leftImg8bit/train".
+        gt_dir (str): path to the raw annotations. e.g., "~/cityscapes/gtFine/train".
+
+    Returns:
+        list[dict]: a list of dict, each has "file_name" and
+            "sem_seg_file_name".
+    """
+    ret = []
+    # gt_dir is small and contain many small files. make sense to fetch to local first
+    gt_dir = PathManager.get_local_path(gt_dir)
+    for image_file, _, label_file, json_file in _get_cityscapes_files(image_dir, gt_dir):
+        label_file = label_file.replace("labelIds", "labelTrainIds")
+
+        with PathManager.open(json_file, "r") as f:
+            jsonobj = json.load(f)
+        ret.append(
+            {
+                "file_name": image_file,
+                "sem_seg_file_name": label_file,
+                "height": jsonobj["imgHeight"],
+                "width": jsonobj["imgWidth"],
+            }
+        )
+    assert len(ret), "No images found in {image_dir}!"
+    assert PathManager.isfile(
+        ret[0]["sem_seg_file_name"]
+    ), "Please generate labelTrainIds.png with cityscapesscripts/preparation/createTrainIdLabelImgs.py"  # noqa
+    return ret
+
+
+def _cityscapes_files_to_dict(files, from_json, to_polygons):
+    """
+    Parse cityscapes annotation files to a instance segmentation dataset dict.
+
+    Args:
+        files (tuple): consists of (image_file, instance_id_file, label_id_file, json_file)
+        from_json (bool): whether to read annotations from the raw json file or the png files.
+        to_polygons (bool): whether to represent the segmentation as polygons
+            (COCO's format) instead of masks (cityscapes's format).
+
+    Returns:
+        A dict in Detectron2 Dataset format.
+    """
+    from cityscapesscripts.helpers.labels import id2label, name2label
+
+    image_file, instance_id_file, _, json_file = files
+
+    annos = []
+
+    if from_json:
+        from shapely.geometry import MultiPolygon, Polygon
+
+        with PathManager.open(json_file, "r") as f:
+            jsonobj = json.load(f)
+        ret = {
+            "file_name": image_file,
+            "image_id": os.path.basename(image_file),
+            "height": jsonobj["imgHeight"],
+            "width": jsonobj["imgWidth"],
+        }
+
+        # `polygons_union` contains the union of all valid polygons.
+        polygo
