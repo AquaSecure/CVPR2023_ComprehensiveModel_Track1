@@ -158,4 +158,51 @@ def _cityscapes_files_to_dict(files, from_json, to_polygons):
         }
 
         # `polygons_union` contains the union of all valid polygons.
-        polygo
+        polygons_union = Polygon()
+
+        # CityscapesScripts draw the polygons in sequential order
+        # and each polygon *overwrites* existing ones. See
+        # (https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/preparation/json2instanceImg.py) # noqa
+        # We use reverse order, and each polygon *avoids* early ones.
+        # This will resolve the ploygon overlaps in the same way as CityscapesScripts.
+        for obj in jsonobj["objects"][::-1]:
+            if "deleted" in obj:  # cityscapes data format specific
+                continue
+            label_name = obj["label"]
+
+            try:
+                label = name2label[label_name]
+            except KeyError:
+                if label_name.endswith("group"):  # crowd area
+                    label = name2label[label_name[: -len("group")]]
+                else:
+                    raise
+            if label.id < 0:  # cityscapes data format
+                continue
+
+            # Cityscapes's raw annotations uses integer coordinates
+            # Therefore +0.5 here
+            poly_coord = np.asarray(obj["polygon"], dtype="f4") + 0.5
+            # CityscapesScript uses PIL.ImageDraw.polygon to rasterize
+            # polygons for evaluation. This function operates in integer space
+            # and draws each pixel whose center falls into the polygon.
+            # Therefore it draws a polygon which is 0.5 "fatter" in expectation.
+            # We therefore dilate the input polygon by 0.5 as our input.
+            poly = Polygon(poly_coord).buffer(0.5, resolution=4)
+
+            if not label.hasInstances or label.ignoreInEval:
+                # even if we won't store the polygon it still contributes to overlaps resolution
+                polygons_union = polygons_union.union(poly)
+                continue
+
+            # Take non-overlapping part of the polygon
+            poly_wo_overlaps = poly.difference(polygons_union)
+            if poly_wo_overlaps.is_empty:
+                continue
+            polygons_union = polygons_union.union(poly)
+
+            anno = {}
+            anno["iscrowd"] = label_name.endswith("group")
+            anno["category_id"] = label.id
+
+  
