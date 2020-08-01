@@ -205,4 +205,55 @@ def _cityscapes_files_to_dict(files, from_json, to_polygons):
             anno["iscrowd"] = label_name.endswith("group")
             anno["category_id"] = label.id
 
-  
+            if isinstance(poly_wo_overlaps, Polygon):
+                poly_list = [poly_wo_overlaps]
+            elif isinstance(poly_wo_overlaps, MultiPolygon):
+                poly_list = poly_wo_overlaps.geoms
+            else:
+                raise NotImplementedError("Unknown geometric structure {}".format(poly_wo_overlaps))
+
+            poly_coord = []
+            for poly_el in poly_list:
+                # COCO API can work only with exterior boundaries now, hence we store only them.
+                # TODO: store both exterior and interior boundaries once other parts of the
+                # codebase support holes in polygons.
+                poly_coord.append(list(chain(*poly_el.exterior.coords)))
+            anno["segmentation"] = poly_coord
+            (xmin, ymin, xmax, ymax) = poly_wo_overlaps.bounds
+
+            anno["bbox"] = (xmin, ymin, xmax, ymax)
+            anno["bbox_mode"] = BoxMode.XYXY_ABS
+
+            annos.append(anno)
+    else:
+        # See also the official annotation parsing scripts at
+        # https://github.com/mcordts/cityscapesScripts/blob/master/cityscapesscripts/evaluation/instances2dict.py  # noqa
+        with PathManager.open(instance_id_file, "rb") as f:
+            inst_image = np.asarray(Image.open(f), order="F")
+        # ids < 24 are stuff labels (filtering them first is about 5% faster)
+        flattened_ids = np.unique(inst_image[inst_image >= 24])
+
+        ret = {
+            "file_name": image_file,
+            "image_id": os.path.basename(image_file),
+            "height": inst_image.shape[0],
+            "width": inst_image.shape[1],
+        }
+
+        for instance_id in flattened_ids:
+            # For non-crowd annotations, instance_id // 1000 is the label_id
+            # Crowd annotations have <1000 instance ids
+            label_id = instance_id // 1000 if instance_id >= 1000 else instance_id
+            label = id2label[label_id]
+            if not label.hasInstances or label.ignoreInEval:
+                continue
+
+            anno = {}
+            anno["iscrowd"] = instance_id < 1000
+            anno["category_id"] = label.id
+
+            mask = np.asarray(inst_image == instance_id, dtype=np.uint8, order="F")
+
+            inds = np.nonzero(mask)
+            ymin, ymax = inds[0].min(), inds[0].max()
+    
