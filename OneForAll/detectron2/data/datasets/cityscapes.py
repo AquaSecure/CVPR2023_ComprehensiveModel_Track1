@@ -256,4 +256,62 @@ def _cityscapes_files_to_dict(files, from_json, to_polygons):
 
             inds = np.nonzero(mask)
             ymin, ymax = inds[0].min(), inds[0].max()
-    
+            xmin, xmax = inds[1].min(), inds[1].max()
+            anno["bbox"] = (xmin, ymin, xmax, ymax)
+            if xmax <= xmin or ymax <= ymin:
+                continue
+            anno["bbox_mode"] = BoxMode.XYXY_ABS
+            if to_polygons:
+                # This conversion comes from D4809743 and D5171122,
+                # when Mask-RCNN was first developed.
+                contours = cv2.findContours(mask.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)[
+                    -2
+                ]
+                polygons = [c.reshape(-1).tolist() for c in contours if len(c) >= 3]
+                # opencv's can produce invalid polygons
+                if len(polygons) == 0:
+                    continue
+                anno["segmentation"] = polygons
+            else:
+                anno["segmentation"] = mask_util.encode(mask[:, :, None])[0]
+            annos.append(anno)
+    ret["annotations"] = annos
+    return ret
+
+
+if __name__ == "__main__":
+    """
+    Test the cityscapes dataset loader.
+
+    Usage:
+        python -m detectron2.data.datasets.cityscapes \
+            cityscapes/leftImg8bit/train cityscapes/gtFine/train
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("image_dir")
+    parser.add_argument("gt_dir")
+    parser.add_argument("--type", choices=["instance", "semantic"], default="instance")
+    args = parser.parse_args()
+    from detectron2.data.catalog import Metadata
+    from detectron2.utils.visualizer import Visualizer
+    from cityscapesscripts.helpers.labels import labels
+
+    logger = setup_logger(name=__name__)
+
+    dirname = "cityscapes-data-vis"
+    os.makedirs(dirname, exist_ok=True)
+
+    if args.type == "instance":
+        dicts = load_cityscapes_instances(
+            args.image_dir, args.gt_dir, from_json=True, to_polygons=True
+        )
+        logger.info("Done loading {} samples.".format(len(dicts)))
+
+        thing_classes = [k.name for k in labels if k.hasInstances and not k.ignoreInEval]
+        meta = Metadata().set(thing_classes=thing_classes)
+
+    else:
+        dicts = load_cityscapes_semantic(args.image_dir, args.gt_dir)
+        logger.info("Done loading {} sam
