@@ -314,4 +314,17 @@ if __name__ == "__main__":
 
     else:
         dicts = load_cityscapes_semantic(args.image_dir, args.gt_dir)
-        logger.info("Done loading {} sam
+        logger.info("Done loading {} samples.".format(len(dicts)))
+
+        stuff_classes = [k.name for k in labels if k.trainId != 255]
+        stuff_colors = [k.color for k in labels if k.trainId != 255]
+        meta = Metadata().set(stuff_classes=stuff_classes, stuff_colors=stuff_colors)
+
+    for d in dicts:
+        img = np.array(Image.open(PathManager.open(d["file_name"], "rb")))
+        visualizer = Visualizer(img, metadata=meta)
+        vis = visualizer.draw_dataset_dict(d)
+        # cv2.imshow("a", vis.get_image()[:, :, ::-1])
+        # cv2.waitKey()
+        fpath = os.path.join(dirname, os.path.basename(d["file_name"]))
+        vis.save(fpath)
