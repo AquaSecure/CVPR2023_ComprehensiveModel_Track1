@@ -138,4 +138,55 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
         # However the ratio of buggy annotations there is tiny and does not affect accuracy.
         # Therefore we explicitly white-list them.
         ann_ids = [ann["id"] for anns_per_image in anns for ann in anns_per_image]
-        assert len(set(ann_ids)) == len(ann_ids), "Annota
+        assert len(set(ann_ids)) == len(ann_ids), "Annotation ids in '{}' are not unique!".format(
+            json_file
+        )
+
+    imgs_anns = list(zip(imgs, anns))
+    logger.info("Loaded {} images in COCO format from {}".format(len(imgs_anns), json_file))
+
+    dataset_dicts = []
+
+    ann_keys = ["iscrowd", "bbox", "keypoints", "category_id"] + (extra_annotation_keys or [])
+
+    num_instances_without_valid_segmentation = 0
+
+    for (img_dict, anno_dict_list) in imgs_anns:
+        record = {}
+        record["file_name"] = os.path.join(image_root, img_dict["file_name"])
+        record["height"] = img_dict["height"]
+        record["width"] = img_dict["width"]
+        image_id = record["image_id"] = img_dict["id"]
+
+        objs = []
+        for anno in anno_dict_list:
+            # Check that the image_id in this annotation is the same as
+            # the image_id we're looking at.
+            # This fails only when the data parsing logic or the annotation file is buggy.
+
+            # The original COCO valminusminival2014 & minival2014 annotation files
+            # actually contains bugs that, together with certain ways of using COCO API,
+            # can trigger this assertion.
+            assert anno["image_id"] == image_id
+
+            assert anno.get("ignore", 0) == 0, '"ignore" in COCO json file is not supported.'
+
+            obj = {key: anno[key] for key in ann_keys if key in anno}
+            if "bbox" in obj and len(obj["bbox"]) == 0:
+                raise ValueError(
+                    "One annotation of image {image_id} contains empty 'bbox' value! "
+                    "This json does not have valid COCO format."
+                )
+
+            segm = anno.get("segmentation", None)
+            if segm:  # either list[list[float]] or dict(RLE)
+                if isinstance(segm, dict):
+                    if isinstance(segm["counts"], list):
+                        # convert to compressed RLE
+                        segm = mask_util.frPyObjects(segm, *segm["size"])
+                else:
+                    # filter out invalid polygons (< 3 points)
+                    segm = [poly for poly in segm if len(poly) % 2 == 0 and len(poly) >= 6]
+                    if len(segm) == 0:
+                        num_instances_without_valid_segmentation += 1
+                
