@@ -86,4 +86,56 @@ def load_coco_json(json_file, image_root, dataset_name=None, extra_annotation_ke
         # the category ids to contiguous ids in [0, 80).
 
         # It works by looking at the "categories" field in the json, therefore
-        # if users' own json al
+        # if users' own json also have incontiguous ids, we'll
+        # apply this mapping as well but print a warning.
+        if not (min(cat_ids) == 1 and max(cat_ids) == len(cat_ids)):
+            if "coco" not in dataset_name:
+                logger.warning(
+                    """
+Category ids in annotations are not in [1, #categories]! We'll apply a mapping for you.
+"""
+                )
+        id_map = {v: i for i, v in enumerate(cat_ids)}
+        meta.thing_dataset_id_to_contiguous_id = id_map
+
+    # sort indices for reproducible results
+    img_ids = sorted(coco_api.imgs.keys())
+    # imgs is a list of dicts, each looks something like:
+    # {'license': 4,
+    #  'url': 'http://farm6.staticflickr.com/5454/9413846304_881d5e5c3b_z.jpg',
+    #  'file_name': 'COCO_val2014_000000001268.jpg',
+    #  'height': 427,
+    #  'width': 640,
+    #  'date_captured': '2013-11-17 05:57:24',
+    #  'id': 1268}
+    imgs = coco_api.loadImgs(img_ids)
+    # anns is a list[list[dict]], where each dict is an annotation
+    # record for an object. The inner list enumerates the objects in an image
+    # and the outer list enumerates over images. Example of anns[0]:
+    # [{'segmentation': [[192.81,
+    #     247.09,
+    #     ...
+    #     219.03,
+    #     249.06]],
+    #   'area': 1035.749,
+    #   'iscrowd': 0,
+    #   'image_id': 1268,
+    #   'bbox': [192.81, 224.8, 74.73, 33.43],
+    #   'category_id': 16,
+    #   'id': 42986},
+    #  ...]
+    anns = [coco_api.imgToAnns[img_id] for img_id in img_ids]
+    total_num_valid_anns = sum([len(x) for x in anns])
+    total_num_anns = len(coco_api.anns)
+    if total_num_valid_anns < total_num_anns:
+        logger.warning(
+            "{json_file} contains {total_num_anns} annotations, but only "
+            "{total_num_valid_anns} of them match to images in the file."
+        )
+
+    if "minival" not in json_file:
+        # The popular valminusminival & minival annotations for COCO2014 contain this bug.
+        # However the ratio of buggy annotations there is tiny and does not affect accuracy.
+        # Therefore we explicitly white-list them.
+        ann_ids = [ann["id"] for anns_per_image in anns for ann in anns_per_image]
+        assert len(set(ann_ids)) == len(ann_ids), "Annota
