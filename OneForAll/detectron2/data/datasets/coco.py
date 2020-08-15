@@ -189,4 +189,52 @@ Category ids in annotations are not in [1, #categories]! We'll apply a mapping f
                     segm = [poly for poly in segm if len(poly) % 2 == 0 and len(poly) >= 6]
                     if len(segm) == 0:
                         num_instances_without_valid_segmentation += 1
-                
+                        continue  # ignore this instance
+                obj["segmentation"] = segm
+
+            keypts = anno.get("keypoints", None)
+            if keypts:  # list[int]
+                for idx, v in enumerate(keypts):
+                    if idx % 3 != 2:
+                        # COCO's segmentation coordinates are floating points in [0, H or W],
+                        # but keypoint coordinates are integers in [0, H-1 or W-1]
+                        # Therefore we assume the coordinates are "pixel indices" and
+                        # add 0.5 to convert to floating point coordinates.
+                        keypts[idx] = v + 0.5
+                obj["keypoints"] = keypts
+
+            obj["bbox_mode"] = BoxMode.XYWH_ABS
+            if id_map:
+                annotation_category_id = obj["category_id"]
+                try:
+                    obj["category_id"] = id_map[annotation_category_id]
+                except KeyError as e:
+                    raise KeyError(
+                        "Encountered category_id={annotation_category_id} "
+                        "but this id does not exist in 'categories' of the json file."
+                    ) from e
+            objs.append(obj)
+        record["annotations"] = objs
+        dataset_dicts.append(record)
+
+    if num_instances_without_valid_segmentation > 0:
+        logger.warning(
+            "Filtered out {} instances without valid segmentation. ".format(
+                num_instances_without_valid_segmentation
+            )
+            + "There might be issues in your dataset generation process.  Please "
+            "check https://detectron2.readthedocs.io/en/latest/tutorials/datasets.html carefully"
+        )
+    return dataset_dicts
+
+
+def load_sem_seg(gt_root, image_root, gt_ext="png", image_ext="jpg"):
+    """
+    Load semantic segmentation datasets. All files under "gt_root" with "gt_ext" extension are
+    treated as ground truth annotations and all files under "image_root" with "image_ext" extension
+    as input images. Ground truth and input images are matched using file paths relative to
+    "gt_root" and "image_root" respectively without taking into account file extensions.
+    This works for COCO as well as some other datasets.
+
+    Args:
+        gt_root (st
