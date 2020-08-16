@@ -285,4 +285,67 @@ def load_sem_seg(gt_root, image_root, gt_ext="png", image_ext="jpg"):
         gt_basenames = [os.path.basename(f)[: -len(gt_ext)] for f in gt_files]
         intersect = list(set(input_basenames) & set(gt_basenames))
         # sort, otherwise each worker may obtain a list[dict] in different order
-        intersect 
+        intersect = sorted(intersect)
+        logger.warn("Will use their intersection of {} files.".format(len(intersect)))
+        input_files = [os.path.join(image_root, f + image_ext) for f in intersect]
+        gt_files = [os.path.join(gt_root, f + gt_ext) for f in intersect]
+
+    logger.info(
+        "Loaded {} images with semantic segmentation from {}".format(len(input_files), image_root)
+    )
+
+    dataset_dicts = []
+    for (img_path, gt_path) in zip(input_files, gt_files):
+        record = {}
+        record["file_name"] = img_path
+        record["sem_seg_file_name"] = gt_path
+        dataset_dicts.append(record)
+
+    return dataset_dicts
+
+
+def convert_to_coco_dict(dataset_name):
+    """
+    Convert an instance detection/segmentation or keypoint detection dataset
+    in detectron2's standard format into COCO json format.
+
+    Generic dataset description can be found here:
+    https://detectron2.readthedocs.io/tutorials/datasets.html#register-a-dataset
+
+    COCO data format description can be found here:
+    http://cocodataset.org/#format-data
+
+    Args:
+        dataset_name (str):
+            name of the source dataset
+            Must be registered in DatastCatalog and in detectron2's standard format.
+            Must have corresponding metadata "thing_classes"
+    Returns:
+        coco_dict: serializable dict in COCO json format
+    """
+
+    dataset_dicts = DatasetCatalog.get(dataset_name)
+    metadata = MetadataCatalog.get(dataset_name)
+
+    # unmap the category mapping ids for COCO
+    if hasattr(metadata, "thing_dataset_id_to_contiguous_id"):
+        reverse_id_mapping = {v: k for k, v in metadata.thing_dataset_id_to_contiguous_id.items()}
+        reverse_id_mapper = lambda contiguous_id: reverse_id_mapping[contiguous_id]  # noqa
+    else:
+        reverse_id_mapper = lambda contiguous_id: contiguous_id  # noqa
+
+    categories = [
+        {"id": reverse_id_mapper(id), "name": name}
+        for id, name in enumerate(metadata.thing_classes)
+    ]
+
+    logger.info("Converting dataset dicts into COCO format")
+    coco_images = []
+    coco_annotations = []
+
+    for image_id, image_dict in enumerate(dataset_dicts):
+        coco_image = {
+            "id": image_dict.get("image_id", image_id),
+            "width": int(image_dict["width"]),
+            "height": int(image_dict["height"]),
+            "f
