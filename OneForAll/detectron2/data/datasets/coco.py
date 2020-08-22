@@ -348,4 +348,49 @@ def convert_to_coco_dict(dataset_name):
             "id": image_dict.get("image_id", image_id),
             "width": int(image_dict["width"]),
             "height": int(image_dict["height"]),
-            "f
+            "file_name": str(image_dict["file_name"]),
+        }
+        coco_images.append(coco_image)
+
+        anns_per_image = image_dict.get("annotations", [])
+        for annotation in anns_per_image:
+            # create a new dict with only COCO fields
+            coco_annotation = {}
+
+            # COCO requirement: XYWH box format for axis-align and XYWHA for rotated
+            bbox = annotation["bbox"]
+            if isinstance(bbox, np.ndarray):
+                if bbox.ndim != 1:
+                    raise ValueError(f"bbox has to be 1-dimensional. Got shape={bbox.shape}.")
+                bbox = bbox.tolist()
+            if len(bbox) not in [4, 5]:
+                raise ValueError(f"bbox has to has length 4 or 5. Got {bbox}.")
+            from_bbox_mode = annotation["bbox_mode"]
+            to_bbox_mode = BoxMode.XYWH_ABS if len(bbox) == 4 else BoxMode.XYWHA_ABS
+            bbox = BoxMode.convert(bbox, from_bbox_mode, to_bbox_mode)
+
+            # COCO requirement: instance area
+            if "segmentation" in annotation:
+                # Computing areas for instances by counting the pixels
+                segmentation = annotation["segmentation"]
+                # TODO: check segmentation type: RLE, BinaryMask or Polygon
+                if isinstance(segmentation, list):
+                    polygons = PolygonMasks([segmentation])
+                    area = polygons.area()[0].item()
+                elif isinstance(segmentation, dict):  # RLE
+                    area = mask_util.area(segmentation).item()
+                else:
+                    raise TypeError(f"Unknown segmentation type {type(segmentation)}!")
+            else:
+                # Computing areas using bounding boxes
+                if to_bbox_mode == BoxMode.XYWH_ABS:
+                    bbox_xy = BoxMode.convert(bbox, to_bbox_mode, BoxMode.XYXY_ABS)
+                    area = Boxes([bbox_xy]).area()[0].item()
+                else:
+                    area = RotatedBoxes([bbox]).area()[0].item()
+
+            if "keypoints" in annotation:
+                keypoints = annotation["keypoints"]  # list[int]
+                for idx, v in enumerate(keypoints):
+                    if idx % 3 != 2:
+                        # COCO's segmentation coordinates are 
