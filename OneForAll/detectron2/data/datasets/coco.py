@@ -393,4 +393,56 @@ def convert_to_coco_dict(dataset_name):
                 keypoints = annotation["keypoints"]  # list[int]
                 for idx, v in enumerate(keypoints):
                     if idx % 3 != 2:
-                        # COCO's segmentation coordinates are 
+                        # COCO's segmentation coordinates are floating points in [0, H or W],
+                        # but keypoint coordinates are integers in [0, H-1 or W-1]
+                        # For COCO format consistency we substract 0.5
+                        # https://github.com/facebookresearch/detectron2/pull/175#issuecomment-551202163
+                        keypoints[idx] = v - 0.5
+                if "num_keypoints" in annotation:
+                    num_keypoints = annotation["num_keypoints"]
+                else:
+                    num_keypoints = sum(kp > 0 for kp in keypoints[2::3])
+
+            # COCO requirement:
+            #   linking annotations to images
+            #   "id" field must start with 1
+            coco_annotation["id"] = len(coco_annotations) + 1
+            coco_annotation["image_id"] = coco_image["id"]
+            coco_annotation["bbox"] = [round(float(x), 3) for x in bbox]
+            coco_annotation["area"] = float(area)
+            coco_annotation["iscrowd"] = int(annotation.get("iscrowd", 0))
+            coco_annotation["category_id"] = int(reverse_id_mapper(annotation["category_id"]))
+
+            # Add optional fields
+            if "keypoints" in annotation:
+                coco_annotation["keypoints"] = keypoints
+                coco_annotation["num_keypoints"] = num_keypoints
+
+            if "segmentation" in annotation:
+                seg = coco_annotation["segmentation"] = annotation["segmentation"]
+                if isinstance(seg, dict):  # RLE
+                    counts = seg["counts"]
+                    if not isinstance(counts, str):
+                        # make it json-serializable
+                        seg["counts"] = counts.decode("ascii")
+
+            coco_annotations.append(coco_annotation)
+
+    logger.info(
+        "Conversion finished, "
+        "#images: {len(coco_images)}, #annotations: {len(coco_annotations)}"
+    )
+
+    info = {
+        "date_created": str(datetime.datetime.now()),
+        "description": "Automatically generated COCO json file for Detectron2.",
+    }
+    coco_dict = {"info": info, "images": coco_images, "categories": categories, "licenses": None}
+    if len(coco_annotations) > 0:
+        coco_dict["annotations"] = coco_annotations
+    return coco_dict
+
+
+def convert_to_coco_json(dataset_name, output_file, allow_cached=True):
+    """
+    Converts dataset into COCO forma
