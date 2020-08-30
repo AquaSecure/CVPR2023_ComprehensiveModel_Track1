@@ -70,4 +70,57 @@ def register_coco_panoptic(
     """
     Register a "standard" version of COCO panoptic segmentation dataset named `name`.
     The dictionaries in this registered dataset follows detectron2's standard format.
-    Hence it's called "s
+    Hence it's called "standard".
+
+    Args:
+        name (str): the name that identifies a dataset,
+            e.g. "coco_2017_train_panoptic"
+        metadata (dict): extra metadata associated with this dataset.
+        image_root (str): directory which contains all the images
+        panoptic_root (str): directory which contains panoptic annotation images in COCO format
+        panoptic_json (str): path to the json panoptic annotation file in COCO format
+        sem_seg_root (none): not used, to be consistent with
+            `register_coco_panoptic_separated`.
+        instances_json (str): path to the json instance annotation file
+    """
+    panoptic_name = name
+    DatasetCatalog.register(
+        panoptic_name,
+        lambda: load_coco_panoptic_json(panoptic_json, image_root, panoptic_root, metadata),
+    )
+    MetadataCatalog.get(panoptic_name).set(
+        panoptic_root=panoptic_root,
+        image_root=image_root,
+        panoptic_json=panoptic_json,
+        json_file=instances_json,
+        evaluator_type="coco_panoptic_seg",
+        ignore_label=255,
+        label_divisor=1000,
+        **metadata,
+    )
+
+
+def register_coco_panoptic_separated(
+    name, metadata, image_root, panoptic_root, panoptic_json, sem_seg_root, instances_json
+):
+    """
+    Register a "separated" version of COCO panoptic segmentation dataset named `name`.
+    The annotations in this registered dataset will contain both instance annotations and
+    semantic annotations, each with its own contiguous ids. Hence it's called "separated".
+
+    It follows the setting used by the PanopticFPN paper:
+
+    1. The instance annotations directly come from polygons in the COCO
+       instances annotation task, rather than from the masks in the COCO panoptic annotations.
+
+       The two format have small differences:
+       Polygons in the instance annotations may have overlaps.
+       The mask annotations are produced by labeling the overlapped polygons
+       with depth ordering.
+
+    2. The semantic annotations are converted from panoptic annotations, where
+       all "things" are assigned a semantic id of 0.
+       All semantic categories will therefore have ids in contiguous
+       range [1, #stuff_categories].
+
+    Th
