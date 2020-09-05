@@ -181,4 +181,49 @@ def merge_to_panoptic(detection_dicts, sem_seg_dicts):
             The function assumes that the same key in different dicts has the same value.
     """
     results = []
-    sem_seg_file_to_entry = {x["file_name"]: x for x in sem_s
+    sem_seg_file_to_entry = {x["file_name"]: x for x in sem_seg_dicts}
+    assert len(sem_seg_file_to_entry) > 0
+
+    for det_dict in detection_dicts:
+        dic = copy.copy(det_dict)
+        dic.update(sem_seg_file_to_entry[dic["file_name"]])
+        results.append(dic)
+    return results
+
+
+if __name__ == "__main__":
+    """
+    Test the COCO panoptic dataset loader.
+
+    Usage:
+        python -m detectron2.data.datasets.coco_panoptic \
+            path/to/image_root path/to/panoptic_root path/to/panoptic_json dataset_name 10
+
+        "dataset_name" can be "coco_2017_train_panoptic", or other
+        pre-registered ones
+    """
+    from detectron2.utils.logger import setup_logger
+    from detectron2.utils.visualizer import Visualizer
+    import detectron2.data.datasets  # noqa # add pre-defined metadata
+    import sys
+    from PIL import Image
+    import numpy as np
+
+    logger = setup_logger(name=__name__)
+    assert sys.argv[4] in DatasetCatalog.list()
+    meta = MetadataCatalog.get(sys.argv[4])
+
+    dicts = load_coco_panoptic_json(sys.argv[3], sys.argv[1], sys.argv[2], meta.as_dict())
+    logger.info("Done loading {} samples.".format(len(dicts)))
+
+    dirname = "coco-data-vis"
+    os.makedirs(dirname, exist_ok=True)
+    num_imgs_to_vis = int(sys.argv[5])
+    for i, d in enumerate(dicts):
+        img = np.array(Image.open(d["file_name"]))
+        visualizer = Visualizer(img, metadata=meta)
+        vis = visualizer.draw_dataset_dict(d)
+        fpath = os.path.join(dirname, os.path.basename(d["file_name"]))
+        vis.save(fpath)
+        if i + 1 >= num_imgs_to_vis:
+            break
