@@ -123,4 +123,62 @@ def register_coco_panoptic_separated(
        All semantic categories will therefore have ids in contiguous
        range [1, #stuff_categories].
 
-    Th
+    This function will also register a pure semantic segmentation dataset
+    named ``name + '_stuffonly'``.
+
+    Args:
+        name (str): the name that identifies a dataset,
+            e.g. "coco_2017_train_panoptic"
+        metadata (dict): extra metadata associated with this dataset.
+        image_root (str): directory which contains all the images
+        panoptic_root (str): directory which contains panoptic annotation images
+        panoptic_json (str): path to the json panoptic annotation file
+        sem_seg_root (str): directory which contains all the ground truth segmentation annotations.
+        instances_json (str): path to the json instance annotation file
+    """
+    panoptic_name = name + "_separated"
+    DatasetCatalog.register(
+        panoptic_name,
+        lambda: merge_to_panoptic(
+            load_coco_json(instances_json, image_root, panoptic_name),
+            load_sem_seg(sem_seg_root, image_root),
+        ),
+    )
+    MetadataCatalog.get(panoptic_name).set(
+        panoptic_root=panoptic_root,
+        image_root=image_root,
+        panoptic_json=panoptic_json,
+        sem_seg_root=sem_seg_root,
+        json_file=instances_json,  # TODO rename
+        evaluator_type="coco_panoptic_seg",
+        ignore_label=255,
+        **metadata,
+    )
+
+    semantic_name = name + "_stuffonly"
+    DatasetCatalog.register(semantic_name, lambda: load_sem_seg(sem_seg_root, image_root))
+    MetadataCatalog.get(semantic_name).set(
+        sem_seg_root=sem_seg_root,
+        image_root=image_root,
+        evaluator_type="sem_seg",
+        ignore_label=255,
+        **metadata,
+    )
+
+
+def merge_to_panoptic(detection_dicts, sem_seg_dicts):
+    """
+    Create dataset dicts for panoptic segmentation, by
+    merging two dicts using "file_name" field to match their entries.
+
+    Args:
+        detection_dicts (list[dict]): lists of dicts for object detection or instance segmentation.
+        sem_seg_dicts (list[dict]): lists of dicts for semantic segmentation.
+
+    Returns:
+        list[dict] (one per input image): Each dict contains all (key, value) pairs from dicts in
+            both detection_dicts and sem_seg_dicts that correspond to the same image.
+            The function assumes that the same key in different dicts has the same value.
+    """
+    results = []
+    sem_seg_file_to_entry = {x["file_name"]: x for x in sem_s
