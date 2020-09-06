@@ -131,4 +131,59 @@ def load_lvis_json(json_file, image_root, dataset_name=None, extra_annotation_ke
         record["height"] = img_dict["height"]
         record["width"] = img_dict["width"]
         record["not_exhaustive_category_ids"] = img_dict.get("not_exhaustive_category_ids", [])
-        record["neg_category_ids"] = img_dict.get("neg_category_ids"
+        record["neg_category_ids"] = img_dict.get("neg_category_ids", [])
+        image_id = record["image_id"] = img_dict["id"]
+
+        objs = []
+        for anno in anno_dict_list:
+            # Check that the image_id in this annotation is the same as
+            # the image_id we're looking at.
+            # This fails only when the data parsing logic or the annotation file is buggy.
+            assert anno["image_id"] == image_id
+            obj = {"bbox": anno["bbox"], "bbox_mode": BoxMode.XYWH_ABS}
+            # LVIS data loader can be used to load COCO dataset categories. In this case `meta`
+            # variable will have a field with COCO-specific category mapping.
+            if dataset_name is not None and "thing_dataset_id_to_contiguous_id" in meta:
+                obj["category_id"] = meta["thing_dataset_id_to_contiguous_id"][anno["category_id"]]
+            else:
+                obj["category_id"] = anno["category_id"] - 1  # Convert 1-indexed to 0-indexed
+            segm = anno["segmentation"]  # list[list[float]]
+            # filter out invalid polygons (< 3 points)
+            valid_segm = [poly for poly in segm if len(poly) % 2 == 0 and len(poly) >= 6]
+            assert len(segm) == len(
+                valid_segm
+            ), "Annotation contains an invalid polygon with < 3 points"
+            assert len(segm) > 0
+            obj["segmentation"] = segm
+            for extra_ann_key in extra_annotation_keys:
+                obj[extra_ann_key] = anno[extra_ann_key]
+            objs.append(obj)
+        record["annotations"] = objs
+        dataset_dicts.append(record)
+
+    return dataset_dicts
+
+
+def get_lvis_instances_meta(dataset_name):
+    """
+    Load LVIS metadata.
+
+    Args:
+        dataset_name (str): LVIS dataset name without the split name (e.g., "lvis_v0.5").
+
+    Returns:
+        dict: LVIS metadata with keys: thing_classes
+    """
+    if "cocofied" in dataset_name:
+        return _get_coco_instances_meta()
+    if "v0.5" in dataset_name:
+        return _get_lvis_instances_meta_v0_5()
+    elif "v1" in dataset_name:
+        return _get_lvis_instances_meta_v1()
+    raise ValueError("No built-in metadata for dataset {}".format(dataset_name))
+
+
+def _get_lvis_instances_meta_v0_5():
+    assert len(LVIS_V0_5_CATEGORIES) == 1230
+    cat_ids = [k["id"] for k in LVIS_V0_5_CATEGORIES]
+    assert min(cat_ids) == 1 and max(c
