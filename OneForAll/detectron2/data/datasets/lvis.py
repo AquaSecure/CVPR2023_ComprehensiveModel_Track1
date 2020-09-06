@@ -75,4 +75,60 @@ def load_lvis_json(json_file, image_root, dataset_name=None, extra_annotation_ke
     # sort indices for reproducible results
     img_ids = sorted(lvis_api.imgs.keys())
     # imgs is a list of dicts, each looks something like:
-    # {'lic
+    # {'license': 4,
+    #  'url': 'http://farm6.staticflickr.com/5454/9413846304_881d5e5c3b_z.jpg',
+    #  'file_name': 'COCO_val2014_000000001268.jpg',
+    #  'height': 427,
+    #  'width': 640,
+    #  'date_captured': '2013-11-17 05:57:24',
+    #  'id': 1268}
+    imgs = lvis_api.load_imgs(img_ids)
+    # anns is a list[list[dict]], where each dict is an annotation
+    # record for an object. The inner list enumerates the objects in an image
+    # and the outer list enumerates over images. Example of anns[0]:
+    # [{'segmentation': [[192.81,
+    #     247.09,
+    #     ...
+    #     219.03,
+    #     249.06]],
+    #   'area': 1035.749,
+    #   'image_id': 1268,
+    #   'bbox': [192.81, 224.8, 74.73, 33.43],
+    #   'category_id': 16,
+    #   'id': 42986},
+    #  ...]
+    anns = [lvis_api.img_ann_map[img_id] for img_id in img_ids]
+
+    # Sanity check that each annotation has a unique id
+    ann_ids = [ann["id"] for anns_per_image in anns for ann in anns_per_image]
+    assert len(set(ann_ids)) == len(ann_ids), "Annotation ids in '{}' are not unique".format(
+        json_file
+    )
+
+    imgs_anns = list(zip(imgs, anns))
+
+    logger.info("Loaded {} images in the LVIS format from {}".format(len(imgs_anns), json_file))
+
+    if extra_annotation_keys:
+        logger.info(
+            "The following extra annotation keys will be loaded: {} ".format(extra_annotation_keys)
+        )
+    else:
+        extra_annotation_keys = []
+
+    def get_file_name(img_root, img_dict):
+        # Determine the path including the split folder ("train2017", "val2017", "test2017") from
+        # the coco_url field. Example:
+        #   'coco_url': 'http://images.cocodataset.org/train2017/000000155379.jpg'
+        split_folder, file_name = img_dict["coco_url"].split("/")[-2:]
+        return os.path.join(img_root + split_folder, file_name)
+
+    dataset_dicts = []
+
+    for (img_dict, anno_dict_list) in imgs_anns:
+        record = {}
+        record["file_name"] = get_file_name(image_root, img_dict)
+        record["height"] = img_dict["height"]
+        record["width"] = img_dict["width"]
+        record["not_exhaustive_category_ids"] = img_dict.get("not_exhaustive_category_ids", [])
+        record["neg_category_ids"] = img_dict.get("neg_category_ids"
