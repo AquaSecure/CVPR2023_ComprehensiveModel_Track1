@@ -186,4 +186,55 @@ def get_lvis_instances_meta(dataset_name):
 def _get_lvis_instances_meta_v0_5():
     assert len(LVIS_V0_5_CATEGORIES) == 1230
     cat_ids = [k["id"] for k in LVIS_V0_5_CATEGORIES]
-    assert min(cat_ids) == 1 and max(c
+    assert min(cat_ids) == 1 and max(cat_ids) == len(
+        cat_ids
+    ), "Category ids are not in [1, #categories], as expected"
+    # Ensure that the category list is sorted by id
+    lvis_categories = sorted(LVIS_V0_5_CATEGORIES, key=lambda x: x["id"])
+    thing_classes = [k["synonyms"][0] for k in lvis_categories]
+    meta = {"thing_classes": thing_classes}
+    return meta
+
+
+def _get_lvis_instances_meta_v1():
+    assert len(LVIS_V1_CATEGORIES) == 1203
+    cat_ids = [k["id"] for k in LVIS_V1_CATEGORIES]
+    assert min(cat_ids) == 1 and max(cat_ids) == len(
+        cat_ids
+    ), "Category ids are not in [1, #categories], as expected"
+    # Ensure that the category list is sorted by id
+    lvis_categories = sorted(LVIS_V1_CATEGORIES, key=lambda x: x["id"])
+    thing_classes = [k["synonyms"][0] for k in lvis_categories]
+    meta = {"thing_classes": thing_classes}
+    return meta
+
+
+if __name__ == "__main__":
+    """
+    Test the LVIS json dataset loader.
+
+    Usage:
+        python -m detectron2.data.datasets.lvis \
+            path/to/json path/to/image_root dataset_name vis_limit
+    """
+    import sys
+    import numpy as np
+    from detectron2.utils.logger import setup_logger
+    from PIL import Image
+    import detectron2.data.datasets  # noqa # add pre-defined metadata
+    from detectron2.utils.visualizer import Visualizer
+
+    logger = setup_logger(name=__name__)
+    meta = MetadataCatalog.get(sys.argv[3])
+
+    dicts = load_lvis_json(sys.argv[1], sys.argv[2], sys.argv[3])
+    logger.info("Done loading {} samples.".format(len(dicts)))
+
+    dirname = "lvis-data-vis"
+    os.makedirs(dirname, exist_ok=True)
+    for d in dicts[: int(sys.argv[4])]:
+        img = np.array(Image.open(d["file_name"]))
+        visualizer = Visualizer(img, metadata=meta)
+        vis = visualizer.draw_dataset_dict(d)
+        fpath = os.path.join(dirname, os.path.basename(d["file_name"]))
+        vis.save(fpath)
