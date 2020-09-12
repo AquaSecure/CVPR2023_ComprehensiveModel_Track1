@@ -61,3 +61,76 @@ _EXIF_ORIENT = 274  # exif 'Orientation' tag
 def convert_PIL_to_numpy(image, format):
     """
     Convert PIL image to numpy array of target format.
+
+    Args:
+        image (PIL.Image): a PIL image
+        format (str): the format of output image
+
+    Returns:
+        (np.ndarray): also see `read_image`
+    """
+    if format is not None:
+        # PIL only supports RGB, so convert to RGB and flip channels over below
+        conversion_format = format
+        if format in ["BGR", "YUV-BT.601"]:
+            conversion_format = "RGB"
+        image = image.convert(conversion_format)
+    image = np.asarray(image)
+    # PIL squeezes out the channel dimension for "L", so make it HWC
+    if format == "L":
+        image = np.expand_dims(image, -1)
+
+    # handle formats not supported by PIL
+    elif format == "BGR":
+        # flip channels if needed
+        image = image[:, :, ::-1]
+    elif format == "YUV-BT.601":
+        image = image / 255.0
+        image = np.dot(image, np.array(_M_RGB2YUV).T)
+
+    return image
+
+
+def convert_image_to_rgb(image, format):
+    """
+    Convert an image from given format to RGB.
+
+    Args:
+        image (np.ndarray or Tensor): an HWC image
+        format (str): the format of input image, also see `read_image`
+
+    Returns:
+        (np.ndarray): (H,W,3) RGB image in 0-255 range, can be either float or uint8
+    """
+    if isinstance(image, torch.Tensor):
+        image = image.cpu().numpy()
+    if format == "BGR":
+        image = image[:, :, [2, 1, 0]]
+    elif format == "YUV-BT.601":
+        image = np.dot(image, np.array(_M_YUV2RGB).T)
+        image = image * 255.0
+    else:
+        if format == "L":
+            image = image[:, :, 0]
+        image = image.astype(np.uint8)
+        image = np.asarray(Image.fromarray(image, mode=format).convert("RGB"))
+    return image
+
+
+def _apply_exif_orientation(image):
+    """
+    Applies the exif orientation correctly.
+
+    This code exists per the bug:
+      https://github.com/python-pillow/Pillow/issues/3973
+    with the function `ImageOps.exif_transpose`. The Pillow source raises errors with
+    various methods, especially `tobytes`
+
+    Function based on:
+      https://github.com/wkentaro/labelme/blob/v4.5.4/labelme/utils/image.py#L59
+      https://github.com/python-pillow/Pillow/blob/7.1.2/src/PIL/ImageOps.py#L527
+
+    Args:
+        image (PIL.Image): a PIL image
+
+   
