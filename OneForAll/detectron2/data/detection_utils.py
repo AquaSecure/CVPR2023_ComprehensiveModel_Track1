@@ -314,4 +314,53 @@ def transform_instance_annotations(
         keypoints = transform_keypoint_annotations(
             annotation["keypoints"], transforms, image_size, keypoint_hflip_indices
         )
-        annotation["keypoints"] = keypoin
+        annotation["keypoints"] = keypoints
+
+    return annotation
+
+
+def transform_keypoint_annotations(keypoints, transforms, image_size, keypoint_hflip_indices=None):
+    """
+    Transform keypoint annotations of an image.
+    If a keypoint is transformed out of image boundary, it will be marked "unlabeled" (visibility=0)
+
+    Args:
+        keypoints (list[float]): Nx3 float in Detectron2's Dataset format.
+            Each point is represented by (x, y, visibility).
+        transforms (TransformList):
+        image_size (tuple): the height, width of the transformed image
+        keypoint_hflip_indices (ndarray[int]): see `create_keypoint_hflip_indices`.
+            When `transforms` includes horizontal flip, will use the index
+            mapping to flip keypoints.
+    """
+    # (N*3,) -> (N, 3)
+    keypoints = np.asarray(keypoints, dtype="float64").reshape(-1, 3)
+    keypoints_xy = transforms.apply_coords(keypoints[:, :2])
+
+    # Set all out-of-boundary points to "unlabeled"
+    inside = (keypoints_xy >= np.array([0, 0])) & (keypoints_xy <= np.array(image_size[::-1]))
+    inside = inside.all(axis=1)
+    keypoints[:, :2] = keypoints_xy
+    keypoints[:, 2][~inside] = 0
+
+    # This assumes that HorizFlipTransform is the only one that does flip
+    do_hflip = sum(isinstance(t, T.HFlipTransform) for t in transforms.transforms) % 2 == 1
+
+    # Alternative way: check if probe points was horizontally flipped.
+    # probe = np.asarray([[0.0, 0.0], [image_width, 0.0]])
+    # probe_aug = transforms.apply_coords(probe.copy())
+    # do_hflip = np.sign(probe[1][0] - probe[0][0]) != np.sign(probe_aug[1][0] - probe_aug[0][0])  # noqa
+
+    # If flipped, swap each keypoint with its opposite-handed equivalent
+    if do_hflip:
+        if keypoint_hflip_indices is None:
+            raise ValueError("Cannot flip keypoints without providing flip indices!")
+        if len(keypoints) != len(keypoint_hflip_indices):
+            raise ValueError(
+                "Keypoint data has {} points, but metadata "
+                "contains {} points!".format(len(keypoints), len(keypoint_hflip_indices))
+            )
+        keypoints = keypoints[np.asarray(keypoint_hflip_indices, dtype=np.int32), :]
+
+    # Maintain COCO convention that if visibility == 0 (unlabeled), then x, y = 0
+    keypoi
