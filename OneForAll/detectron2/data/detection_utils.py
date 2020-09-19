@@ -363,4 +363,65 @@ def transform_keypoint_annotations(keypoints, transforms, image_size, keypoint_h
         keypoints = keypoints[np.asarray(keypoint_hflip_indices, dtype=np.int32), :]
 
     # Maintain COCO convention that if visibility == 0 (unlabeled), then x, y = 0
-    keypoi
+    keypoints[keypoints[:, 2] == 0] = 0
+    return keypoints
+
+
+def annotations_to_instances(annos, image_size, mask_format="polygon"):
+    """
+    Create an :class:`Instances` object used by the models,
+    from instance annotations in the dataset dict.
+
+    Args:
+        annos (list[dict]): a list of instance annotations in one image, each
+            element for one instance.
+        image_size (tuple): height, width
+
+    Returns:
+        Instances:
+            It will contain fields "gt_boxes", "gt_classes",
+            "gt_masks", "gt_keypoints", if they can be obtained from `annos`.
+            This is the format that builtin models expect.
+    """
+    boxes = (
+        np.stack(
+            [BoxMode.convert(obj["bbox"], obj["bbox_mode"], BoxMode.XYXY_ABS) for obj in annos]
+        )
+        if len(annos)
+        else np.zeros((0, 4))
+    )
+    target = Instances(image_size)
+    target.gt_boxes = Boxes(boxes)
+
+    classes = [int(obj["category_id"]) for obj in annos]
+    classes = torch.tensor(classes, dtype=torch.int64)
+    target.gt_classes = classes
+
+    if len(annos) and "segmentation" in annos[0]:
+        segms = [obj["segmentation"] for obj in annos]
+        if mask_format == "polygon":
+            try:
+                masks = PolygonMasks(segms)
+            except ValueError as e:
+                raise ValueError(
+                    "Failed to use mask_format=='polygon' from the given annotations!"
+                ) from e
+        else:
+            assert mask_format == "bitmask", mask_format
+            masks = []
+            for segm in segms:
+                if isinstance(segm, list):
+                    # polygon
+                    masks.append(polygons_to_bitmask(segm, *image_size))
+                elif isinstance(segm, dict):
+                    # COCO RLE
+                    masks.append(mask_util.decode(segm))
+                elif isinstance(segm, np.ndarray):
+                    assert segm.ndim == 2, "Expect segmentation of 2 dimensions, got {}.".format(
+                        segm.ndim
+                    )
+                    # mask array
+                    masks.append(segm)
+                else:
+                    raise ValueError(
+                        "Cannot convert segmentation of type '{}' to Bit
