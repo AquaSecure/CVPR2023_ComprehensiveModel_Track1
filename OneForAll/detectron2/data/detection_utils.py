@@ -491,4 +491,67 @@ def filter_empty_instances(
     assert by_box or by_mask
     r = []
     if by_box:
- 
+        r.append(instances.gt_boxes.nonempty(threshold=box_threshold))
+    if instances.has("gt_masks") and by_mask:
+        r.append(instances.gt_masks.nonempty())
+
+    # TODO: can also filter visible keypoints
+
+    if not r:
+        return instances
+    m = r[0]
+    for x in r[1:]:
+        m = m & x
+    if return_mask:
+        return instances[m], m
+    return instances[m]
+
+
+def create_keypoint_hflip_indices(dataset_names: Union[str, List[str]]) -> List[int]:
+    """
+    Args:
+        dataset_names: list of dataset names
+
+    Returns:
+        list[int]: a list of size=#keypoints, storing the
+        horizontally-flipped keypoint indices.
+    """
+    if isinstance(dataset_names, str):
+        dataset_names = [dataset_names]
+
+    check_metadata_consistency("keypoint_names", dataset_names)
+    check_metadata_consistency("keypoint_flip_map", dataset_names)
+
+    meta = MetadataCatalog.get(dataset_names[0])
+    names = meta.keypoint_names
+    # TODO flip -> hflip
+    flip_map = dict(meta.keypoint_flip_map)
+    flip_map.update({v: k for k, v in flip_map.items()})
+    flipped_names = [i if i not in flip_map else flip_map[i] for i in names]
+    flip_indices = [names.index(i) for i in flipped_names]
+    return flip_indices
+
+
+def gen_crop_transform_with_instance(crop_size, image_size, instance):
+    """
+    Generate a CropTransform so that the cropping region contains
+    the center of the given instance.
+
+    Args:
+        crop_size (tuple): h, w in pixels
+        image_size (tuple): h, w
+        instance (dict): an annotation dict of one instance, in Detectron2's
+            dataset format.
+    """
+    crop_size = np.asarray(crop_size, dtype=np.int32)
+    bbox = BoxMode.convert(instance["bbox"], instance["bbox_mode"], BoxMode.XYXY_ABS)
+    center_yx = (bbox[1] + bbox[3]) * 0.5, (bbox[0] + bbox[2]) * 0.5
+    assert (
+        image_size[0] >= center_yx[0] and image_size[1] >= center_yx[1]
+    ), "The annotation bounding box is outside of the image!"
+    assert (
+        image_size[0] >= crop_size[0] and image_size[1] >= crop_size[1]
+    ), "Crop size is larger than image size!"
+
+    min_yx = np.maximum(np.floor(center_yx).astype(np.int32) - crop_size, 0)
+    max_yx = np.maximum(np.asarray(image_size, dtype=np.int32) - crop_s
