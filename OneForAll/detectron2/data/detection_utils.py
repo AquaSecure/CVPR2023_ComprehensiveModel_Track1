@@ -554,4 +554,71 @@ def gen_crop_transform_with_instance(crop_size, image_size, instance):
     ), "Crop size is larger than image size!"
 
     min_yx = np.maximum(np.floor(center_yx).astype(np.int32) - crop_size, 0)
-    max_yx = np.maximum(np.asarray(image_size, dtype=np.int32) - crop_s
+    max_yx = np.maximum(np.asarray(image_size, dtype=np.int32) - crop_size, 0)
+    max_yx = np.minimum(max_yx, np.ceil(center_yx).astype(np.int32))
+
+    y0 = np.random.randint(min_yx[0], max_yx[0] + 1)
+    x0 = np.random.randint(min_yx[1], max_yx[1] + 1)
+    return T.CropTransform(x0, y0, crop_size[1], crop_size[0])
+
+
+def check_metadata_consistency(key, dataset_names):
+    """
+    Check that the datasets have consistent metadata.
+
+    Args:
+        key (str): a metadata key
+        dataset_names (list[str]): a list of dataset names
+
+    Raises:
+        AttributeError: if the key does not exist in the metadata
+        ValueError: if the given datasets do not have the same metadata values defined by key
+    """
+    if len(dataset_names) == 0:
+        return
+    logger = logging.getLogger(__name__)
+    entries_per_dataset = [getattr(MetadataCatalog.get(d), key) for d in dataset_names]
+    for idx, entry in enumerate(entries_per_dataset):
+        if entry != entries_per_dataset[0]:
+            logger.error(
+                "Metadata '{}' for dataset '{}' is '{}'".format(key, dataset_names[idx], str(entry))
+            )
+            logger.error(
+                "Metadata '{}' for dataset '{}' is '{}'".format(
+                    key, dataset_names[0], str(entries_per_dataset[0])
+                )
+            )
+            raise ValueError("Datasets have different metadata '{}'!".format(key))
+
+
+def build_augmentation(cfg, is_train):
+    """
+    Create a list of default :class:`Augmentation` from config.
+    Now it includes resizing and flipping.
+
+    Returns:
+        list[Augmentation]
+    """
+    if is_train:
+        min_size = cfg.INPUT.MIN_SIZE_TRAIN
+        max_size = cfg.INPUT.MAX_SIZE_TRAIN
+        sample_style = cfg.INPUT.MIN_SIZE_TRAIN_SAMPLING
+    else:
+        min_size = cfg.INPUT.MIN_SIZE_TEST
+        max_size = cfg.INPUT.MAX_SIZE_TEST
+        sample_style = "choice"
+    augmentation = [T.ResizeShortestEdge(min_size, max_size, sample_style)]
+    if is_train and cfg.INPUT.RANDOM_FLIP != "none":
+        augmentation.append(
+            T.RandomFlip(
+                horizontal=cfg.INPUT.RANDOM_FLIP == "horizontal",
+                vertical=cfg.INPUT.RANDOM_FLIP == "vertical",
+            )
+        )
+    return augmentation
+
+
+build_transform_gen = build_augmentation
+"""
+Alias for backward-compatibility.
+"""
