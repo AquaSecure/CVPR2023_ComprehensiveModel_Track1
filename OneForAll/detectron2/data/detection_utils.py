@@ -424,4 +424,71 @@ def annotations_to_instances(annos, image_size, mask_format="polygon"):
                     masks.append(segm)
                 else:
                     raise ValueError(
-                        "Cannot convert segmentation of type '{}' to Bit
+                        "Cannot convert segmentation of type '{}' to BitMasks!"
+                        "Supported types are: polygons as list[list[float] or ndarray],"
+                        " COCO-style RLE as a dict, or a binary segmentation mask "
+                        " in a 2D numpy array of shape HxW.".format(type(segm))
+                    )
+            # torch.from_numpy does not support array with negative stride.
+            masks = BitMasks(
+                torch.stack([torch.from_numpy(np.ascontiguousarray(x)) for x in masks])
+            )
+        target.gt_masks = masks
+
+    if len(annos) and "keypoints" in annos[0]:
+        kpts = [obj.get("keypoints", []) for obj in annos]
+        target.gt_keypoints = Keypoints(kpts)
+
+    return target
+
+
+def annotations_to_instances_rotated(annos, image_size):
+    """
+    Create an :class:`Instances` object used by the models,
+    from instance annotations in the dataset dict.
+    Compared to `annotations_to_instances`, this function is for rotated boxes only
+
+    Args:
+        annos (list[dict]): a list of instance annotations in one image, each
+            element for one instance.
+        image_size (tuple): height, width
+
+    Returns:
+        Instances:
+            Containing fields "gt_boxes", "gt_classes",
+            if they can be obtained from `annos`.
+            This is the format that builtin models expect.
+    """
+    boxes = [obj["bbox"] for obj in annos]
+    target = Instances(image_size)
+    boxes = target.gt_boxes = RotatedBoxes(boxes)
+    boxes.clip(image_size)
+
+    classes = [obj["category_id"] for obj in annos]
+    classes = torch.tensor(classes, dtype=torch.int64)
+    target.gt_classes = classes
+
+    return target
+
+
+def filter_empty_instances(
+    instances, by_box=True, by_mask=True, box_threshold=1e-5, return_mask=False
+):
+    """
+    Filter out empty instances in an `Instances` object.
+
+    Args:
+        instances (Instances):
+        by_box (bool): whether to filter out instances with empty boxes
+        by_mask (bool): whether to filter out instances with empty masks
+        box_threshold (float): minimum width and height to be considered non-empty
+        return_mask (bool): whether to return boolean mask of filtered instances
+
+    Returns:
+        Instances: the filtered instances.
+        tensor[bool], optional: boolean mask of filtered instances
+    """
+    assert by_box or by_mask
+    r = []
+    if by_box:
+ 
