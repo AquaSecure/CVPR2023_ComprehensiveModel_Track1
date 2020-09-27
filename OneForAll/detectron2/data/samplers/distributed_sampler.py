@@ -106,4 +106,54 @@ class RandomSubsetTrainingSampler(TrainingSampler):
             seed_subset = comm.shared_random_seed()
         self._seed_subset = int(seed_subset)
 
-        # randomly g
+        # randomly generate the subset indexes to be sampled from
+        g = torch.Generator()
+        g.manual_seed(self._seed_subset)
+        indexes_randperm = torch.randperm(self._size, generator=g)
+        self._indexes_subset = indexes_randperm[: self._size_subset]
+
+        logger.info("Using RandomSubsetTrainingSampler......")
+        logger.info(f"Randomly sample {self._size_subset} data from the original {self._size} data")
+
+    def _infinite_indices(self):
+        g = torch.Generator()
+        g.manual_seed(self._seed)  # self._seed equals seed_shuffle from __init__()
+        while True:
+            if self._shuffle:
+                # generate a random permutation to shuffle self._indexes_subset
+                randperm = torch.randperm(self._size_subset, generator=g)
+                yield from self._indexes_subset[randperm].tolist()
+            else:
+                yield from self._indexes_subset.tolist()
+
+
+class RepeatFactorTrainingSampler(Sampler):
+    """
+    Similar to TrainingSampler, but a sample may appear more times than others based
+    on its "repeat factor". This is suitable for training on class imbalanced datasets like LVIS.
+    """
+
+    def __init__(self, repeat_factors, *, shuffle=True, seed=None):
+        """
+        Args:
+            repeat_factors (Tensor): a float vector, the repeat factor for each indice. When it's
+                full of ones, it is equivalent to ``TrainingSampler(len(repeat_factors), ...)``.
+            shuffle (bool): whether to shuffle the indices or not
+            seed (int): the initial seed of the shuffle. Must be the same
+                across all workers. If None, will use a random seed shared
+                among workers (require synchronization among all workers).
+        """
+        self._shuffle = shuffle
+        if seed is None:
+            seed = comm.shared_random_seed()
+        self._seed = int(seed)
+
+        self._rank = comm.get_rank()
+        self._world_size = comm.get_world_size()
+
+        # Split into whole number (_int_part) and fractional (_frac_part) parts.
+        self._int_part = torch.trunc(repeat_factors)
+        self._frac_part = repeat_factors - self._int_part
+
+    @staticmethod
+    def repeat_factors_from
