@@ -204,4 +204,59 @@ class RepeatFactorTrainingSampler(Sampler):
 
     def _get_epoch_indices(self, generator):
         """
-        
+        Create a list of dataset indices (with repeats) to use for one epoch.
+
+        Args:
+            generator (torch.Generator): pseudo random number generator used for
+                stochastic rounding.
+
+        Returns:
+            torch.Tensor: list of dataset indices to use in one epoch. Each index
+                is repeated based on its calculated repeat factor.
+        """
+        # Since repeat factors are fractional, we use stochastic rounding so
+        # that the target repeat factor is achieved in expectation over the
+        # course of training
+        rands = torch.rand(len(self._frac_part), generator=generator)
+        rep_factors = self._int_part + (rands < self._frac_part).float()
+        # Construct a list of indices in which we repeat images as specified
+        indices = []
+        for dataset_index, rep_factor in enumerate(rep_factors):
+            indices.extend([dataset_index] * int(rep_factor.item()))
+        return torch.tensor(indices, dtype=torch.int64)
+
+    def __iter__(self):
+        start = self._rank
+        yield from itertools.islice(self._infinite_indices(), start, None, self._world_size)
+
+    def _infinite_indices(self):
+        g = torch.Generator()
+        g.manual_seed(self._seed)
+        while True:
+            # Sample indices with repeats determined by stochastic rounding; each
+            # "epoch" may have a slightly different size due to the rounding.
+            indices = self._get_epoch_indices(g)
+            if self._shuffle:
+                randperm = torch.randperm(len(indices), generator=g)
+                yield from indices[randperm].tolist()
+            else:
+                yield from indices.tolist()
+
+
+class InferenceSampler(Sampler):
+    """
+    Produce indices for inference across all workers.
+    Inference needs to run on the __exact__ set of samples,
+    therefore when the total number of samples is not divisible by the number of workers,
+    this sampler produces different number of samples on different workers.
+    """
+
+    def __init__(self, size: int):
+        """
+        Args:
+            size (int): the total number of data of the underlying dataset to sample from
+        """
+        self._size = size
+        assert size > 0
+        self._rank = comm.get_rank()
+ 
