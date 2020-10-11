@@ -206,4 +206,77 @@ class Augmentation:
                 if "\n" in attr_str:
                     # don't show it if pformat decides to use >1 lines
                     attr_str = "..."
-                argstr.append("{}={}".format(nam
+                argstr.append("{}={}".format(name, attr_str))
+            return "{}({})".format(classname, ", ".join(argstr))
+        except AssertionError:
+            return super().__repr__()
+
+    __str__ = __repr__
+
+
+def _transform_to_aug(tfm_or_aug):
+    """
+    Wrap Transform into Augmentation.
+    Private, used internally to implement augmentations.
+    """
+    assert isinstance(tfm_or_aug, (Transform, Augmentation)), tfm_or_aug
+    if isinstance(tfm_or_aug, Augmentation):
+        return tfm_or_aug
+    else:
+
+        class _TransformToAug(Augmentation):
+            def __init__(self, tfm: Transform):
+                self.tfm = tfm
+
+            def get_transform(self, *args):
+                return self.tfm
+
+            def __repr__(self):
+                return repr(self.tfm)
+
+            __str__ = __repr__
+
+        return _TransformToAug(tfm_or_aug)
+
+
+class AugmentationList(Augmentation):
+    """
+    Apply a sequence of augmentations.
+
+    It has ``__call__`` method to apply the augmentations.
+
+    Note that :meth:`get_transform` method is impossible (will throw error if called)
+    for :class:`AugmentationList`, because in order to apply a sequence of augmentations,
+    the kth augmentation must be applied first, to provide inputs needed by the (k+1)th
+    augmentation.
+    """
+
+    def __init__(self, augs):
+        """
+        Args:
+            augs (list[Augmentation or Transform]):
+        """
+        super().__init__()
+        self.augs = [_transform_to_aug(x) for x in augs]
+
+    def __call__(self, aug_input) -> Transform:
+        tfms = []
+        for x in self.augs:
+            tfm = x(aug_input)
+            tfms.append(tfm)
+        return TransformList(tfms)
+
+    def __repr__(self):
+        msgs = [str(x) for x in self.augs]
+        return "AugmentationList[{}]".format(", ".join(msgs))
+
+    __str__ = __repr__
+
+
+class AugInput:
+    """
+    Input that can be used with :meth:`Augmentation.__call__`.
+    This is a standard implementation for the majority of use cases.
+    This class provides the standard attributes **"image", "boxes", "sem_seg"**
+    defined in :meth:`__init__` and they may be needed by different augmentations.
+    Most augmentation policies do not
