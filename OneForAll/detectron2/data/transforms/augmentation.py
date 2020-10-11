@@ -51,4 +51,52 @@ def _get_aug_input_args(aug, aug_input) -> List[Any]:
             names = ("image",)
         else:
             names = []
-            for 
+            for name, prm in prms:
+                if prm.kind in (inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD):
+                    raise TypeError(
+                        """ \
+The default implementation of `{type(aug)}.__call__` does not allow \
+`{type(aug)}.get_transform` to use variable-length arguments (*args, **kwargs)! \
+If arguments are unknown, reimplement `__call__` instead. \
+"""
+                    )
+                names.append(name)
+        aug.input_args = tuple(names)
+
+    args = []
+    for f in aug.input_args:
+        try:
+            args.append(getattr(aug_input, f))
+        except AttributeError as e:
+            raise AttributeError(
+                "{type(aug)}.get_transform needs input attribute '{f}', "
+                "but it is not an attribute of {type(aug_input)}!"
+            ) from e
+    return args
+
+
+class Augmentation:
+    """
+    Augmentation defines (often random) policies/strategies to generate :class:`Transform`
+    from data. It is often used for pre-processing of input data.
+
+    A "policy" that generates a :class:`Transform` may, in the most general case,
+    need arbitrary information from input data in order to determine what transforms
+    to apply. Therefore, each :class:`Augmentation` instance defines the arguments
+    needed by its :meth:`get_transform` method. When called with the positional arguments,
+    the :meth:`get_transform` method executes the policy.
+
+    Note that :class:`Augmentation` defines the policies to create a :class:`Transform`,
+    but not how to execute the actual transform operations to those data.
+    Its :meth:`__call__` method will use :meth:`AugInput.transform` to execute the transform.
+
+    The returned `Transform` object is meant to describe deterministic transformation, which means
+    it can be re-applied on associated data, e.g. the geometry of an image and its segmentation
+    masks need to be transformed together.
+    (If such re-application is not needed, then determinism is not a crucial requirement.)
+    """
+
+    input_args: Optional[Tuple[str]] = None
+    """
+    Stores the attribute names needed by :meth:`get_transform`, e.g.  ``("image", "sem_seg")``.
+    By default, i
