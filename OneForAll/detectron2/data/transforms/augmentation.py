@@ -150,4 +150,60 @@ class Augmentation:
         """
         Augment the given `aug_input` **in-place**, and return the transform that's used.
 
-        This method will be called to apply the augmentation. In most 
+        This method will be called to apply the augmentation. In most augmentation, it
+        is enough to use the default implementation, which calls :meth:`get_transform`
+        using the inputs. But a subclass can overwrite it to have more complicated logic.
+
+        Args:
+            aug_input (AugInput): an object that has attributes needed by this augmentation
+                (defined by ``self.get_transform``). Its ``transform`` method will be called
+                to in-place transform it.
+
+        Returns:
+            Transform: the transform that is applied on the input.
+        """
+        args = _get_aug_input_args(self, aug_input)
+        tfm = self.get_transform(*args)
+        assert isinstance(tfm, (Transform, TransformList)), (
+            "{type(self)}.get_transform must return an instance of Transform! "
+            "Got {type(tfm)} instead."
+        )
+        aug_input.transform(tfm)
+        return tfm
+
+    def _rand_range(self, low=1.0, high=None, size=None):
+        """
+        Uniform float random number between low and high.
+        """
+        if high is None:
+            low, high = 0, low
+        if size is None:
+            size = []
+        return np.random.uniform(low, high, size)
+
+    def __repr__(self):
+        """
+        Produce something like:
+        "MyAugmentation(field1={self.field1}, field2={self.field2})"
+        """
+        try:
+            sig = inspect.signature(self.__init__)
+            classname = type(self).__name__
+            argstr = []
+            for name, param in sig.parameters.items():
+                assert (
+                    param.kind != param.VAR_POSITIONAL and param.kind != param.VAR_KEYWORD
+                ), "The default __repr__ doesn't support *args or **kwargs"
+                assert hasattr(self, name), (
+                    "Attribute {} not found! "
+                    "Default __repr__ only works if attributes match the constructor.".format(name)
+                )
+                attr = getattr(self, name)
+                default = param.default
+                if default is attr:
+                    continue
+                attr_str = pprint.pformat(attr)
+                if "\n" in attr_str:
+                    # don't show it if pformat decides to use >1 lines
+                    attr_str = "..."
+                argstr.append("{}={}".format(nam
