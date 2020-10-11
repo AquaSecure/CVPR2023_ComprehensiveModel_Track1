@@ -99,4 +99,55 @@ class Augmentation:
     input_args: Optional[Tuple[str]] = None
     """
     Stores the attribute names needed by :meth:`get_transform`, e.g.  ``("image", "sem_seg")``.
-    By default, i
+    By default, it is just a tuple of argument names in :meth:`self.get_transform`, which often only
+    contain "image". As long as the argument name convention is followed, there is no need for
+    users to touch this attribute.
+    """
+
+    def _init(self, params=None):
+        if params:
+            for k, v in params.items():
+                if k != "self" and not k.startswith("_"):
+                    setattr(self, k, v)
+
+    def get_transform(self, *args) -> Transform:
+        """
+        Execute the policy based on input data, and decide what transform to apply to inputs.
+
+        Args:
+            args: Any fixed-length positional arguments. By default, the name of the arguments
+                should exist in the :class:`AugInput` to be used.
+
+        Returns:
+            Transform: Returns the deterministic transform to apply to the input.
+
+        Examples:
+        ::
+            class MyAug:
+                # if a policy needs to know both image and semantic segmentation
+                def get_transform(image, sem_seg) -> T.Transform:
+                    pass
+            tfm: Transform = MyAug().get_transform(image, sem_seg)
+            new_image = tfm.apply_image(image)
+
+        Notes:
+            Users can freely use arbitrary new argument names in custom
+            :meth:`get_transform` method, as long as they are available in the
+            input data. In detectron2 we use the following convention:
+
+            * image: (H,W) or (H,W,C) ndarray of type uint8 in range [0, 255], or
+              floating point in range [0, 1] or [0, 255].
+            * boxes: (N,4) ndarray of float32. It represents the instance bounding boxes
+              of N instances. Each is in XYXY format in unit of absolute coordinates.
+            * sem_seg: (H,W) ndarray of type uint8. Each element is an integer label of pixel.
+
+            We do not specify convention for other types and do not include builtin
+            :class:`Augmentation` that uses other types in detectron2.
+        """
+        raise NotImplementedError
+
+    def __call__(self, aug_input) -> Transform:
+        """
+        Augment the given `aug_input` **in-place**, and return the transform that's used.
+
+        This method will be called to apply the augmentation. In most 
