@@ -331,4 +331,48 @@ class AugInput:
         In-place transform all attributes of this class.
 
         By "in-place", it means after calling this method, accessing an attribute such
-        as ``self.image`` will return transf
+        as ``self.image`` will return transformed data.
+        """
+        self.image = tfm.apply_image(self.image)
+        if self.boxes is not None:
+            self.boxes = tfm.apply_box(self.boxes)
+        if self.sem_seg is not None:
+            self.sem_seg = tfm.apply_segmentation(self.sem_seg)
+
+    def apply_augmentations(
+        self, augmentations: List[Union[Augmentation, Transform]]
+    ) -> TransformList:
+        """
+        Equivalent of ``AugmentationList(augmentations)(self)``
+        """
+        return AugmentationList(augmentations)(self)
+
+
+def apply_augmentations(augmentations: List[Union[Transform, Augmentation]], inputs):
+    """
+    Use ``T.AugmentationList(augmentations)(inputs)`` instead.
+    """
+    if isinstance(inputs, np.ndarray):
+        # handle the common case of image-only Augmentation, also for backward compatibility
+        image_only = True
+        inputs = AugInput(inputs)
+    else:
+        image_only = False
+    tfms = inputs.apply_augmentations(augmentations)
+    return inputs.image if image_only else inputs, tfms
+
+
+apply_transform_gens = apply_augmentations
+"""
+Alias for backward-compatibility.
+"""
+
+TransformGen = Augmentation
+"""
+Alias for Augmentation, since it is something that generates :class:`Transform`s
+"""
+
+StandardAugInput = AugInput
+"""
+Alias for compatibility. It's not worth the complexity to have two classes.
+"""
