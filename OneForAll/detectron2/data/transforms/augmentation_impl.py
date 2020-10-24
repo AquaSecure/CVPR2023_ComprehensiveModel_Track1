@@ -287,4 +287,62 @@ class RandomRotation(Augmentation):
                     np.random.uniform(self.center[0][1], self.center[1][1]),
                 )
         else:
-            angle = np.random.choice(sel
+            angle = np.random.choice(self.angle)
+            if self.center is not None:
+                center = np.random.choice(self.center)
+
+        if center is not None:
+            center = (w * center[0], h * center[1])  # Convert to absolute coordinates
+
+        if angle % 360 == 0:
+            return NoOpTransform()
+
+        return RotationTransform(h, w, angle, expand=self.expand, center=center, interp=self.interp)
+
+
+class FixedSizeCrop(Augmentation):
+    """
+    If `crop_size` is smaller than the input image size, then it uses a random crop of
+    the crop size. If `crop_size` is larger than the input image size, then it pads
+    the right and the bottom of the image to the crop size if `pad` is True, otherwise
+    it returns the smaller image.
+    """
+
+    def __init__(self, crop_size: Tuple[int], pad: bool = True, pad_value: float = 128.0):
+        """
+        Args:
+            crop_size: target image (height, width).
+            pad: if True, will pad images smaller than `crop_size` up to `crop_size`
+            pad_value: the padding value.
+        """
+        super().__init__()
+        self._init(locals())
+
+    def _get_crop(self, image: np.ndarray) -> Transform:
+        # Compute the image scale and scaled size.
+        input_size = image.shape[:2]
+        output_size = self.crop_size
+
+        # Add random crop if the image is scaled up.
+        max_offset = np.subtract(input_size, output_size)
+        max_offset = np.maximum(max_offset, 0)
+        offset = np.multiply(max_offset, np.random.uniform(0.0, 1.0))
+        offset = np.round(offset).astype(int)
+        return CropTransform(
+            offset[1], offset[0], output_size[1], output_size[0], input_size[1], input_size[0]
+        )
+
+    def _get_pad(self, image: np.ndarray) -> Transform:
+        # Compute the image scale and scaled size.
+        input_size = image.shape[:2]
+        output_size = self.crop_size
+
+        # Add padding if the image is scaled down.
+        pad_size = np.subtract(output_size, input_size)
+        pad_size = np.maximum(pad_size, 0)
+        original_size = np.minimum(input_size, output_size)
+        return PadTransform(
+            0, 0, pad_size[1], pad_size[0], original_size[1], original_size[0], self.pad_value
+        )
+
+    def get_transform(self, image: np.
