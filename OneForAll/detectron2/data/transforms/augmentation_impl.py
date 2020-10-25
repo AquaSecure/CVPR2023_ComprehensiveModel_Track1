@@ -345,4 +345,58 @@ class FixedSizeCrop(Augmentation):
             0, 0, pad_size[1], pad_size[0], original_size[1], original_size[0], self.pad_value
         )
 
-    def get_transform(self, image: np.
+    def get_transform(self, image: np.ndarray) -> TransformList:
+        transforms = [self._get_crop(image)]
+        if self.pad:
+            transforms.append(self._get_pad(image))
+        return TransformList(transforms)
+
+
+class RandomCrop(Augmentation):
+    """
+    Randomly crop a rectangle region out of an image.
+    """
+
+    def __init__(self, crop_type: str, crop_size):
+        """
+        Args:
+            crop_type (str): one of "relative_range", "relative", "absolute", "absolute_range".
+            crop_size (tuple[float, float]): two floats, explained below.
+
+        - "relative": crop a (H * crop_size[0], W * crop_size[1]) region from an input image of
+          size (H, W). crop size should be in (0, 1]
+        - "relative_range": uniformly sample two values from [crop_size[0], 1]
+          and [crop_size[1]], 1], and use them as in "relative" crop type.
+        - "absolute" crop a (crop_size[0], crop_size[1]) region from input image.
+          crop_size must be smaller than the input image size.
+        - "absolute_range", for an input of size (H, W), uniformly sample H_crop in
+          [crop_size[0], min(H, crop_size[1])] and W_crop in [crop_size[0], min(W, crop_size[1])].
+          Then crop a region (H_crop, W_crop).
+        """
+        # TODO style of relative_range and absolute_range are not consistent:
+        # one takes (h, w) but another takes (min, max)
+        super().__init__()
+        assert crop_type in ["relative_range", "relative", "absolute", "absolute_range"]
+        self._init(locals())
+
+    def get_transform(self, image):
+        h, w = image.shape[:2]
+        croph, cropw = self.get_crop_size((h, w))
+        assert h >= croph and w >= cropw, "Shape computation in {} has bugs.".format(self)
+        h0 = np.random.randint(h - croph + 1)
+        w0 = np.random.randint(w - cropw + 1)
+        return CropTransform(w0, h0, cropw, croph)
+
+    def get_crop_size(self, image_size):
+        """
+        Args:
+            image_size (tuple): height, width
+
+        Returns:
+            crop_size (tuple): height, width in absolute pixels
+        """
+        h, w = image_size
+        if self.crop_type == "relative":
+            ch, cw = self.crop_size
+            return int(h * ch + 0.5), int(w * cw + 0.5)
+        elif self.crop_type == "relative_range":
