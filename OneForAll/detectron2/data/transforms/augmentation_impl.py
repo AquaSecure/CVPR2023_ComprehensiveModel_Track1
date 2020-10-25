@@ -500,3 +500,71 @@ class RandomExtent(Augmentation):
         src_rect[1::2] += 0.5 * img_h
 
         return ExtentTransform(
+            src_rect=(src_rect[0], src_rect[1], src_rect[2], src_rect[3]),
+            output_size=(int(src_rect[3] - src_rect[1]), int(src_rect[2] - src_rect[0])),
+        )
+
+
+class RandomContrast(Augmentation):
+    """
+    Randomly transforms image contrast.
+
+    Contrast intensity is uniformly sampled in (intensity_min, intensity_max).
+    - intensity < 1 will reduce contrast
+    - intensity = 1 will preserve the input image
+    - intensity > 1 will increase contrast
+
+    See: https://pillow.readthedocs.io/en/3.0.x/reference/ImageEnhance.html
+    """
+
+    def __init__(self, intensity_min, intensity_max):
+        """
+        Args:
+            intensity_min (float): Minimum augmentation
+            intensity_max (float): Maximum augmentation
+        """
+        super().__init__()
+        self._init(locals())
+
+    def get_transform(self, image):
+        w = np.random.uniform(self.intensity_min, self.intensity_max)
+        return BlendTransform(src_image=image.mean(), src_weight=1 - w, dst_weight=w)
+
+
+class RandomBrightness(Augmentation):
+    """
+    Randomly transforms image brightness.
+
+    Brightness intensity is uniformly sampled in (intensity_min, intensity_max).
+    - intensity < 1 will reduce brightness
+    - intensity = 1 will preserve the input image
+    - intensity > 1 will increase brightness
+
+    See: https://pillow.readthedocs.io/en/3.0.x/reference/ImageEnhance.html
+    """
+
+    def __init__(self, intensity_min, intensity_max):
+        """
+        Args:
+            intensity_min (float): Minimum augmentation
+            intensity_max (float): Maximum augmentation
+        """
+        super().__init__()
+        self._init(locals())
+
+    def get_transform(self, image):
+        w = np.random.uniform(self.intensity_min, self.intensity_max)
+        return BlendTransform(src_image=0, src_weight=1 - w, dst_weight=w)
+
+
+class RandomSaturation(Augmentation):
+    """
+    Randomly transforms saturation of an RGB image.
+    Input images are assumed to have 'RGB' channel order.
+
+    Saturation intensity is uniformly sampled in (intensity_min, intensity_max).
+    - intensity < 1 will reduce saturation (make the image more grayscale)
+    - intensity = 1 will preserve the input image
+    - intensity > 1 will increase saturation
+
+  
