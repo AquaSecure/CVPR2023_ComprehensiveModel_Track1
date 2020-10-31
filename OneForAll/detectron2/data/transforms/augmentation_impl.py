@@ -567,4 +567,49 @@ class RandomSaturation(Augmentation):
     - intensity = 1 will preserve the input image
     - intensity > 1 will increase saturation
 
-  
+    See: https://pillow.readthedocs.io/en/3.0.x/reference/ImageEnhance.html
+    """
+
+    def __init__(self, intensity_min, intensity_max):
+        """
+        Args:
+            intensity_min (float): Minimum augmentation (1 preserves input).
+            intensity_max (float): Maximum augmentation (1 preserves input).
+        """
+        super().__init__()
+        self._init(locals())
+
+    def get_transform(self, image):
+        assert image.shape[-1] == 3, "RandomSaturation only works on RGB images"
+        w = np.random.uniform(self.intensity_min, self.intensity_max)
+        grayscale = image.dot([0.299, 0.587, 0.114])[:, :, np.newaxis]
+        return BlendTransform(src_image=grayscale, src_weight=1 - w, dst_weight=w)
+
+
+class RandomLighting(Augmentation):
+    """
+    The "lighting" augmentation described in AlexNet, using fixed PCA over ImageNet.
+    Input images are assumed to have 'RGB' channel order.
+
+    The degree of color jittering is randomly sampled via a normal distribution,
+    with standard deviation given by the scale parameter.
+    """
+
+    def __init__(self, scale):
+        """
+        Args:
+            scale (float): Standard deviation of principal component weighting.
+        """
+        super().__init__()
+        self._init(locals())
+        self.eigen_vecs = np.array(
+            [[-0.5675, 0.7192, 0.4009], [-0.5808, -0.0045, -0.8140], [-0.5836, -0.6948, 0.4203]]
+        )
+        self.eigen_vals = np.array([0.2175, 0.0188, 0.0045])
+
+    def get_transform(self, image):
+        assert image.shape[-1] == 3, "RandomLighting only works on RGB images"
+        weights = np.random.normal(scale=self.scale, size=3)
+        return BlendTransform(
+            src_image=self.eigen_vecs.dot(weights * self.eigen_vals), src_weight=1.0, dst_weight=1.0
+        )
