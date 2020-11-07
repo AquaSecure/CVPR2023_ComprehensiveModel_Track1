@@ -46,4 +46,71 @@ from detectron2.utils.file_io import PathManager
 from detectron2.utils.logger import setup_logger
 
 from . import hooks
-from .train_loop 
+from .train_loop import AMPTrainer, SimpleTrainer, TrainerBase
+
+__all__ = [
+    "create_ddp_model",
+    "default_argument_parser",
+    "default_setup",
+    "default_writers",
+    "DefaultPredictor",
+    "DefaultTrainer",
+]
+
+def build_model(cfg):
+    return None
+
+def create_ddp_model(model, *, fp16_compression=False, **kwargs):
+    """
+    Create a DistributedDataParallel model if there are >1 processes.
+
+    Args:
+        model: a torch.nn.Module
+        fp16_compression: add fp16 compression hooks to the ddp object.
+            See more at https://pytorch.org/docs/stable/ddp_comm_hooks.html#torch.distributed.algorithms.ddp_comm_hooks.default_hooks.fp16_compress_hook
+        kwargs: other arguments of :module:`torch.nn.parallel.DistributedDataParallel`.
+    """  # noqa
+    if comm.get_world_size() == 1:
+        return model
+    if "device_ids" not in kwargs:
+        kwargs["device_ids"] = [comm.get_local_rank()]
+    ddp = DistributedDataParallel(model, **kwargs)
+    if fp16_compression:
+        from torch.distributed.algorithms.ddp_comm_hooks import default as comm_hooks
+
+        ddp.register_comm_hook(state=None, hook=comm_hooks.fp16_compress_hook)
+    return ddp
+
+
+def default_argument_parser(epilog=None):
+    """
+    Create a parser with some common arguments used by detectron2 users.
+
+    Args:
+        epilog (str): epilog passed to ArgumentParser describing the usage.
+
+    Returns:
+        argparse.ArgumentParser:
+    """
+    parser = argparse.ArgumentParser(
+        epilog=epilog
+        or """
+Examples:
+
+Run on single machine:
+    $ {sys.argv[0]} --num-gpus 8 --config-file cfg.yaml
+
+Change some config options:
+    $ {sys.argv[0]} --config-file cfg.yaml MODEL.WEIGHTS /path/to/weight.pth SOLVER.BASE_LR 0.001
+
+Run on multiple machines:
+    (machine0)$ {sys.argv[0]} --machine-rank 0 --num-machines 2 --dist-url <URL> [--other-flags]
+    (machine1)$ {sys.argv[0]} --machine-rank 1 --num-machines 2 --dist-url <URL> [--other-flags]
+""",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
+    parser.add_argument("--config-file", default="", metavar="FILE", help="path to config file")
+    parser.add_argument(
+        "--resume",
+        action="store_true",
+        help="Whether to attempt to resume from the check
