@@ -148,4 +148,60 @@ class ResizeTransform(Transform):
 
     def apply_coords(self, coords):
         coords[:, 0] = coords[:, 0] * (self.new_w * 1.0 / self.w)
-        coords[:, 1] = coords[:, 1] * (self.new_h * 
+        coords[:, 1] = coords[:, 1] * (self.new_h * 1.0 / self.h)
+        return coords
+
+    def apply_segmentation(self, segmentation):
+        segmentation = self.apply_image(segmentation, interp=Image.NEAREST)
+        return segmentation
+
+    def inverse(self):
+        return ResizeTransform(self.new_h, self.new_w, self.h, self.w, self.interp)
+
+
+class RotationTransform(Transform):
+    """
+    This method returns a copy of this image, rotated the given
+    number of degrees counter clockwise around its center.
+    """
+
+    def __init__(self, h, w, angle, expand=True, center=None, interp=None):
+        """
+        Args:
+            h, w (int): original image size
+            angle (float): degrees for rotation
+            expand (bool): choose if the image should be resized to fit the whole
+                rotated image (default), or simply cropped
+            center (tuple (width, height)): coordinates of the rotation center
+                if left to None, the center will be fit to the center of each image
+                center has no effect if expand=True because it only affects shifting
+            interp: cv2 interpolation method, default cv2.INTER_LINEAR
+        """
+        super().__init__()
+        image_center = np.array((w / 2, h / 2))
+        if center is None:
+            center = image_center
+        if interp is None:
+            interp = cv2.INTER_LINEAR
+        abs_cos, abs_sin = (abs(np.cos(np.deg2rad(angle))), abs(np.sin(np.deg2rad(angle))))
+        if expand:
+            # find the new width and height bounds
+            bound_w, bound_h = np.rint(
+                [h * abs_sin + w * abs_cos, h * abs_cos + w * abs_sin]
+            ).astype(int)
+        else:
+            bound_w, bound_h = w, h
+
+        self._set_attributes(locals())
+        self.rm_coords = self.create_rotation_matrix()
+        # Needed because of this problem https://github.com/opencv/opencv/issues/11784
+        self.rm_image = self.create_rotation_matrix(offset=-0.5)
+
+    def apply_image(self, img, interp=None):
+        """
+        img should be a numpy array, formatted as Height * Width * Nchannels
+        """
+        if len(img) == 0 or self.angle % 360 == 0:
+            return img
+        assert img.shape[:2] == (self.h, self.w)
+        interp = interp if interp is not No
