@@ -258,4 +258,77 @@ class ColorTransform(Transform):
     def __init__(self, op):
         """
         Args:
-            op (Callable): operation to be applied to 
+            op (Callable): operation to be applied to the image,
+                which takes in an ndarray and returns an ndarray.
+        """
+        if not callable(op):
+            raise ValueError("op parameter should be callable")
+        super().__init__()
+        self._set_attributes(locals())
+
+    def apply_image(self, img):
+        return self.op(img)
+
+    def apply_coords(self, coords):
+        return coords
+
+    def inverse(self):
+        return NoOpTransform()
+
+    def apply_segmentation(self, segmentation):
+        return segmentation
+
+
+class PILColorTransform(ColorTransform):
+    """
+    Generic wrapper for PIL Photometric image transforms,
+        which affect the color space and not the coordinate
+        space of the image
+    """
+
+    def __init__(self, op):
+        """
+        Args:
+            op (Callable): operation to be applied to the image,
+                which takes in a PIL Image and returns a transformed
+                PIL Image.
+                For reference on possible operations see:
+                - https://pillow.readthedocs.io/en/stable/
+        """
+        if not callable(op):
+            raise ValueError("op parameter should be callable")
+        super().__init__(op)
+
+    def apply_image(self, img):
+        img = Image.fromarray(img)
+        return np.asarray(super().apply_image(img))
+
+
+def HFlip_rotated_box(transform, rotated_boxes):
+    """
+    Apply the horizontal flip transform on rotated boxes.
+
+    Args:
+        rotated_boxes (ndarray): Nx5 floating point array of
+            (x_center, y_center, width, height, angle_degrees) format
+            in absolute coordinates.
+    """
+    # Transform x_center
+    rotated_boxes[:, 0] = transform.width - rotated_boxes[:, 0]
+    # Transform angle
+    rotated_boxes[:, 4] = -rotated_boxes[:, 4]
+    return rotated_boxes
+
+
+def Resize_rotated_box(transform, rotated_boxes):
+    """
+    Apply the resizing transform on rotated boxes. For details of how these (approximation)
+    formulas are derived, please refer to :meth:`RotatedBoxes.scale`.
+
+    Args:
+        rotated_boxes (ndarray): Nx5 floating point array of
+            (x_center, y_center, width, height, angle_degrees) format
+            in absolute coordinates.
+    """
+    scale_factor_x = transform.new_w * 1.0 / transform.w
+    scale_factor_y = transfo
