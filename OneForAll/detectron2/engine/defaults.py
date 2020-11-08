@@ -230,4 +230,65 @@ def default_setup(cfg, args):
         )
 
 
-def default_
+def default_writers(output_dir, max_iter=None):
+    """
+    Build a list of :class:`EventWriter` to be used.
+    It now consists of a :class:`CommonMetricPrinter`,
+    :class:`TensorboardXWriter` and :class:`JSONWriter`.
+
+    Args:
+        output_dir: directory to store JSON metrics and tensorboard events
+        max_iter: the total number of iterations
+
+    Returns:
+        list[EventWriter]: a list of :class:`EventWriter` objects.
+    """
+    PathManager.mkdirs(output_dir)
+    return [
+        # It may not always print what you want to see, since it prints "common" metrics only.
+        CommonMetricPrinter(max_iter),
+        JSONWriter(os.path.join(output_dir, "metrics.json")),
+        TensorboardXWriter(output_dir),
+    ]
+
+
+class DefaultPredictor:
+    """
+    Create a simple end-to-end predictor with the given config that runs on
+    single device for a single input image.
+
+    Compared to using the model directly, this class does the following additions:
+
+    1. Load checkpoint from `cfg.MODEL.WEIGHTS`.
+    2. Always take BGR image as the input and apply conversion defined by `cfg.INPUT.FORMAT`.
+    3. Apply resizing defined by `cfg.INPUT.{MIN,MAX}_SIZE_TEST`.
+    4. Take one input image and produce a single output, instead of a batch.
+
+    This is meant for simple demo purposes, so it does the above steps automatically.
+    This is not meant for benchmarks or running complicated inference logic.
+    If you'd like to do anything more complicated, please refer to its source code as
+    examples to build and use the model manually.
+
+    Attributes:
+        metadata (Metadata): the metadata of the underlying dataset, obtained from
+            cfg.DATASETS.TEST.
+
+    Examples:
+    ::
+        pred = DefaultPredictor(cfg)
+        inputs = cv2.imread("input.jpg")
+        outputs = pred(inputs)
+    """
+
+    def __init__(self, cfg):
+        self.cfg = cfg.clone()  # cfg can be modified by model
+        self.model = build_model(self.cfg)
+        self.model.eval()
+        if len(cfg.DATASETS.TEST):
+            self.metadata = MetadataCatalog.get(cfg.DATASETS.TEST[0])
+
+        checkpointer = DetectionCheckpointer(self.model)
+        checkpointer.load(cfg.MODEL.WEIGHTS)
+
+        self.aug = T.ResizeShortestEdge(
+            [cfg.INPUT.MIN_SIZE_TEST, cfg.INPUT.
