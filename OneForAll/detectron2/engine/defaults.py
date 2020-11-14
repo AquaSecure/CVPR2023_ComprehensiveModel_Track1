@@ -342,4 +342,64 @@ class DefaultTrainer(TrainerBase):
 
     1. Overwrite methods of this class, OR:
     2. Use :class:`SimpleTrainer`, which only does minimal SGD training and
-       nothing else. You can then ad
+       nothing else. You can then add your own hooks if needed. OR:
+    3. Write your own training loop similar to `tools/plain_train_net.py`.
+
+    See the :doc:`/tutorials/training` tutorials for more details.
+
+    Note that the behavior of this class, like other functions/classes in
+    this file, is not stable, since it is meant to represent the "common default behavior".
+    It is only guaranteed to work well with the standard models and training workflow in detectron2.
+    To obtain more stable behavior, write your own training logic with other public APIs.
+
+    Examples:
+    ::
+        trainer = DefaultTrainer(cfg)
+        trainer.resume_or_load()  # load last checkpoint or MODEL.WEIGHTS
+        trainer.train()
+
+    Attributes:
+        scheduler:
+        checkpointer (DetectionCheckpointer):
+        cfg (CfgNode):
+    """
+
+    def __init__(self, cfg):
+        """
+        Args:
+            cfg (CfgNode):
+        """
+        super().__init__()
+        logger = logging.getLogger("detectron2")
+        if not logger.isEnabledFor(logging.INFO):  # setup_logger is not called for d2
+            setup_logger()
+        cfg = DefaultTrainer.auto_scale_workers(cfg, comm.get_world_size())
+
+        # Assume these objects must be constructed in this order.
+        model = self.build_model(cfg)
+        optimizer = self.build_optimizer(cfg, model)
+        data_loader = self.build_train_loader(cfg)
+
+        model = create_ddp_model(model, broadcast_buffers=False)
+        self._trainer = (AMPTrainer if cfg.SOLVER.AMP.ENABLED else SimpleTrainer)(
+            model, data_loader, optimizer
+        )
+
+        self.scheduler = self.build_lr_scheduler(cfg, optimizer)
+        self.checkpointer = DetectionCheckpointer(
+            # Assume you want to save checkpoints together with logs/statistics
+            model,
+            cfg.OUTPUT_DIR,
+            trainer=weakref.proxy(self),
+        )
+        self.start_iter = 0
+        self.max_iter = cfg.SOLVER.MAX_ITER
+        self.cfg = cfg
+
+        self.register_hooks(self.build_hooks())
+
+    def resume_or_load(self, resume=True):
+        """
+        If `resume==True` and `cfg.OUTPUT_DIR` contains the last checkpoint (defined by
+        a `last_checkpoint` file), resume from the file. Resuming means loading all
+       
