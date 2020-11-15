@@ -457,4 +457,77 @@ class DefaultTrainer(TrainerBase):
             return self._last_eval_results
 
         # Do evaluation after checkpointer, because then if it fails,
-        # we
+        # we can use the saved checkpoint to debug.
+        ret.append(hooks.EvalHook(cfg.TEST.EVAL_PERIOD, test_and_save_results))
+
+        if comm.is_main_process():
+            # Here the default print/log frequency of each writer is used.
+            # run writers in the end, so that evaluation metrics are written
+            ret.append(hooks.PeriodicWriter(self.build_writers(), period=20))
+        return ret
+
+    def build_writers(self):
+        """
+        Build a list of writers to be used using :func:`default_writers()`.
+        If you'd like a different list of writers, you can overwrite it in
+        your trainer.
+
+        Returns:
+            list[EventWriter]: a list of :class:`EventWriter` objects.
+        """
+        return default_writers(self.cfg.OUTPUT_DIR, self.max_iter)
+
+    def train(self):
+        """
+        Run training.
+
+        Returns:
+            OrderedDict of results, if evaluation is enabled. Otherwise None.
+        """
+        super().train(self.start_iter, self.max_iter)
+        if len(self.cfg.TEST.EXPECTED_RESULTS) and comm.is_main_process():
+            assert hasattr(
+                self, "_last_eval_results"
+            ), "No evaluation results obtained during training!"
+            verify_results(self.cfg, self._last_eval_results)
+            return self._last_eval_results
+
+    def run_step(self):
+        self._trainer.iter = self.iter
+        self._trainer.run_step()
+
+    @classmethod
+    def build_model(cls, cfg):
+        """
+        Returns:
+            torch.nn.Module:
+
+        It now calls :func:`detectron2.modeling.build_model`.
+        Overwrite it if you'd like a different model.
+        """
+        model = build_model(cfg)
+        logger = logging.getLogger(__name__)
+        logger.info("Model:\n{}".format(model))
+        return model
+
+    @classmethod
+    def build_optimizer(cls, cfg, model):
+        """
+        Returns:
+            torch.optim.Optimizer:
+
+        It now calls :func:`detectron2.solver.build_optimizer`.
+        Overwrite it if you'd like a different optimizer.
+        """
+        return build_optimizer(cfg, model)
+
+    @classmethod
+    def build_lr_scheduler(cls, cfg, optimizer):
+        """
+        It now calls :func:`detectron2.solver.build_lr_scheduler`.
+        Overwrite it if you'd like a different scheduler.
+        """
+        return build_lr_scheduler(cfg, optimizer)
+
+    @classmethod
+    def build_
