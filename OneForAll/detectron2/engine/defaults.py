@@ -597,4 +597,55 @@ Alternatively, you can call evaluation functions yourself (see Colab balloon tut
             # When evaluators are passed in as arguments,
             # implicitly assume that evaluators can be created before data_loader.
             if evaluators is not None:
-            
+                evaluator = evaluators[idx]
+            else:
+                try:
+                    evaluator = cls.build_evaluator(cfg, dataset_name)
+                except NotImplementedError:
+                    logger.warn(
+                        "No evaluator found. Use `DefaultTrainer.test(evaluators=)`, "
+                        "or implement its `build_evaluator` method."
+                    )
+                    results[dataset_name] = {}
+                    continue
+            results_i = inference_on_dataset(model, data_loader, evaluator)
+            results[dataset_name] = results_i
+            if comm.is_main_process():
+                assert isinstance(
+                    results_i, dict
+                ), "Evaluator must return a dict on the main process. Got {} instead.".format(
+                    results_i
+                )
+                logger.info("Evaluation results for {} in csv format:".format(dataset_name))
+                print_csv_format(results_i)
+
+        if len(results) == 1:
+            results = list(results.values())[0]
+        return results
+
+    @staticmethod
+    def auto_scale_workers(cfg, num_workers: int):
+        """
+        When the config is defined for certain number of workers (according to
+        ``cfg.SOLVER.REFERENCE_WORLD_SIZE``) that's different from the number of
+        workers currently in use, returns a new cfg where the total batch size
+        is scaled so that the per-GPU batch size stays the same as the
+        original ``IMS_PER_BATCH // REFERENCE_WORLD_SIZE``.
+
+        Other config options are also scaled accordingly:
+        * training steps and warmup steps are scaled inverse proportionally.
+        * learning rate are scaled proportionally, following :paper:`ImageNet in 1h`.
+
+        For example, with the original config like the following:
+
+        .. code-block:: yaml
+
+            IMS_PER_BATCH: 16
+            BASE_LR: 0.1
+            REFERENCE_WORLD_SIZE: 8
+            MAX_ITER: 5000
+            STEPS: (4000,)
+            CHECKPOINT_PERIOD: 1000
+
+        When this config is used on 16 GPUs instead of the reference number 8,
+        calling this method will return a new confi
