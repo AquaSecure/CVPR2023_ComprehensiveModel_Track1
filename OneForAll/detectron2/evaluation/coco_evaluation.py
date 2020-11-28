@@ -73,4 +73,42 @@ class COCOEvaluator(DatasetEvaluator):
                 1. "instances_predictions.pth" a file that can be loaded with `torch.load` and
                    contains all the results in the format they are produced by the model.
                 2. "coco_instances_results.json" a json file in COCO's result format.
-            max_dets_per_
+            max_dets_per_image (int): limit on the maximum number of detections per image.
+                By default in COCO, this limit is to 100, but this can be customized
+                to be greater, as is needed in evaluation metrics AP fixed and AP pool
+                (see https://arxiv.org/pdf/2102.01066.pdf)
+                This doesn't affect keypoint evaluation.
+            use_fast_impl (bool): use a fast but **unofficial** implementation to compute AP.
+                Although the results should be very close to the official implementation in COCO
+                API, it is still recommended to compute results with the official API for use in
+                papers. The faster implementation also uses more RAM.
+            kpt_oks_sigmas (list[float]): The sigmas used to calculate keypoint OKS.
+                See http://cocodataset.org/#keypoints-eval
+                When empty, it will use the defaults in COCO.
+                Otherwise it should be the same length as ROI_KEYPOINT_HEAD.NUM_KEYPOINTS.
+        """
+        self._logger = logging.getLogger(__name__)
+        self._distributed = distributed
+        self._output_dir = output_dir
+        self._use_fast_impl = use_fast_impl
+
+        # COCOeval requires the limit on the number of detections per image (maxDets) to be a list
+        # with at least 3 elements. The default maxDets in COCOeval is [1, 10, 100], in which the
+        # 3rd element (100) is used as the limit on the number of detections per image when
+        # evaluating AP. COCOEvaluator expects an integer for max_dets_per_image, so for COCOeval,
+        # we reformat max_dets_per_image into [1, 10, max_dets_per_image], based on the defaults.
+        if max_dets_per_image is None:
+            max_dets_per_image = [1, 10, 100]
+        else:
+            max_dets_per_image = [1, 10, max_dets_per_image]
+        self._max_dets_per_image = max_dets_per_image
+
+        if tasks is not None and isinstance(tasks, CfgNode):
+            kpt_oks_sigmas = (
+                tasks.TEST.KEYPOINT_OKS_SIGMAS if not kpt_oks_sigmas else kpt_oks_sigmas
+            )
+            self._logger.warn(
+                "COCO Evaluator instantiated using config, this is deprecated behavior."
+                " Please pass in explicit arguments instead."
+            )
+    
