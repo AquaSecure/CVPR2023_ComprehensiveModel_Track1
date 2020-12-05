@@ -569,4 +569,45 @@ def _evaluate_predictions_on_coco(
 
     if iou_type == "segm":
         coco_results = copy.deepcopy(coco_results)
-       
+        # When evaluating mask AP, if the results contain bbox, cocoapi will
+        # use the box area as the area of the instance, instead of the mask area.
+        # This leads to a different definition of small/medium/large.
+        # We remove the bbox field to let mask AP use mask area.
+        for c in coco_results:
+            c.pop("bbox", None)
+
+    coco_dt = coco_gt.loadRes(coco_results)
+    coco_eval = (COCOeval_opt if use_fast_impl else COCOeval)(coco_gt, coco_dt, iou_type)
+    # For COCO, the default max_dets_per_image is [1, 10, 100].
+    if max_dets_per_image is None:
+        max_dets_per_image = [1, 10, 100]  # Default from COCOEval
+    else:
+        assert (
+            len(max_dets_per_image) >= 3
+        ), "COCOeval requires maxDets (and max_dets_per_image) to have length at least 3"
+        # In the case that user supplies a custom input for max_dets_per_image,
+        # apply COCOevalMaxDets to evaluate AP with the custom input.
+        if max_dets_per_image[2] != 100:
+            coco_eval = COCOevalMaxDets(coco_gt, coco_dt, iou_type)
+    if iou_type != "keypoints":
+        coco_eval.params.maxDets = max_dets_per_image
+
+    if img_ids is not None:
+        coco_eval.params.imgIds = img_ids
+
+    if iou_type == "keypoints":
+        # Use the COCO default keypoint OKS sigmas unless overrides are specified
+        if kpt_oks_sigmas:
+            assert hasattr(coco_eval.params, "kpt_oks_sigmas"), "pycocotools is too old!"
+            coco_eval.params.kpt_oks_sigmas = np.array(kpt_oks_sigmas)
+        # COCOAPI requires every detection and every gt to have keypoints, so
+        # we just take the first entry from both
+        num_keypoints_dt = len(coco_results[0]["keypoints"]) // 3
+        num_keypoints_gt = len(next(iter(coco_gt.anns.values()))["keypoints"]) // 3
+        num_keypoints_oks = len(coco_eval.params.kpt_oks_sigmas)
+        assert num_keypoints_oks == num_keypoints_dt == num_keypoints_gt, (
+            "[COCOEvaluator] Prediction contain {num_keypoints_dt} keypoints. "
+            "Ground truth contains {num_keypoints_gt} keypoints. "
+            "The length of cfg.TEST.KEYPOINT_OKS_SIGMAS is {num_keypoints_oks}. "
+            "They have to agree with each other. For meaning of OKS, please refer to "
+            "http://cocodatase
