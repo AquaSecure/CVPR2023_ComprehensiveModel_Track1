@@ -441,4 +441,63 @@ def instances_to_coco_json(instances, img_id):
 
 
 # inspired from Detectron:
-# https://github.com/facebookre
+# https://github.com/facebookresearch/Detectron/blob/a6a835f5b8208c45d0dce217ce9bbda915f44df7/detectron/datasets/json_dataset_evaluator.py#L255 # noqa
+def _evaluate_box_proposals(dataset_predictions, coco_api, thresholds=None, area="all", limit=None):
+    """
+    Evaluate detection proposal recall metrics. This function is a much
+    faster alternative to the official COCO API recall evaluation code. However,
+    it produces slightly different results.
+    """
+    # Record max overlap value for each gt box
+    # Return vector of overlap values
+    areas = {
+        "all": 0,
+        "small": 1,
+        "medium": 2,
+        "large": 3,
+        "96-128": 4,
+        "128-256": 5,
+        "256-512": 6,
+        "512-inf": 7,
+    }
+    area_ranges = [
+        [0 ** 2, 1e5 ** 2],  # all
+        [0 ** 2, 32 ** 2],  # small
+        [32 ** 2, 96 ** 2],  # medium
+        [96 ** 2, 1e5 ** 2],  # large
+        [96 ** 2, 128 ** 2],  # 96-128
+        [128 ** 2, 256 ** 2],  # 128-256
+        [256 ** 2, 512 ** 2],  # 256-512
+        [512 ** 2, 1e5 ** 2],
+    ]  # 512-inf
+    assert area in areas, "Unknown area range: {}".format(area)
+    area_range = area_ranges[areas[area]]
+    gt_overlaps = []
+    num_pos = 0
+
+    for prediction_dict in dataset_predictions:
+        predictions = prediction_dict["proposals"]
+
+        # sort predictions in descending order
+        # TODO maybe remove this and make it explicit in the documentation
+        inds = predictions.objectness_logits.sort(descending=True)[1]
+        predictions = predictions[inds]
+
+        ann_ids = coco_api.getAnnIds(imgIds=prediction_dict["image_id"])
+        anno = coco_api.loadAnns(ann_ids)
+        gt_boxes = [
+            BoxMode.convert(obj["bbox"], BoxMode.XYWH_ABS, BoxMode.XYXY_ABS)
+            for obj in anno
+            if obj["iscrowd"] == 0
+        ]
+        gt_boxes = torch.as_tensor(gt_boxes).reshape(-1, 4)  # guard against no boxes
+        gt_boxes = Boxes(gt_boxes)
+        gt_areas = torch.as_tensor([obj["area"] for obj in anno if obj["iscrowd"] == 0])
+
+        if len(gt_boxes) == 0 or len(predictions) == 0:
+            continue
+
+        valid_gt_inds = (gt_areas >= area_range[0]) & (gt_areas <= area_range[1])
+        gt_boxes = gt_boxes[valid_gt_inds]
+
+        num_pos += len(gt
