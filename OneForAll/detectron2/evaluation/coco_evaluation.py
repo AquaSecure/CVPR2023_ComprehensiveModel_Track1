@@ -671,4 +671,41 @@ class COCOevalMaxDets(COCOeval):
             stats = np.zeros((12,))
             # Evaluate AP using the custom limit on maximum detections per image
             stats[0] = _summarize(1, maxDets=self.params.maxDets[2])
-            stats[1] = _summarize(1, iouThr=0.5, maxDets=self.params.ma
+            stats[1] = _summarize(1, iouThr=0.5, maxDets=self.params.maxDets[2])
+            stats[2] = _summarize(1, iouThr=0.75, maxDets=self.params.maxDets[2])
+            stats[3] = _summarize(1, areaRng="small", maxDets=self.params.maxDets[2])
+            stats[4] = _summarize(1, areaRng="medium", maxDets=self.params.maxDets[2])
+            stats[5] = _summarize(1, areaRng="large", maxDets=self.params.maxDets[2])
+            stats[6] = _summarize(0, maxDets=self.params.maxDets[0])
+            stats[7] = _summarize(0, maxDets=self.params.maxDets[1])
+            stats[8] = _summarize(0, maxDets=self.params.maxDets[2])
+            stats[9] = _summarize(0, areaRng="small", maxDets=self.params.maxDets[2])
+            stats[10] = _summarize(0, areaRng="medium", maxDets=self.params.maxDets[2])
+            stats[11] = _summarize(0, areaRng="large", maxDets=self.params.maxDets[2])
+            return stats
+
+        def _summarizeKps():
+            stats = np.zeros((10,))
+            stats[0] = _summarize(1, maxDets=20)
+            stats[1] = _summarize(1, maxDets=20, iouThr=0.5)
+            stats[2] = _summarize(1, maxDets=20, iouThr=0.75)
+            stats[3] = _summarize(1, maxDets=20, areaRng="medium")
+            stats[4] = _summarize(1, maxDets=20, areaRng="large")
+            stats[5] = _summarize(0, maxDets=20)
+            stats[6] = _summarize(0, maxDets=20, iouThr=0.5)
+            stats[7] = _summarize(0, maxDets=20, iouThr=0.75)
+            stats[8] = _summarize(0, maxDets=20, areaRng="medium")
+            stats[9] = _summarize(0, maxDets=20, areaRng="large")
+            return stats
+
+        if not self.eval:
+            raise Exception("Please run accumulate() first")
+        iouType = self.params.iouType
+        if iouType == "segm" or iouType == "bbox":
+            summarize = _summarizeDets
+        elif iouType == "keypoints":
+            summarize = _summarizeKps
+        self.stats = summarize()
+
+    def __str__(self):
+        self.summarize()
