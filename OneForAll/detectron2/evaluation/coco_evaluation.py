@@ -500,4 +500,73 @@ def _evaluate_box_proposals(dataset_predictions, coco_api, thresholds=None, area
         valid_gt_inds = (gt_areas >= area_range[0]) & (gt_areas <= area_range[1])
         gt_boxes = gt_boxes[valid_gt_inds]
 
-        num_pos += len(gt
+        num_pos += len(gt_boxes)
+
+        if len(gt_boxes) == 0:
+            continue
+
+        if limit is not None and len(predictions) > limit:
+            predictions = predictions[:limit]
+
+        overlaps = pairwise_iou(predictions.proposal_boxes, gt_boxes)
+
+        _gt_overlaps = torch.zeros(len(gt_boxes))
+        for j in range(min(len(predictions), len(gt_boxes))):
+            # find which proposal box maximally covers each gt box
+            # and get the iou amount of coverage for each gt box
+            max_overlaps, argmax_overlaps = overlaps.max(dim=0)
+
+            # find which gt box is 'best' covered (i.e. 'best' = most iou)
+            gt_ovr, gt_ind = max_overlaps.max(dim=0)
+            assert gt_ovr >= 0
+            # find the proposal box that covers the best covered gt box
+            box_ind = argmax_overlaps[gt_ind]
+            # record the iou coverage of this gt box
+            _gt_overlaps[j] = overlaps[box_ind, gt_ind]
+            assert _gt_overlaps[j] == gt_ovr
+            # mark the proposal box and the gt box as used
+            overlaps[box_ind, :] = -1
+            overlaps[:, gt_ind] = -1
+
+        # append recorded iou coverage level
+        gt_overlaps.append(_gt_overlaps)
+    gt_overlaps = (
+        torch.cat(gt_overlaps, dim=0) if len(gt_overlaps) else torch.zeros(0, dtype=torch.float32)
+    )
+    gt_overlaps, _ = torch.sort(gt_overlaps)
+
+    if thresholds is None:
+        step = 0.05
+        thresholds = torch.arange(0.5, 0.95 + 1e-5, step, dtype=torch.float32)
+    recalls = torch.zeros_like(thresholds)
+    # compute recall for each iou threshold
+    for i, t in enumerate(thresholds):
+        recalls[i] = (gt_overlaps >= t).float().sum() / float(num_pos)
+    # ar = 2 * np.trapz(recalls, thresholds)
+    ar = recalls.mean()
+    return {
+        "ar": ar,
+        "recalls": recalls,
+        "thresholds": thresholds,
+        "gt_overlaps": gt_overlaps,
+        "num_pos": num_pos,
+    }
+
+
+def _evaluate_predictions_on_coco(
+    coco_gt,
+    coco_results,
+    iou_type,
+    kpt_oks_sigmas=None,
+    use_fast_impl=True,
+    img_ids=None,
+    max_dets_per_image=None,
+):
+    """
+    Evaluate the coco results using COCOEval API.
+    """
+    assert len(coco_results) > 0
+
+    if iou_type == "segm":
+        coco_results = copy.deepcopy(coco_results)
+       
