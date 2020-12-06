@@ -58,4 +58,60 @@ class LVISEvaluator(DatasetEvaluator):
                 "COCO Evaluator instantiated using config, this is deprecated behavior."
                 " Please pass in explicit arguments instead."
             )
-            self._tasks = None  # Infering it fr
+            self._tasks = None  # Infering it from predictions should be better
+        else:
+            self._tasks = tasks
+
+        self._distributed = distributed
+        self._output_dir = output_dir
+        self._max_dets_per_image = max_dets_per_image
+
+        self._cpu_device = torch.device("cpu")
+
+        self._metadata = MetadataCatalog.get(dataset_name)
+        json_file = PathManager.get_local_path(self._metadata.json_file)
+        self._lvis_api = LVIS(json_file)
+        # Test set json files do not contain annotations (evaluation must be
+        # performed using the LVIS evaluation server).
+        self._do_evaluation = len(self._lvis_api.get_ann_ids()) > 0
+
+    def reset(self):
+        self._predictions = []
+
+    def process(self, inputs, outputs):
+        """
+        Args:
+            inputs: the inputs to a LVIS model (e.g., GeneralizedRCNN).
+                It is a list of dict. Each dict corresponds to an image and
+                contains keys like "height", "width", "file_name", "image_id".
+            outputs: the outputs of a LVIS model. It is a list of dicts with key
+                "instances" that contains :class:`Instances`.
+        """
+        for input, output in zip(inputs, outputs):
+            prediction = {"image_id": input["image_id"]}
+
+            if "instances" in output:
+                instances = output["instances"].to(self._cpu_device)
+                prediction["instances"] = instances_to_coco_json(instances, input["image_id"])
+            if "proposals" in output:
+                prediction["proposals"] = output["proposals"].to(self._cpu_device)
+            self._predictions.append(prediction)
+
+    def evaluate(self):
+        if self._distributed:
+            comm.synchronize()
+            predictions = comm.gather(self._predictions, dst=0)
+            predictions = list(itertools.chain(*predictions))
+
+            if not comm.is_main_process():
+                return
+        else:
+            predictions = self._predictions
+
+        if len(predictions) == 0:
+            self._logger.warning("[LVISEvaluator] Did not receive valid predictions.")
+            return {}
+
+        if self._output_dir:
+            PathManager.mkdirs(self._output_dir)
+            file_path = os.path.join(self._output_dir, "instances_predictions.pth")
