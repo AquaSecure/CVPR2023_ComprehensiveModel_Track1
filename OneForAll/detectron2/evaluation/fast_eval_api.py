@@ -108,3 +108,15 @@ class COCOeval_opt(COCOeval):
         ), "evaluate() must be called before accmulate() is called."
 
         self.eval = _C.COCOevalAccumulate(self._paramsEval, self._evalImgs_cpp)
+
+        # recall is num_iou_thresholds X num_categories X num_area_ranges X num_max_detections
+        self.eval["recall"] = np.array(self.eval["recall"]).reshape(
+            self.eval["counts"][:1] + self.eval["counts"][2:]
+        )
+
+        # precision and scores are num_iou_thresholds X num_recall_thresholds X num_categories X
+        # num_area_ranges X num_max_detections
+        self.eval["precision"] = np.array(self.eval["precision"]).reshape(self.eval["counts"])
+        self.eval["scores"] = np.array(self.eval["scores"]).reshape(self.eval["counts"])
+        toc = time.time()
+        logger.info("COCOeval_opt.accumulate() finished in {:0.2f} seconds.".format(toc - tic))
