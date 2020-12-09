@@ -115,3 +115,56 @@ class LVISEvaluator(DatasetEvaluator):
         if self._output_dir:
             PathManager.mkdirs(self._output_dir)
             file_path = os.path.join(self._output_dir, "instances_predictions.pth")
+            with PathManager.open(file_path, "wb") as f:
+                torch.save(predictions, f)
+
+        self._results = OrderedDict()
+        if "proposals" in predictions[0]:
+            self._eval_box_proposals(predictions)
+        if "instances" in predictions[0]:
+            self._eval_predictions(predictions)
+        # Copy so the caller can do whatever with results
+        return copy.deepcopy(self._results)
+
+    def _tasks_from_predictions(self, predictions):
+        for pred in predictions:
+            if "segmentation" in pred:
+                return ("bbox", "segm")
+        return ("bbox",)
+
+    def _eval_predictions(self, predictions):
+        """
+        Evaluate predictions. Fill self._results with the metrics of the tasks.
+
+        Args:
+            predictions (list[dict]): list of outputs from the model
+        """
+        self._logger.info("Preparing results in the LVIS format ...")
+        lvis_results = list(itertools.chain(*[x["instances"] for x in predictions]))
+        tasks = self._tasks or self._tasks_from_predictions(lvis_results)
+
+        # LVIS evaluator can be used to evaluate results for COCO dataset categories.
+        # In this case `_metadata` variable will have a field with COCO-specific category mapping.
+        if hasattr(self._metadata, "thing_dataset_id_to_contiguous_id"):
+            reverse_id_mapping = {
+                v: k for k, v in self._metadata.thing_dataset_id_to_contiguous_id.items()
+            }
+            for result in lvis_results:
+                result["category_id"] = reverse_id_mapping[result["category_id"]]
+        else:
+            # unmap the category ids for LVIS (from 0-indexed to 1-indexed)
+            for result in lvis_results:
+                result["category_id"] += 1
+
+        if self._output_dir:
+            file_path = os.path.join(self._output_dir, "lvis_instances_results.json")
+            self._logger.info("Saving results to {}".format(file_path))
+            with PathManager.open(file_path, "w") as f:
+                f.write(json.dumps(lvis_results))
+                f.flush()
+
+        if not self._do_evaluation:
+            self._logger.info("Annotations are not available for evaluation.")
+            return
+
+        self._logger.info("Eva
