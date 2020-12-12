@@ -167,4 +167,57 @@ class LVISEvaluator(DatasetEvaluator):
             self._logger.info("Annotations are not available for evaluation.")
             return
 
-        self._logger.info("Eva
+        self._logger.info("Evaluating predictions ...")
+        for task in sorted(tasks):
+            res = _evaluate_predictions_on_lvis(
+                self._lvis_api,
+                lvis_results,
+                task,
+                max_dets_per_image=self._max_dets_per_image,
+                class_names=self._metadata.get("thing_classes"),
+            )
+            self._results[task] = res
+
+    def _eval_box_proposals(self, predictions):
+        """
+        Evaluate the box proposals in predictions.
+        Fill self._results with the metrics for "box_proposals" task.
+        """
+        if self._output_dir:
+            # Saving generated box proposals to file.
+            # Predicted box_proposals are in XYXY_ABS mode.
+            bbox_mode = BoxMode.XYXY_ABS.value
+            ids, boxes, objectness_logits = [], [], []
+            for prediction in predictions:
+                ids.append(prediction["image_id"])
+                boxes.append(prediction["proposals"].proposal_boxes.tensor.numpy())
+                objectness_logits.append(prediction["proposals"].objectness_logits.numpy())
+
+            proposal_data = {
+                "boxes": boxes,
+                "objectness_logits": objectness_logits,
+                "ids": ids,
+                "bbox_mode": bbox_mode,
+            }
+            with PathManager.open(os.path.join(self._output_dir, "box_proposals.pkl"), "wb") as f:
+                pickle.dump(proposal_data, f)
+
+        if not self._do_evaluation:
+            self._logger.info("Annotations are not available for evaluation.")
+            return
+
+        self._logger.info("Evaluating bbox proposals ...")
+        res = {}
+        areas = {"all": "", "small": "s", "medium": "m", "large": "l"}
+        for limit in [100, 1000]:
+            for area, suffix in areas.items():
+                stats = _evaluate_box_proposals(predictions, self._lvis_api, area=area, limit=limit)
+                key = "AR{}@{:d}".format(suffix, limit)
+                res[key] = float(stats["ar"].item() * 100)
+        self._logger.info("Proposal metrics: \n" + create_small_table(res))
+        self._results["box_proposals"] = res
+
+
+# inspired from Detectron:
+# https://github.com/facebookresearch/Detectron/blob/a6a835f5b8208c45d0dce217ce9bbda915f44df7/detectron/datasets/json_dataset_evaluator.py#L255 # noqa
+def _evaluate_box_proposals(dataset_predictions, lvis_api, thresholds=N
