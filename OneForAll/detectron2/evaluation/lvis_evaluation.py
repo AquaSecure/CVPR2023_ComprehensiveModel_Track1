@@ -345,4 +345,37 @@ def _evaluate_predictions_on_lvis(
     """
     metrics = {
         "bbox": ["AP", "AP50", "AP75", "APs", "APm", "APl", "APr", "APc", "APf"],
-        "segm": ["AP", "AP50", "AP75", "APs", "APm", "
+        "segm": ["AP", "AP50", "AP75", "APs", "APm", "APl", "APr", "APc", "APf"],
+    }[iou_type]
+
+    logger = logging.getLogger(__name__)
+
+    if len(lvis_results) == 0:  # TODO: check if needed
+        logger.warn("No predictions from the model!")
+        return {metric: float("nan") for metric in metrics}
+
+    if iou_type == "segm":
+        lvis_results = copy.deepcopy(lvis_results)
+        # When evaluating mask AP, if the results contain bbox, LVIS API will
+        # use the box area as the area of the instance, instead of the mask area.
+        # This leads to a different definition of small/medium/large.
+        # We remove the bbox field to let mask AP use mask area.
+        for c in lvis_results:
+            c.pop("bbox", None)
+
+    if max_dets_per_image is None:
+        max_dets_per_image = 300  # Default for LVIS dataset
+
+    from lvis import LVISEval, LVISResults
+
+    logger.info(f"Evaluating with max detections per image = {max_dets_per_image}")
+    lvis_results = LVISResults(lvis_gt, lvis_results, max_dets=max_dets_per_image)
+    lvis_eval = LVISEval(lvis_gt, lvis_results, iou_type)
+    lvis_eval.run()
+    lvis_eval.print_results()
+
+    # Pull the standard metrics from the LVIS results
+    results = lvis_eval.get_results()
+    results = {metric: float(results[metric] * 100) for metric in metrics}
+    logger.info("Evaluation results for {}: \n".format(iou_type) + create_small_table(results))
+    return results
