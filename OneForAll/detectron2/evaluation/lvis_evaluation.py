@@ -287,4 +287,62 @@ def _evaluate_box_proposals(dataset_predictions, lvis_api, thresholds=None, area
         overlaps = pairwise_iou(predictions.proposal_boxes, gt_boxes)
 
         _gt_overlaps = torch.zeros(len(gt_boxes))
-        for j in range(min(len(predictions), le
+        for j in range(min(len(predictions), len(gt_boxes))):
+            # find which proposal box maximally covers each gt box
+            # and get the iou amount of coverage for each gt box
+            max_overlaps, argmax_overlaps = overlaps.max(dim=0)
+
+            # find which gt box is 'best' covered (i.e. 'best' = most iou)
+            gt_ovr, gt_ind = max_overlaps.max(dim=0)
+            assert gt_ovr >= 0
+            # find the proposal box that covers the best covered gt box
+            box_ind = argmax_overlaps[gt_ind]
+            # record the iou coverage of this gt box
+            _gt_overlaps[j] = overlaps[box_ind, gt_ind]
+            assert _gt_overlaps[j] == gt_ovr
+            # mark the proposal box and the gt box as used
+            overlaps[box_ind, :] = -1
+            overlaps[:, gt_ind] = -1
+
+        # append recorded iou coverage level
+        gt_overlaps.append(_gt_overlaps)
+    gt_overlaps = (
+        torch.cat(gt_overlaps, dim=0) if len(gt_overlaps) else torch.zeros(0, dtype=torch.float32)
+    )
+    gt_overlaps, _ = torch.sort(gt_overlaps)
+
+    if thresholds is None:
+        step = 0.05
+        thresholds = torch.arange(0.5, 0.95 + 1e-5, step, dtype=torch.float32)
+    recalls = torch.zeros_like(thresholds)
+    # compute recall for each iou threshold
+    for i, t in enumerate(thresholds):
+        recalls[i] = (gt_overlaps >= t).float().sum() / float(num_pos)
+    # ar = 2 * np.trapz(recalls, thresholds)
+    ar = recalls.mean()
+    return {
+        "ar": ar,
+        "recalls": recalls,
+        "thresholds": thresholds,
+        "gt_overlaps": gt_overlaps,
+        "num_pos": num_pos,
+    }
+
+
+def _evaluate_predictions_on_lvis(
+    lvis_gt, lvis_results, iou_type, max_dets_per_image=None, class_names=None
+):
+    """
+    Args:
+        iou_type (str):
+        max_dets_per_image (None or int): limit on maximum detections per image in evaluating AP
+            This limit, by default of the LVIS dataset, is 300.
+        class_names (None or list[str]): if provided, will use it to predict
+            per-category AP.
+
+    Returns:
+        a dict of {metric name: score}
+    """
+    metrics = {
+        "bbox": ["AP", "AP50", "AP75", "APs", "APm", "APl", "APr", "APc", "APf"],
+        "segm": ["AP", "AP50", "AP75", "APs", "APm", "
