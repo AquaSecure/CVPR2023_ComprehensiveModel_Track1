@@ -72,4 +72,62 @@ class RotatedCOCOeval(COCOeval):
             dt = self._dts[imgId, catId]
         else:
             gt = [_ for cId in p.catIds for _ in self._gts[imgId, cId]]
-            dt = [_ for cId
+            dt = [_ for cId in p.catIds for _ in self._dts[imgId, cId]]
+        if len(gt) == 0 and len(dt) == 0:
+            return []
+        inds = np.argsort([-d["score"] for d in dt], kind="mergesort")
+        dt = [dt[i] for i in inds]
+        if len(dt) > p.maxDets[-1]:
+            dt = dt[0 : p.maxDets[-1]]
+
+        assert p.iouType == "bbox", "unsupported iouType for iou computation"
+
+        g = [g["bbox"] for g in gt]
+        d = [d["bbox"] for d in dt]
+
+        # compute iou between each dt and gt region
+        iscrowd = [int(o["iscrowd"]) for o in gt]
+
+        # Note: this function is copied from cocoeval.py in cocoapi
+        # and the major difference is here.
+        ious = self.compute_iou_dt_gt(d, g, iscrowd)
+        return ious
+
+
+class RotatedCOCOEvaluator(COCOEvaluator):
+    """
+    Evaluate object proposal/instance detection outputs using COCO-like metrics and APIs,
+    with rotated boxes support.
+    Note: this uses IOU only and does not consider angle differences.
+    """
+
+    def process(self, inputs, outputs):
+        """
+        Args:
+            inputs: the inputs to a COCO model (e.g., GeneralizedRCNN).
+                It is a list of dict. Each dict corresponds to an image and
+                contains keys like "height", "width", "file_name", "image_id".
+            outputs: the outputs of a COCO model. It is a list of dicts with key
+                "instances" that contains :class:`Instances`.
+        """
+        for input, output in zip(inputs, outputs):
+            prediction = {"image_id": input["image_id"]}
+
+            if "instances" in output:
+                instances = output["instances"].to(self._cpu_device)
+
+                prediction["instances"] = self.instances_to_json(instances, input["image_id"])
+            if "proposals" in output:
+                prediction["proposals"] = output["proposals"].to(self._cpu_device)
+            self._predictions.append(prediction)
+
+    def instances_to_json(self, instances, img_id):
+        num_instance = len(instances)
+        if num_instance == 0:
+            return []
+
+        boxes = instances.pred_boxes.tensor.numpy()
+        if boxes.shape[1] == 4:
+            boxes = BoxMode.convert(boxes, BoxMode.XYXY_ABS, BoxMode.XYWH_ABS)
+        boxes = boxes.tolist()
+        scores = instances.scores.tolis
