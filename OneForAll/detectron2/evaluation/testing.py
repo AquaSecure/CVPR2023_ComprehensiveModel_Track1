@@ -46,4 +46,41 @@ def verify_results(cfg, results):
         actual = results[task].get(metric, None)
         if actual is None:
             ok = False
-  
+            continue
+        if not np.isfinite(actual):
+            ok = False
+            continue
+        diff = abs(actual - expected)
+        if diff > tolerance:
+            ok = False
+
+    logger = logging.getLogger(__name__)
+    if not ok:
+        logger.error("Result verification failed!")
+        logger.error("Expected Results: " + str(expected_results))
+        logger.error("Actual Results: " + pprint.pformat(results))
+
+        sys.exit(1)
+    else:
+        logger.info("Results verification passed.")
+    return ok
+
+
+def flatten_results_dict(results):
+    """
+    Expand a hierarchical dict of scalars into a flat dict of scalars.
+    If results[k1][k2][k3] = v, the returned dict will have the entry
+    {"k1/k2/k3": v}.
+
+    Args:
+        results (dict):
+    """
+    r = {}
+    for k, v in results.items():
+        if isinstance(v, Mapping):
+            v = flatten_results_dict(v)
+            for kk, vv in v.items():
+                r[k + "/" + kk] = vv
+        else:
+            r[k] = v
+    return r
