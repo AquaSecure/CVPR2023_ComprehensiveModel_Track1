@@ -101,4 +101,58 @@ def maybe_add_gradient_clipping(
         assert issubclass(optimizer, torch.optim.Optimizer), optimizer
         optimizer_type = optimizer
 
-    grad_clipper = _create_gradient
+    grad_clipper = _create_gradient_clipper(cfg.SOLVER.CLIP_GRADIENTS)
+    OptimizerWithGradientClip = _generate_optimizer_class_with_gradient_clipping(
+        optimizer_type, per_param_clipper=grad_clipper
+    )
+    if isinstance(optimizer, torch.optim.Optimizer):
+        optimizer.__class__ = OptimizerWithGradientClip  # a bit hacky, not recommended
+        return optimizer
+    else:
+        return OptimizerWithGradientClip
+
+
+def build_optimizer(cfg: CfgNode, model: torch.nn.Module) -> torch.optim.Optimizer:
+    """
+    Build an optimizer from config.
+    """
+    params = get_default_optimizer_params(
+        model,
+        base_lr=cfg.SOLVER.BASE_LR,
+        weight_decay_norm=cfg.SOLVER.WEIGHT_DECAY_NORM,
+        bias_lr_factor=cfg.SOLVER.BIAS_LR_FACTOR,
+        weight_decay_bias=cfg.SOLVER.WEIGHT_DECAY_BIAS,
+    )
+    return maybe_add_gradient_clipping(cfg, torch.optim.SGD)(
+        params,
+        lr=cfg.SOLVER.BASE_LR,
+        momentum=cfg.SOLVER.MOMENTUM,
+        nesterov=cfg.SOLVER.NESTEROV,
+        weight_decay=cfg.SOLVER.WEIGHT_DECAY,
+    )
+
+
+def get_default_optimizer_params(
+    model: torch.nn.Module,
+    base_lr: Optional[float] = None,
+    weight_decay: Optional[float] = None,
+    weight_decay_norm: Optional[float] = None,
+    bias_lr_factor: Optional[float] = 1.0,
+    weight_decay_bias: Optional[float] = None,
+    overrides: Optional[Dict[str, Dict[str, float]]] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Get default param list for optimizer, with support for a few types of
+    overrides. If no overrides needed, this is equivalent to `model.parameters()`.
+
+    Args:
+        base_lr: lr for every group by default. Can be omitted to use the one in optimizer.
+        weight_decay: weight decay for every group by default. Can be omitted to use the one
+            in optimizer.
+        weight_decay_norm: override weight decay for params in normalization layers
+        bias_lr_factor: multiplier of lr for bias parameters.
+        weight_decay_bias: override weight decay for bias parameters
+        overrides: if not `None`, provides values for optimizer hyperparameters
+            (LR, weight decay) for module parameters with a given name; e.g.
+            ``{"embedding": {"lr": 0.01, "weight_decay": 0.1}}`` will set the LR and
+            weight decay values for all module parameters n
