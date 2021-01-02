@@ -155,4 +155,61 @@ def get_default_optimizer_params(
         overrides: if not `None`, provides values for optimizer hyperparameters
             (LR, weight decay) for module parameters with a given name; e.g.
             ``{"embedding": {"lr": 0.01, "weight_decay": 0.1}}`` will set the LR and
-            weight decay values for all module parameters n
+            weight decay values for all module parameters named `embedding`.
+
+    For common detection models, ``weight_decay_norm`` is the only option
+    needed to be set. ``bias_lr_factor,weight_decay_bias`` are legacy settings
+    from Detectron1 that are not found useful.
+
+    Example:
+    ::
+        torch.optim.SGD(get_default_optimizer_params(model, weight_decay_norm=0),
+                       lr=0.01, weight_decay=1e-4, momentum=0.9)
+    """
+    if overrides is None:
+        overrides = {}
+    defaults = {}
+    if base_lr is not None:
+        defaults["lr"] = base_lr
+    if weight_decay is not None:
+        defaults["weight_decay"] = weight_decay
+    bias_overrides = {}
+    if bias_lr_factor is not None and bias_lr_factor != 1.0:
+        # NOTE: unlike Detectron v1, we now by default make bias hyperparameters
+        # exactly the same as regular weights.
+        if base_lr is None:
+            raise ValueError("bias_lr_factor requires base_lr")
+        bias_overrides["lr"] = base_lr * bias_lr_factor
+    if weight_decay_bias is not None:
+        bias_overrides["weight_decay"] = weight_decay_bias
+    if len(bias_overrides):
+        if "bias" in overrides:
+            raise ValueError("Conflicting overrides for 'bias'")
+        overrides["bias"] = bias_overrides
+
+    norm_module_types = (
+        torch.nn.BatchNorm1d,
+        torch.nn.BatchNorm2d,
+        torch.nn.BatchNorm3d,
+        torch.nn.SyncBatchNorm,
+        # NaiveSyncBatchNorm inherits from BatchNorm2d
+        torch.nn.GroupNorm,
+        torch.nn.InstanceNorm1d,
+        torch.nn.InstanceNorm2d,
+        torch.nn.InstanceNorm3d,
+        torch.nn.LayerNorm,
+        torch.nn.LocalResponseNorm,
+    )
+    params: List[Dict[str, Any]] = []
+    memo: Set[torch.nn.parameter.Parameter] = set()
+    for module in model.modules():
+        for module_param_name, value in module.named_parameters(recurse=False):
+            if not value.requires_grad:
+                continue
+            # Avoid duplicating parameters
+            if value in memo:
+                continue
+            memo.add(value)
+
+            hyperparams = copy.copy(defaults)
+            if isinstance(module, norm_module_types) and weight_decay_norm is not N
