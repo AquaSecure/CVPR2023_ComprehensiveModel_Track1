@@ -265,4 +265,22 @@ def build_lr_scheduler(
             logger = logging.getLogger(__name__)
             logger.warning(
                 "SOLVER.STEPS contains values larger than SOLVER.MAX_ITER. "
-                "These values will be ignored
+                "These values will be ignored."
+            )
+        sched = MultiStepParamScheduler(
+            values=[cfg.SOLVER.GAMMA ** k for k in range(len(steps) + 1)],
+            milestones=steps,
+            num_updates=cfg.SOLVER.MAX_ITER,
+        )
+    elif name == "WarmupCosineLR":
+        sched = CosineParamScheduler(1, 0)
+    else:
+        raise ValueError("Unknown LR scheduler: {}".format(name))
+
+    sched = WarmupParamScheduler(
+        sched,
+        cfg.SOLVER.WARMUP_FACTOR,
+        min(cfg.SOLVER.WARMUP_ITERS / cfg.SOLVER.MAX_ITER, 1.0),
+        cfg.SOLVER.WARMUP_METHOD,
+    )
+    return LRMultiplier(optimizer, multiplier=sched, max_iter=cfg.SOLVER.MAX_ITER)
