@@ -167,4 +167,59 @@ class Boxes:
         # Boxes are assumed float32 and does not support to(dtype)
         return Boxes(self.tensor.to(device=device))
 
-    def area(self) -> t
+    def area(self) -> torch.Tensor:
+        """
+        Computes the area of all the boxes.
+        Returns:
+            torch.Tensor: a vector with areas of each box.
+        """
+        box = self.tensor
+        area = (box[:, 2] - box[:, 0]) * (box[:, 3] - box[:, 1])
+        return area
+
+    def clip(self, box_size: Tuple[int, int]) -> None:
+        """
+        Clip (in place) the boxes by limiting x coordinates to the range [0, width]
+        and y coordinates to the range [0, height].
+        Args:
+            box_size (height, width): The clipping box's size.
+        """
+        assert torch.isfinite(self.tensor).all(), "Box tensor contains infinite or NaN!"
+        h, w = box_size
+        x1 = self.tensor[:, 0].clamp(min=0, max=w)
+        y1 = self.tensor[:, 1].clamp(min=0, max=h)
+        x2 = self.tensor[:, 2].clamp(min=0, max=w)
+        y2 = self.tensor[:, 3].clamp(min=0, max=h)
+        self.tensor = torch.stack((x1, y1, x2, y2), dim=-1)
+
+    def nonempty(self, threshold: float = 0.0) -> torch.Tensor:
+        """
+        Find boxes that are non-empty.
+        A box is considered empty, if either of its side is no larger than threshold.
+        Returns:
+            Tensor:
+                a binary vector which represents whether each box is empty
+                (False) or non-empty (True).
+        """
+        box = self.tensor
+        widths = box[:, 2] - box[:, 0]
+        heights = box[:, 3] - box[:, 1]
+        keep = (widths > threshold) & (heights > threshold)
+        return keep
+
+    def __getitem__(self, item) -> "Boxes":
+        """
+        Args:
+            item: int, slice, or a BoolTensor
+        Returns:
+            Boxes: Create a new :class:`Boxes` by indexing.
+        The following usage are allowed:
+        1. `new_boxes = boxes[3]`: return a `Boxes` which contains only one box.
+        2. `new_boxes = boxes[2:10]`: return a slice of boxes.
+        3. `new_boxes = boxes[vector]`, where vector is a torch.BoolTensor
+           with `length = len(boxes)`. Nonzero elements in the vector will be selected.
+        Note that the returned Boxes might share storage with this Boxes,
+        subject to Pytorch's indexing semantics.
+        """
+        if isinstance(item, int):
+            return Boxes(self.tensor
