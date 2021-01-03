@@ -104,4 +104,67 @@ class BoxMode(IntEnum):
             arr[:, 0] += arr[:, 2] / 2.0
             arr[:, 1] += arr[:, 3] / 2.0
             angles = torch.zeros((arr.shape[0], 1), dtype=arr.dtype)
-          
+            arr = torch.cat((arr, angles), axis=1).to(dtype=original_dtype)
+        else:
+            if to_mode == BoxMode.XYXY_ABS and from_mode == BoxMode.XYWH_ABS:
+                arr[:, 2] += arr[:, 0]
+                arr[:, 3] += arr[:, 1]
+            elif from_mode == BoxMode.XYXY_ABS and to_mode == BoxMode.XYWH_ABS:
+                arr[:, 2] -= arr[:, 0]
+                arr[:, 3] -= arr[:, 1]
+            else:
+                raise NotImplementedError(
+                    "Conversion from BoxMode {} to {} is not supported yet".format(
+                        from_mode, to_mode
+                    )
+                )
+
+        if single_box:
+            return original_type(arr.flatten().tolist())
+        if is_numpy:
+            return arr.numpy()
+        else:
+            return arr
+
+
+class Boxes:
+    """
+    This structure stores a list of boxes as a Nx4 torch.Tensor.
+    It supports some common methods about boxes
+    (`area`, `clip`, `nonempty`, etc),
+    and also behaves like a Tensor
+    (support indexing, `to(device)`, `.device`, and iteration over all boxes)
+    Attributes:
+        tensor (torch.Tensor): float matrix of Nx4. Each row is (x1, y1, x2, y2).
+    """
+
+    def __init__(self, tensor: torch.Tensor):
+        """
+        Args:
+            tensor (Tensor[float]): a Nx4 matrix.  Each row is (x1, y1, x2, y2).
+        """
+        if not isinstance(tensor, torch.Tensor):
+            tensor = torch.as_tensor(tensor, dtype=torch.float32, device=torch.device("cpu"))
+        else:
+            tensor = tensor.to(torch.float32)
+        if tensor.numel() == 0:
+            # Use reshape, so we don't end up creating a new tensor that does not depend on
+            # the inputs (and consequently confuses jit)
+            tensor = tensor.reshape((-1, 4)).to(dtype=torch.float32)
+        assert tensor.dim() == 2 and tensor.size(-1) == 4, tensor.size()
+
+        self.tensor = tensor
+
+    def clone(self) -> "Boxes":
+        """
+        Clone the Boxes.
+        Returns:
+            Boxes
+        """
+        return Boxes(self.tensor.clone())
+
+    def to(self, device: torch.device):
+        # Boxes are assumed float32 and does not support to(dtype)
+        return Boxes(self.tensor.to(device=device))
+
+    def area(self) -> t
