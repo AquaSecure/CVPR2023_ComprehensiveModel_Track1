@@ -287,4 +287,67 @@ class Boxes:
     def device(self) -> device:
         return self.tensor.device
 
-    # 
+    # type "Iterator[torch.Tensor]", yield, and iter() not supported by torchscript
+    # https://github.com/pytorch/pytorch/issues/18627
+    @torch.jit.unused
+    def __iter__(self):
+        """
+        Yield a box as a Tensor of shape (4,) at a time.
+        """
+        yield from self.tensor
+
+
+def pairwise_intersection(boxes1: Boxes, boxes2: Boxes) -> torch.Tensor:
+    """
+    Given two lists of boxes of size N and M,
+    compute the intersection area between __all__ N x M pairs of boxes.
+    The box order must be (xmin, ymin, xmax, ymax)
+    Args:
+        boxes1,boxes2 (Boxes): two `Boxes`. Contains N & M boxes, respectively.
+    Returns:
+        Tensor: intersection, sized [N,M].
+    """
+    boxes1, boxes2 = boxes1.tensor, boxes2.tensor
+    width_height = torch.min(boxes1[:, None, 2:], boxes2[:, 2:]) - torch.max(
+        boxes1[:, None, :2], boxes2[:, :2]
+    )  # [N,M,2]
+
+    width_height.clamp_(min=0)  # [N,M,2]
+    intersection = width_height.prod(dim=2)  # [N,M]
+    return intersection
+
+
+# implementation from https://github.com/kuangliu/torchcv/blob/master/torchcv/utils/box.py
+# with slight modifications
+def pairwise_iou(boxes1: Boxes, boxes2: Boxes) -> torch.Tensor:
+    """
+    Given two lists of boxes of size N and M, compute the IoU
+    (intersection over union) between **all** N x M pairs of boxes.
+    The box order must be (xmin, ymin, xmax, ymax).
+    Args:
+        boxes1,boxes2 (Boxes): two `Boxes`. Contains N & M boxes, respectively.
+    Returns:
+        Tensor: IoU, sized [N,M].
+    """
+    area1 = boxes1.area()  # [N]
+    area2 = boxes2.area()  # [M]
+    inter = pairwise_intersection(boxes1, boxes2)
+
+    # handle empty boxes
+    iou = torch.where(
+        inter > 0,
+        inter / (area1[:, None] + area2 - inter),
+        torch.zeros(1, dtype=inter.dtype, device=inter.device),
+    )
+    return iou
+
+
+def pairwise_ioa(boxes1: Boxes, boxes2: Boxes) -> torch.Tensor:
+    """
+    Similar to :func:`pariwise_iou` but compute the IoA (intersection over boxes2 area).
+    Args:
+        boxes1,boxes2 (Boxes): two `Boxes`. Contains N & M boxes, respectively.
+    Returns:
+        Tensor: IoA, sized [N,M].
+    """
+    are
