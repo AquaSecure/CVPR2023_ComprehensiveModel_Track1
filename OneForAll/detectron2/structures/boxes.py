@@ -222,4 +222,69 @@ class Boxes:
         subject to Pytorch's indexing semantics.
         """
         if isinstance(item, int):
-            return Boxes(self.tensor
+            return Boxes(self.tensor[item].view(1, -1))
+        b = self.tensor[item]
+        assert b.dim() == 2, "Indexing on Boxes with {} failed to return a matrix!".format(item)
+        return Boxes(b)
+
+    def __len__(self) -> int:
+        return self.tensor.shape[0]
+
+    def __repr__(self) -> str:
+        return "Boxes(" + str(self.tensor) + ")"
+
+    def inside_box(self, box_size: Tuple[int, int], boundary_threshold: int = 0) -> torch.Tensor:
+        """
+        Args:
+            box_size (height, width): Size of the reference box.
+            boundary_threshold (int): Boxes that extend beyond the reference box
+                boundary by more than boundary_threshold are considered "outside".
+        Returns:
+            a binary vector, indicating whether each box is inside the reference box.
+        """
+        height, width = box_size
+        inds_inside = (
+            (self.tensor[..., 0] >= -boundary_threshold)
+            & (self.tensor[..., 1] >= -boundary_threshold)
+            & (self.tensor[..., 2] < width + boundary_threshold)
+            & (self.tensor[..., 3] < height + boundary_threshold)
+        )
+        return inds_inside
+
+    def get_centers(self) -> torch.Tensor:
+        """
+        Returns:
+            The box centers in a Nx2 array of (x, y).
+        """
+        return (self.tensor[:, :2] + self.tensor[:, 2:]) / 2
+
+    def scale(self, scale_x: float, scale_y: float) -> None:
+        """
+        Scale the box with horizontal and vertical scaling factors
+        """
+        self.tensor[:, 0::2] *= scale_x
+        self.tensor[:, 1::2] *= scale_y
+
+    @classmethod
+    def cat(cls, boxes_list: List["Boxes"]) -> "Boxes":
+        """
+        Concatenates a list of Boxes into a single Boxes
+        Arguments:
+            boxes_list (list[Boxes])
+        Returns:
+            Boxes: the concatenated Boxes
+        """
+        assert isinstance(boxes_list, (list, tuple))
+        if len(boxes_list) == 0:
+            return cls(torch.empty(0))
+        assert all([isinstance(box, Boxes) for box in boxes_list])
+
+        # use torch.cat (v.s. layers.cat) so the returned boxes never share storage with input
+        cat_boxes = cls(torch.cat([b.tensor for b in boxes_list], dim=0))
+        return cat_boxes
+
+    @property
+    def device(self) -> device:
+        return self.tensor.device
+
+    # 
