@@ -55,4 +55,68 @@ def rasterize_polygons_within_box(
     # 1. Shift the polygons w.r.t the boxes
     w, h = box[2] - box[0], box[3] - box[1]
 
-    polygo
+    polygons = copy.deepcopy(polygons)
+    for p in polygons:
+        p[0::2] = p[0::2] - box[0]
+        p[1::2] = p[1::2] - box[1]
+
+    # 2. Rescale the polygons to the new box size
+    # max() to avoid division by small number
+    ratio_h = mask_size / max(h, 0.1)
+    ratio_w = mask_size / max(w, 0.1)
+
+    if ratio_h == ratio_w:
+        for p in polygons:
+            p *= ratio_h
+    else:
+        for p in polygons:
+            p[0::2] *= ratio_w
+            p[1::2] *= ratio_h
+
+    # 3. Rasterize the polygons with coco api
+    mask = polygons_to_bitmask(polygons, mask_size, mask_size)
+    mask = torch.from_numpy(mask)
+    return mask
+
+
+class BitMasks:
+    """
+    This class stores the segmentation masks for all objects in one image, in
+    the form of bitmaps.
+    Attributes:
+        tensor: bool Tensor of N,H,W, representing N instances in the image.
+    """
+
+    def __init__(self, tensor: Union[torch.Tensor, np.ndarray]):
+        """
+        Args:
+            tensor: bool Tensor of N,H,W, representing N instances in the image.
+        """
+        if isinstance(tensor, torch.Tensor):
+            tensor = tensor.to(torch.bool)
+        else:
+            tensor = torch.as_tensor(tensor, dtype=torch.bool, device=torch.device("cpu"))
+        assert tensor.dim() == 3, tensor.size()
+        self.image_size = tensor.shape[1:]
+        self.tensor = tensor
+
+    @torch.jit.unused
+    def to(self, *args: Any, **kwargs: Any) -> "BitMasks":
+        return BitMasks(self.tensor.to(*args, **kwargs))
+
+    @property
+    def device(self) -> torch.device:
+        return self.tensor.device
+
+    @torch.jit.unused
+    def __getitem__(self, item: Union[int, slice, torch.BoolTensor]) -> "BitMasks":
+        """
+        Returns:
+            BitMasks: Create a new :class:`BitMasks` by indexing.
+        The following usage are allowed:
+        1. `new_masks = masks[3]`: return a `BitMasks` which contains only one mask.
+        2. `new_masks = masks[2:10]`: return a slice of masks.
+        3. `new_masks = masks[vector]`, where vector is a torch.BoolTensor
+           with `length = len(masks)`. Nonzero elements in the vector will be selected.
+        Note that the returned object might share storage with this object,
+        subject to Py
