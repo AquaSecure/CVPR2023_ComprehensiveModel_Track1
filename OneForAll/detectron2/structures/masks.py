@@ -119,4 +119,70 @@ class BitMasks:
         3. `new_masks = masks[vector]`, where vector is a torch.BoolTensor
            with `length = len(masks)`. Nonzero elements in the vector will be selected.
         Note that the returned object might share storage with this object,
-        subject to Py
+        subject to Pytorch's indexing semantics.
+        """
+        if isinstance(item, int):
+            return BitMasks(self.tensor[item].unsqueeze(0))
+        m = self.tensor[item]
+        assert m.dim() == 3, "Indexing on BitMasks with {} returns a tensor with shape {}!".format(
+            item, m.shape
+        )
+        return BitMasks(m)
+
+    @torch.jit.unused
+    def __iter__(self) -> torch.Tensor:
+        yield from self.tensor
+
+    @torch.jit.unused
+    def __repr__(self) -> str:
+        s = self.__class__.__name__ + "("
+        s += "num_instances={})".format(len(self.tensor))
+        return s
+
+    def __len__(self) -> int:
+        return self.tensor.shape[0]
+
+    def nonempty(self) -> torch.Tensor:
+        """
+        Find masks that are non-empty.
+        Returns:
+            Tensor: a BoolTensor which represents
+                whether each mask is empty (False) or non-empty (True).
+        """
+        return self.tensor.flatten(1).any(dim=1)
+
+    @staticmethod
+    def from_polygon_masks(
+        polygon_masks: Union["PolygonMasks", List[List[np.ndarray]]], height: int, width: int
+    ) -> "BitMasks":
+        """
+        Args:
+            polygon_masks (list[list[ndarray]] or PolygonMasks)
+            height, width (int)
+        """
+        if isinstance(polygon_masks, PolygonMasks):
+            polygon_masks = polygon_masks.polygons
+        masks = [polygons_to_bitmask(p, height, width) for p in polygon_masks]
+        if len(masks):
+            return BitMasks(torch.stack([torch.from_numpy(x) for x in masks]))
+        else:
+            return BitMasks(torch.empty(0, height, width, dtype=torch.bool))
+
+    @staticmethod
+    def from_roi_masks(roi_masks: "ROIMasks", height: int, width: int) -> "BitMasks":
+        """
+        Args:
+            roi_masks:
+            height, width (int):
+        """
+        return roi_masks.to_bitmasks(height, width)
+
+    def crop_and_resize(self, boxes: torch.Tensor, mask_size: int) -> torch.Tensor:
+        """
+        Crop each bitmask by the given box, and resize results to (mask_size, mask_size).
+        This can be used to prepare training targets for Mask R-CNN.
+        It has less reconstruction error compared to rasterization with polygons.
+        However we observe no difference in accuracy,
+        but BitMasks requires more memory to store all the masks.
+        Args:
+        
