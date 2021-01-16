@@ -244,4 +244,52 @@ class BitMasks:
         return cat_bitmasks
 
 
-class PolygonM
+class PolygonMasks:
+    """
+    This class stores the segmentation masks for all objects in one image, in the form of polygons.
+    Attributes:
+        polygons: list[list[ndarray]]. Each ndarray is a float64 vector representing a polygon.
+    """
+
+    def __init__(self, polygons: List[List[Union[torch.Tensor, np.ndarray]]]):
+        """
+        Arguments:
+            polygons (list[list[np.ndarray]]): The first
+                level of the list correspond to individual instances,
+                the second level to all the polygons that compose the
+                instance, and the third level to the polygon coordinates.
+                The third level array should have the format of
+                [x0, y0, x1, y1, ..., xn, yn] (n >= 3).
+        """
+        if not isinstance(polygons, list):
+            raise ValueError(
+                "Cannot create PolygonMasks: Expect a list of list of polygons per image. "
+                "Got '{}' instead.".format(type(polygons))
+            )
+
+        def _make_array(t: Union[torch.Tensor, np.ndarray]) -> np.ndarray:
+            # Use float64 for higher precision, because why not?
+            # Always put polygons on CPU (self.to is a no-op) since they
+            # are supposed to be small tensors.
+            # May need to change this assumption if GPU placement becomes useful
+            if isinstance(t, torch.Tensor):
+                t = t.cpu().numpy()
+            return np.asarray(t).astype("float64")
+
+        def process_polygons(
+            polygons_per_instance: List[Union[torch.Tensor, np.ndarray]]
+        ) -> List[np.ndarray]:
+            if not isinstance(polygons_per_instance, list):
+                raise ValueError(
+                    "Cannot create polygons: Expect a list of polygons per instance. "
+                    "Got '{}' instead.".format(type(polygons_per_instance))
+                )
+            # transform each polygon to a numpy array
+            polygons_per_instance = [_make_array(p) for p in polygons_per_instance]
+            for polygon in polygons_per_instance:
+                if len(polygon) % 2 != 0 or len(polygon) < 6:
+                    raise ValueError(f"Cannot create a polygon from {len(polygon)} coordinates.")
+            return polygons_per_instance
+
+        self.polygons: List[List[np.ndarray]] = [
+            process_polygons(polygons_per
