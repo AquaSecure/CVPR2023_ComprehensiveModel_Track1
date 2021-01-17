@@ -292,4 +292,57 @@ class PolygonMasks:
             return polygons_per_instance
 
         self.polygons: List[List[np.ndarray]] = [
-            process_polygons(polygons_per
+            process_polygons(polygons_per_instance) for polygons_per_instance in polygons
+        ]
+
+    def to(self, *args: Any, **kwargs: Any) -> "PolygonMasks":
+        return self
+
+    @property
+    def device(self) -> torch.device:
+        return torch.device("cpu")
+
+    def get_bounding_boxes(self) -> Boxes:
+        """
+        Returns:
+            Boxes: tight bounding boxes around polygon masks.
+        """
+        boxes = torch.zeros(len(self.polygons), 4, dtype=torch.float32)
+        for idx, polygons_per_instance in enumerate(self.polygons):
+            minxy = torch.as_tensor([float("inf"), float("inf")], dtype=torch.float32)
+            maxxy = torch.zeros(2, dtype=torch.float32)
+            for polygon in polygons_per_instance:
+                coords = torch.from_numpy(polygon).view(-1, 2).to(dtype=torch.float32)
+                minxy = torch.min(minxy, torch.min(coords, dim=0).values)
+                maxxy = torch.max(maxxy, torch.max(coords, dim=0).values)
+            boxes[idx, :2] = minxy
+            boxes[idx, 2:] = maxxy
+        return Boxes(boxes)
+
+    def nonempty(self) -> torch.Tensor:
+        """
+        Find masks that are non-empty.
+        Returns:
+            Tensor:
+                a BoolTensor which represents whether each mask is empty (False) or not (True).
+        """
+        keep = [1 if len(polygon) > 0 else 0 for polygon in self.polygons]
+        return torch.from_numpy(np.asarray(keep, dtype=bool))
+
+    def __getitem__(self, item: Union[int, slice, List[int], torch.BoolTensor]) -> "PolygonMasks":
+        """
+        Support indexing over the instances and return a `PolygonMasks` object.
+        `item` can be:
+        1. An integer. It will return an object with only one instance.
+        2. A slice. It will return an object with the selected instances.
+        3. A list[int]. It will return an object with the selected instances,
+           correpsonding to the indices in the list.
+        4. A vector mask of type BoolTensor, whose length is num_instances.
+           It will return an object with the instances whose mask is nonzero.
+        """
+        if isinstance(item, int):
+            selected_polygons = [self.polygons[item]]
+        elif isinstance(item, slice):
+            selected_polygons = self.polygons[item]
+        elif isinstance(item, list):
+         
