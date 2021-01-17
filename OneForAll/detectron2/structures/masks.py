@@ -345,4 +345,60 @@ class PolygonMasks:
         elif isinstance(item, slice):
             selected_polygons = self.polygons[item]
         elif isinstance(item, list):
-         
+            selected_polygons = [self.polygons[i] for i in item]
+        elif isinstance(item, torch.Tensor):
+            # Polygons is a list, so we have to move the indices back to CPU.
+            if item.dtype == torch.bool:
+                assert item.dim() == 1, item.shape
+                item = item.nonzero().squeeze(1).cpu().numpy().tolist()
+            elif item.dtype in [torch.int32, torch.int64]:
+                item = item.cpu().numpy().tolist()
+            else:
+                raise ValueError("Unsupported tensor dtype={} for indexing!".format(item.dtype))
+            selected_polygons = [self.polygons[i] for i in item]
+        return PolygonMasks(selected_polygons)
+
+    def __iter__(self) -> Iterator[List[np.ndarray]]:
+        """
+        Yields:
+            list[ndarray]: the polygons for one instance.
+            Each Tensor is a float64 vector representing a polygon.
+        """
+        return iter(self.polygons)
+
+    def __repr__(self) -> str:
+        s = self.__class__.__name__ + "("
+        s += "num_instances={})".format(len(self.polygons))
+        return s
+
+    def __len__(self) -> int:
+        return len(self.polygons)
+
+    def crop_and_resize(self, boxes: torch.Tensor, mask_size: int) -> torch.Tensor:
+        """
+        Crop each mask by the given box, and resize results to (mask_size, mask_size).
+        This can be used to prepare training targets for Mask R-CNN.
+        Args:
+            boxes (Tensor): Nx4 tensor storing the boxes for each mask
+            mask_size (int): the size of the rasterized mask.
+        Returns:
+            Tensor: A bool tensor of shape (N, mask_size, mask_size), where
+            N is the number of predicted boxes for this image.
+        """
+        assert len(boxes) == len(self), "{} != {}".format(len(boxes), len(self))
+
+        device = boxes.device
+        # Put boxes on the CPU, as the polygon representation is not efficient GPU-wise
+        # (several small tensors for representing a single instance mask)
+        boxes = boxes.to(torch.device("cpu"))
+
+        results = [
+            rasterize_polygons_within_box(poly, box.numpy(), mask_size)
+            for poly, box in zip(self.polygons, boxes)
+        ]
+        """
+        poly: list[list[float]], the polygons for one instance
+        box: a tensor of shape (4,)
+        """
+        if len(results) == 0:
+          
