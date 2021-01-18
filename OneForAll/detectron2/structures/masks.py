@@ -401,4 +401,70 @@ class PolygonMasks:
         box: a tensor of shape (4,)
         """
         if len(results) == 0:
-          
+            return torch.empty(0, mask_size, mask_size, dtype=torch.bool, device=device)
+        return torch.stack(results, dim=0).to(device=device)
+
+    def area(self):
+        """
+        Computes area of the mask.
+        Only works with Polygons, using the shoelace formula:
+        https://stackoverflow.com/questions/24467972/calculate-area-of-polygon-given-x-y-coordinates
+        Returns:
+            Tensor: a vector, area for each instance
+        """
+
+        area = []
+        for polygons_per_instance in self.polygons:
+            area_per_instance = 0
+            for p in polygons_per_instance:
+                area_per_instance += polygon_area(p[0::2], p[1::2])
+            area.append(area_per_instance)
+
+        return torch.tensor(area)
+
+    @staticmethod
+    def cat(polymasks_list: List["PolygonMasks"]) -> "PolygonMasks":
+        """
+        Concatenates a list of PolygonMasks into a single PolygonMasks
+        Arguments:
+            polymasks_list (list[PolygonMasks])
+        Returns:
+            PolygonMasks: the concatenated PolygonMasks
+        """
+        assert isinstance(polymasks_list, (list, tuple))
+        assert len(polymasks_list) > 0
+        assert all(isinstance(polymask, PolygonMasks) for polymask in polymasks_list)
+
+        cat_polymasks = type(polymasks_list[0])(
+            list(itertools.chain.from_iterable(pm.polygons for pm in polymasks_list))
+        )
+        return cat_polymasks
+
+
+class ROIMasks:
+    """
+    Represent masks by N smaller masks defined in some ROIs. Once ROI boxes are given,
+    full-image bitmask can be obtained by "pasting" the mask on the region defined
+    by the corresponding ROI box.
+    """
+
+    def __init__(self, tensor: torch.Tensor):
+        """
+        Args:
+            tensor: (N, M, M) mask tensor that defines the mask within each ROI.
+        """
+        if tensor.dim() != 3:
+            raise ValueError("ROIMasks must take a masks of 3 dimension.")
+        self.tensor = tensor
+
+    def to(self, device: torch.device) -> "ROIMasks":
+        return ROIMasks(self.tensor.to(device))
+
+    @property
+    def device(self) -> device:
+        return self.tensor.device
+
+    def __len__(self):
+        return self.tensor.shape[0]
+
+    def __get
