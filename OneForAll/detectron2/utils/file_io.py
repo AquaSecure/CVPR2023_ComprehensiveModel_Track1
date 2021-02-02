@@ -32,4 +32,6 @@ class Detectron2Handler(PathHandler):
         return PathManager.open(self._get_local_path(path), mode, **kwargs)
 
 
-PathManager
+PathManager.register_handler(HTTPURLHandler())
+PathManager.register_handler(OneDrivePathHandler())
+PathManager.register_handler(Detectron2Handler())
