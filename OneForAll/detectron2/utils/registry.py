@@ -54,4 +54,8 @@ def locate(name: str) -> Any:
             # from hydra.utils import get_method - will print many errors
             from hydra.utils import _locate
         except ImportError as e:
-            raise ImportError(f"Cannot dynamically locate object {name}!") fr
+            raise ImportError(f"Cannot dynamically locate object {name}!") from e
+        else:
+            obj = _locate(name)  # it raises if fails
+
+    return obj
