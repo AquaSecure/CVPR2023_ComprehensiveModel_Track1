@@ -51,4 +51,36 @@ class ClasEvaluatorSingleTask(DatasetEvaluator):
             pred = pred.t()
             correct = pred.equal(labels.reshape((1, -1)).expand_as(pred))
             
-            k = 1 #to
+            k = 1 #top1
+            correct_k = paddle.cast(correct[: k].reshape((-1, )), 'float32')
+
+        # self._predictions.append({"num_correct": num_correct_acc1, "num_samples": labels.size(0)})
+        self._predictions.append({"correct_k": correct_k})
+        
+    def evaluate(self):
+        """evaluate
+        """
+        if comm.get_world_size() > 1:
+            comm.synchronize()
+            predictions = comm.gather(self._predictions, dst=0)
+            predictions = list(itertools.chain(*predictions))
+
+            if not comm.is_main_process(): return {}
+
+        else:
+            predictions = self._predictions
+
+        correct_k_list = []
+        for prediction in predictions:
+            correct_k_list.append(prediction["correct_k"])
+        all_correct_k = paddle.concat(correct_k_list, axis=0)
+        all_correct_k = all_correct_k[:self._num_valid_samples]
+        
+
+        acc1 = all_correct_k.sum() / all_correct_k.shape[0] * 100
+
+        self._results = OrderedDict()
+        self._results["Acc@1"] = acc1.item()
+        self._results["metric"] = acc1.item()
+
+        return copy.deepcopy(self._results)
