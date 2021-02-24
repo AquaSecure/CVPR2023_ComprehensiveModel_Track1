@@ -74,4 +74,56 @@ def inference_on_dataset(model, data_loader, evaluator, flip_test=False, moe_gro
     num_devices = comm.get_world_size()
     logger = logging.getLogger(__name__)
     if hasattr(data_loader, 'dataset'):
-        logger.info("Start inference on {} images".form
+        logger.info("Start inference on {} images".format(len(data_loader.dataset)))
+
+    total = len(data_loader)  # inference data loader must have a fixed length
+    evaluator.reset()
+
+    num_warmup = min(5, total - 1)
+    start_time = time.perf_counter()
+    total_compute_time = 0
+    model.eval()
+    with paddle.no_grad():
+        for idx, inputs in enumerate(data_loader):
+            # print('inputs: ', inputs)
+            if idx == num_warmup:
+                start_time = time.perf_counter()
+                total_compute_time = 0
+
+            start_compute_time = time.perf_counter()
+            outputs = model(inputs, moe_group) if moe_group is not None else model(inputs)
+
+            # Flip test
+            if flip_test:
+                raise NotImplementedError
+                inputs["images"] = inputs["images"].flip(dims=[3])
+                flip_outputs = model(inputs, moe_group) if moe_group is not None else model(inputs)
+                outputs = (outputs + flip_outputs) / 2
+
+            # TODO cuda.synchronize()
+            total_compute_time += time.perf_counter() - start_compute_time
+            evaluator.process(inputs, outputs)
+
+            iters_after_start = idx + 1 - num_warmup * int(idx >= num_warmup)
+            seconds_per_batch = total_compute_time / iters_after_start
+            if idx >= num_warmup * 2 or seconds_per_batch > 30:
+                total_seconds_per_img = (time.perf_counter() - start_time) / iters_after_start
+                eta = datetime.timedelta(seconds=int(total_seconds_per_img * (total - idx - 1)))
+                log_every_n_seconds(
+                    logging.INFO,
+                    "Inference done {}/{}. {:.4f} s / batch. ETA={}".format(
+                        idx + 1, total, seconds_per_batch, str(eta)
+                    ),
+                    n=30,
+                )
+            
+            if comm.get_world_size() > 1:
+                comm.synchronize()
+    
+    model.train()
+    # Measure the time only for this worker (before the synchronization barrier)
+    total_time = time.perf_counter() - start_time
+    total_time_str = str(datetime.timedelta(seconds=total_time))
+    # NOTE this format is parsed by grep
+    logger.info(
+        "Total inference time: {} ({:.6f} s / batch per device, on {} devices)".forma
