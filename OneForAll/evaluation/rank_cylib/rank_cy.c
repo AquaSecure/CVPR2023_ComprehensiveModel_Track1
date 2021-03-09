@@ -160,3 +160,77 @@ END: Cython Metadata */
   #endif
   #if PY_MAJOR_VERSION < 3
     #undef CYTHON_USE_ASYNC_SLOTS
+    #define CYTHON_USE_ASYNC_SLOTS 0
+  #elif !defined(CYTHON_USE_ASYNC_SLOTS)
+    #define CYTHON_USE_ASYNC_SLOTS 1
+  #endif
+  #if PY_VERSION_HEX < 0x02070000
+    #undef CYTHON_USE_PYLONG_INTERNALS
+    #define CYTHON_USE_PYLONG_INTERNALS 0
+  #elif !defined(CYTHON_USE_PYLONG_INTERNALS)
+    #define CYTHON_USE_PYLONG_INTERNALS 1
+  #endif
+  #ifndef CYTHON_USE_PYLIST_INTERNALS
+    #define CYTHON_USE_PYLIST_INTERNALS 1
+  #endif
+  #ifndef CYTHON_USE_UNICODE_INTERNALS
+    #define CYTHON_USE_UNICODE_INTERNALS 1
+  #endif
+  #if PY_VERSION_HEX < 0x030300F0 || PY_VERSION_HEX >= 0x030B00A2
+    #undef CYTHON_USE_UNICODE_WRITER
+    #define CYTHON_USE_UNICODE_WRITER 0
+  #elif !defined(CYTHON_USE_UNICODE_WRITER)
+    #define CYTHON_USE_UNICODE_WRITER 1
+  #endif
+  #ifndef CYTHON_AVOID_BORROWED_REFS
+    #define CYTHON_AVOID_BORROWED_REFS 0
+  #endif
+  #ifndef CYTHON_ASSUME_SAFE_MACROS
+    #define CYTHON_ASSUME_SAFE_MACROS 1
+  #endif
+  #ifndef CYTHON_UNPACK_METHODS
+    #define CYTHON_UNPACK_METHODS 1
+  #endif
+  #ifndef CYTHON_FAST_THREAD_STATE
+    #define CYTHON_FAST_THREAD_STATE 1
+  #endif
+  #ifndef CYTHON_FAST_PYCALL
+    #define CYTHON_FAST_PYCALL (PY_VERSION_HEX < 0x030B00A1)
+  #endif
+  #ifndef CYTHON_PEP489_MULTI_PHASE_INIT
+    #define CYTHON_PEP489_MULTI_PHASE_INIT (PY_VERSION_HEX >= 0x03050000)
+  #endif
+  #ifndef CYTHON_USE_TP_FINALIZE
+    #define CYTHON_USE_TP_FINALIZE (PY_VERSION_HEX >= 0x030400a1)
+  #endif
+  #ifndef CYTHON_USE_DICT_VERSIONS
+    #define CYTHON_USE_DICT_VERSIONS (PY_VERSION_HEX >= 0x030600B1)
+  #endif
+  #ifndef CYTHON_USE_EXC_INFO_STACK
+    #define CYTHON_USE_EXC_INFO_STACK (PY_VERSION_HEX >= 0x030700A3)
+  #endif
+#endif
+#if !defined(CYTHON_FAST_PYCCALL)
+#define CYTHON_FAST_PYCCALL  (CYTHON_FAST_PYCALL && PY_VERSION_HEX >= 0x030600B1)
+#endif
+#if CYTHON_USE_PYLONG_INTERNALS
+  #if PY_MAJOR_VERSION < 3
+    #include "longintrepr.h"
+  #endif
+  #undef SHIFT
+  #undef BASE
+  #undef MASK
+  #ifdef SIZEOF_VOID_P
+    enum { __pyx_check_sizeof_voidp = 1 / (int)(SIZEOF_VOID_P == sizeof(void*)) };
+  #endif
+#endif
+#ifndef __has_attribute
+  #define __has_attribute(x) 0
+#endif
+#ifndef __has_cpp_attribute
+  #define __has_cpp_attribute(x) 0
+#endif
+#ifndef CYTHON_RESTRICT
+  #if defined(__GNUC__)
+    #define CYTHON_RESTRICT __restrict__
+  #elif defined(_MSC
