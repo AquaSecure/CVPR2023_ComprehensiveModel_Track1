@@ -233,4 +233,81 @@ END: Cython Metadata */
 #ifndef CYTHON_RESTRICT
   #if defined(__GNUC__)
     #define CYTHON_RESTRICT __restrict__
-  #elif defined(_MSC
+  #elif defined(_MSC_VER) && _MSC_VER >= 1400
+    #define CYTHON_RESTRICT __restrict
+  #elif defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+    #define CYTHON_RESTRICT restrict
+  #else
+    #define CYTHON_RESTRICT
+  #endif
+#endif
+#ifndef CYTHON_UNUSED
+# if defined(__GNUC__)
+#   if !(defined(__cplusplus)) || (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 4))
+#     define CYTHON_UNUSED __attribute__ ((__unused__))
+#   else
+#     define CYTHON_UNUSED
+#   endif
+# elif defined(__ICC) || (defined(__INTEL_COMPILER) && !defined(_MSC_VER))
+#   define CYTHON_UNUSED __attribute__ ((__unused__))
+# else
+#   define CYTHON_UNUSED
+# endif
+#endif
+#ifndef CYTHON_MAYBE_UNUSED_VAR
+#  if defined(__cplusplus)
+     template<class T> void CYTHON_MAYBE_UNUSED_VAR( const T& ) { }
+#  else
+#    define CYTHON_MAYBE_UNUSED_VAR(x) (void)(x)
+#  endif
+#endif
+#ifndef CYTHON_NCP_UNUSED
+# if CYTHON_COMPILING_IN_CPYTHON
+#  define CYTHON_NCP_UNUSED
+# else
+#  define CYTHON_NCP_UNUSED CYTHON_UNUSED
+# endif
+#endif
+#define __Pyx_void_to_None(void_result) ((void)(void_result), Py_INCREF(Py_None), Py_None)
+#ifdef _MSC_VER
+    #ifndef _MSC_STDINT_H_
+        #if _MSC_VER < 1300
+           typedef unsigned char     uint8_t;
+           typedef unsigned int      uint32_t;
+        #else
+           typedef unsigned __int8   uint8_t;
+           typedef unsigned __int32  uint32_t;
+        #endif
+    #endif
+#else
+   #include <stdint.h>
+#endif
+#ifndef CYTHON_FALLTHROUGH
+  #if defined(__cplusplus) && __cplusplus >= 201103L
+    #if __has_cpp_attribute(fallthrough)
+      #define CYTHON_FALLTHROUGH [[fallthrough]]
+    #elif __has_cpp_attribute(clang::fallthrough)
+      #define CYTHON_FALLTHROUGH [[clang::fallthrough]]
+    #elif __has_cpp_attribute(gnu::fallthrough)
+      #define CYTHON_FALLTHROUGH [[gnu::fallthrough]]
+    #endif
+  #endif
+  #ifndef CYTHON_FALLTHROUGH
+    #if __has_attribute(fallthrough)
+      #define CYTHON_FALLTHROUGH __attribute__((fallthrough))
+    #else
+      #define CYTHON_FALLTHROUGH
+    #endif
+  #endif
+  #if defined(__clang__ ) && defined(__apple_build_version__)
+    #if __apple_build_version__ < 7000000
+      #undef  CYTHON_FALLTHROUGH
+      #define CYTHON_FALLTHROUGH
+    #endif
+  #endif
+#endif
+
+#ifndef CYTHON_INLINE
+  #if defined(__clang__)
+    #define CYTHON_INLINE __inline__ __attribute__ ((__unused__))
+  #elif defin
