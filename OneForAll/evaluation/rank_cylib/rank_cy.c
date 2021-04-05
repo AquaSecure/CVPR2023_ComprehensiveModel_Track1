@@ -559,4 +559,51 @@ static CYTHON_INLINE void * PyThread_tss_get(Py_tss_t *key) {
 #if CYTHON_COMPILING_IN_PYPY && !defined(PyByteArray_Check)
   #define PyByteArray_Check(obj)  PyObject_TypeCheck(obj, &PyByteArray_Type)
 #endif
-#if CYT
+#if CYTHON_COMPILING_IN_PYPY && !defined(PyObject_Format)
+  #define PyObject_Format(obj, fmt)  PyObject_CallMethod(obj, "__format__", "O", fmt)
+#endif
+#define __Pyx_PyString_FormatSafe(a, b)   ((unlikely((a) == Py_None || (PyString_Check(b) && !PyString_CheckExact(b)))) ? PyNumber_Remainder(a, b) : __Pyx_PyString_Format(a, b))
+#define __Pyx_PyUnicode_FormatSafe(a, b)  ((unlikely((a) == Py_None || (PyUnicode_Check(b) && !PyUnicode_CheckExact(b)))) ? PyNumber_Remainder(a, b) : PyUnicode_Format(a, b))
+#if PY_MAJOR_VERSION >= 3
+  #define __Pyx_PyString_Format(a, b)  PyUnicode_Format(a, b)
+#else
+  #define __Pyx_PyString_Format(a, b)  PyString_Format(a, b)
+#endif
+#if PY_MAJOR_VERSION < 3 && !defined(PyObject_ASCII)
+  #define PyObject_ASCII(o)            PyObject_Repr(o)
+#endif
+#if PY_MAJOR_VERSION >= 3
+  #define PyBaseString_Type            PyUnicode_Type
+  #define PyStringObject               PyUnicodeObject
+  #define PyString_Type                PyUnicode_Type
+  #define PyString_Check               PyUnicode_Check
+  #define PyString_CheckExact          PyUnicode_CheckExact
+#ifndef PyObject_Unicode
+  #define PyObject_Unicode             PyObject_Str
+#endif
+#endif
+#if PY_MAJOR_VERSION >= 3
+  #define __Pyx_PyBaseString_Check(obj) PyUnicode_Check(obj)
+  #define __Pyx_PyBaseString_CheckExact(obj) PyUnicode_CheckExact(obj)
+#else
+  #define __Pyx_PyBaseString_Check(obj) (PyString_Check(obj) || PyUnicode_Check(obj))
+  #define __Pyx_PyBaseString_CheckExact(obj) (PyString_CheckExact(obj) || PyUnicode_CheckExact(obj))
+#endif
+#ifndef PySet_CheckExact
+  #define PySet_CheckExact(obj)        (Py_TYPE(obj) == &PySet_Type)
+#endif
+#if PY_VERSION_HEX >= 0x030900A4
+  #define __Pyx_SET_REFCNT(obj, refcnt) Py_SET_REFCNT(obj, refcnt)
+  #define __Pyx_SET_SIZE(obj, size) Py_SET_SIZE(obj, size)
+#else
+  #define __Pyx_SET_REFCNT(obj, refcnt) Py_REFCNT(obj) = (refcnt)
+  #define __Pyx_SET_SIZE(obj, size) Py_SIZE(obj) = (size)
+#endif
+#if CYTHON_ASSUME_SAFE_MACROS
+  #define __Pyx_PySequence_SIZE(seq)  Py_SIZE(seq)
+#else
+  #define __Pyx_PySequence_SIZE(seq)  PySequence_Size(seq)
+#endif
+#if PY_MAJOR_VERSION >= 3
+  #define PyIntObject                  PyLongObject
+  #define Py
