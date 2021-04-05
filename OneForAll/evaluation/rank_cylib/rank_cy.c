@@ -606,4 +606,63 @@ static CYTHON_INLINE void * PyThread_tss_get(Py_tss_t *key) {
 #endif
 #if PY_MAJOR_VERSION >= 3
   #define PyIntObject                  PyLongObject
-  #define Py
+  #define PyInt_Type                   PyLong_Type
+  #define PyInt_Check(op)              PyLong_Check(op)
+  #define PyInt_CheckExact(op)         PyLong_CheckExact(op)
+  #define PyInt_FromString             PyLong_FromString
+  #define PyInt_FromUnicode            PyLong_FromUnicode
+  #define PyInt_FromLong               PyLong_FromLong
+  #define PyInt_FromSize_t             PyLong_FromSize_t
+  #define PyInt_FromSsize_t            PyLong_FromSsize_t
+  #define PyInt_AsLong                 PyLong_AsLong
+  #define PyInt_AS_LONG                PyLong_AS_LONG
+  #define PyInt_AsSsize_t              PyLong_AsSsize_t
+  #define PyInt_AsUnsignedLongMask     PyLong_AsUnsignedLongMask
+  #define PyInt_AsUnsignedLongLongMask PyLong_AsUnsignedLongLongMask
+  #define PyNumber_Int                 PyNumber_Long
+#endif
+#if PY_MAJOR_VERSION >= 3
+  #define PyBoolObject                 PyLongObject
+#endif
+#if PY_MAJOR_VERSION >= 3 && CYTHON_COMPILING_IN_PYPY
+  #ifndef PyUnicode_InternFromString
+    #define PyUnicode_InternFromString(s) PyUnicode_FromString(s)
+  #endif
+#endif
+#if PY_VERSION_HEX < 0x030200A4
+  typedef long Py_hash_t;
+  #define __Pyx_PyInt_FromHash_t PyInt_FromLong
+  #define __Pyx_PyInt_AsHash_t   __Pyx_PyIndex_AsHash_t
+#else
+  #define __Pyx_PyInt_FromHash_t PyInt_FromSsize_t
+  #define __Pyx_PyInt_AsHash_t   __Pyx_PyIndex_AsSsize_t
+#endif
+#if PY_MAJOR_VERSION >= 3
+  #define __Pyx_PyMethod_New(func, self, klass) ((self) ? ((void)(klass), PyMethod_New(func, self)) : __Pyx_NewRef(func))
+#else
+  #define __Pyx_PyMethod_New(func, self, klass) PyMethod_New(func, self, klass)
+#endif
+#if CYTHON_USE_ASYNC_SLOTS
+  #if PY_VERSION_HEX >= 0x030500B1
+    #define __Pyx_PyAsyncMethodsStruct PyAsyncMethods
+    #define __Pyx_PyType_AsAsync(obj) (Py_TYPE(obj)->tp_as_async)
+  #else
+    #define __Pyx_PyType_AsAsync(obj) ((__Pyx_PyAsyncMethodsStruct*) (Py_TYPE(obj)->tp_reserved))
+  #endif
+#else
+  #define __Pyx_PyType_AsAsync(obj) NULL
+#endif
+#ifndef __Pyx_PyAsyncMethodsStruct
+    typedef struct {
+        unaryfunc am_await;
+        unaryfunc am_aiter;
+        unaryfunc am_anext;
+    } __Pyx_PyAsyncMethodsStruct;
+#endif
+
+#if defined(WIN32) || defined(MS_WINDOWS)
+  #define _USE_MATH_DEFINES
+#endif
+#include <math.h>
+#ifdef NAN
+#define __PYX_NAN() ((float) NAN)
