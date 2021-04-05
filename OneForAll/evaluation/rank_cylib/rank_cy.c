@@ -666,3 +666,70 @@ static CYTHON_INLINE void * PyThread_tss_get(Py_tss_t *key) {
 #include <math.h>
 #ifdef NAN
 #define __PYX_NAN() ((float) NAN)
+#else
+static CYTHON_INLINE float __PYX_NAN() {
+  float value;
+  memset(&value, 0xFF, sizeof(value));
+  return value;
+}
+#endif
+#if defined(__CYGWIN__) && defined(_LDBL_EQ_DBL)
+#define __Pyx_truncl trunc
+#else
+#define __Pyx_truncl truncl
+#endif
+
+#define __PYX_MARK_ERR_POS(f_index, lineno) \
+    { __pyx_filename = __pyx_f[f_index]; (void)__pyx_filename; __pyx_lineno = lineno; (void)__pyx_lineno; __pyx_clineno = __LINE__; (void)__pyx_clineno; }
+#define __PYX_ERR(f_index, lineno, Ln_error) \
+    { __PYX_MARK_ERR_POS(f_index, lineno) goto Ln_error; }
+
+#ifndef __PYX_EXTERN_C
+  #ifdef __cplusplus
+    #define __PYX_EXTERN_C extern "C"
+  #else
+    #define __PYX_EXTERN_C extern
+  #endif
+#endif
+
+#define __PYX_HAVE__rank_cy
+#define __PYX_HAVE_API__rank_cy
+/* Early includes */
+#include <string.h>
+#include <stdio.h>
+#include "numpy/arrayobject.h"
+#include "numpy/ufuncobject.h"
+
+    /* NumPy API declarations from "numpy/__init__.pxd" */
+    
+#include "pythread.h"
+#include <stdlib.h>
+#include "pystate.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif /* _OPENMP */
+
+#if defined(PYREX_WITHOUT_ASSERTIONS) && !defined(CYTHON_WITHOUT_ASSERTIONS)
+#define CYTHON_WITHOUT_ASSERTIONS
+#endif
+
+typedef struct {PyObject **p; const char *s; const Py_ssize_t n; const char* encoding;
+                const char is_unicode; const char is_str; const char intern; } __Pyx_StringTabEntry;
+
+#define __PYX_DEFAULT_STRING_ENCODING_IS_ASCII 0
+#define __PYX_DEFAULT_STRING_ENCODING_IS_UTF8 0
+#define __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT (PY_MAJOR_VERSION >= 3 && __PYX_DEFAULT_STRING_ENCODING_IS_UTF8)
+#define __PYX_DEFAULT_STRING_ENCODING ""
+#define __Pyx_PyObject_FromString __Pyx_PyBytes_FromString
+#define __Pyx_PyObject_FromStringAndSize __Pyx_PyBytes_FromStringAndSize
+#define __Pyx_uchar_cast(c) ((unsigned char)c)
+#define __Pyx_long_cast(x) ((long)x)
+#define __Pyx_fits_Py_ssize_t(v, type, is_signed)  (\
+    (sizeof(type) < sizeof(Py_ssize_t))  ||\
+    (sizeof(type) > sizeof(Py_ssize_t) &&\
+          likely(v < (type)PY_SSIZE_T_MAX ||\
+                 v == (type)PY_SSIZE_T_MAX)  &&\
+          (!is_signed || likely(v > (type)PY_SSIZE_T_MIN ||\
+                                v == (type)PY_SSIZE_T_MIN)))  ||\
+    (sizeof(type) == sizeof(Py_ssize_t) &&\
+ 
