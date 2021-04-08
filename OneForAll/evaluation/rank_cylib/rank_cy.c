@@ -732,4 +732,44 @@ typedef struct {PyObject **p; const char *s; const Py_ssize_t n; const char* enc
           (!is_signed || likely(v > (type)PY_SSIZE_T_MIN ||\
                                 v == (type)PY_SSIZE_T_MIN)))  ||\
     (sizeof(type) == sizeof(Py_ssize_t) &&\
- 
+          (is_signed || likely(v < (type)PY_SSIZE_T_MAX ||\
+                               v == (type)PY_SSIZE_T_MAX)))  )
+static CYTHON_INLINE int __Pyx_is_valid_index(Py_ssize_t i, Py_ssize_t limit) {
+    return (size_t) i < (size_t) limit;
+}
+#if defined (__cplusplus) && __cplusplus >= 201103L
+    #include <cstdlib>
+    #define __Pyx_sst_abs(value) std::abs(value)
+#elif SIZEOF_INT >= SIZEOF_SIZE_T
+    #define __Pyx_sst_abs(value) abs(value)
+#elif SIZEOF_LONG >= SIZEOF_SIZE_T
+    #define __Pyx_sst_abs(value) labs(value)
+#elif defined (_MSC_VER)
+    #define __Pyx_sst_abs(value) ((Py_ssize_t)_abs64(value))
+#elif defined (__STDC_VERSION__) && __STDC_VERSION__ >= 199901L
+    #define __Pyx_sst_abs(value) llabs(value)
+#elif defined (__GNUC__)
+    #define __Pyx_sst_abs(value) __builtin_llabs(value)
+#else
+    #define __Pyx_sst_abs(value) ((value<0) ? -value : value)
+#endif
+static CYTHON_INLINE const char* __Pyx_PyObject_AsString(PyObject*);
+static CYTHON_INLINE const char* __Pyx_PyObject_AsStringAndSize(PyObject*, Py_ssize_t* length);
+#define __Pyx_PyByteArray_FromString(s) PyByteArray_FromStringAndSize((const char*)s, strlen((const char*)s))
+#define __Pyx_PyByteArray_FromStringAndSize(s, l) PyByteArray_FromStringAndSize((const char*)s, l)
+#define __Pyx_PyBytes_FromString        PyBytes_FromString
+#define __Pyx_PyBytes_FromStringAndSize PyBytes_FromStringAndSize
+static CYTHON_INLINE PyObject* __Pyx_PyUnicode_FromString(const char*);
+#if PY_MAJOR_VERSION < 3
+    #define __Pyx_PyStr_FromString        __Pyx_PyBytes_FromString
+    #define __Pyx_PyStr_FromStringAndSize __Pyx_PyBytes_FromStringAndSize
+#else
+    #define __Pyx_PyStr_FromString        __Pyx_PyUnicode_FromString
+    #define __Pyx_PyStr_FromStringAndSize __Pyx_PyUnicode_FromStringAndSize
+#endif
+#define __Pyx_PyBytes_AsWritableString(s)     ((char*) PyBytes_AS_STRING(s))
+#define __Pyx_PyBytes_AsWritableSString(s)    ((signed char*) PyBytes_AS_STRING(s))
+#define __Pyx_PyBytes_AsWritableUString(s)    ((unsigned char*) PyBytes_AS_STRING(s))
+#define __Pyx_PyBytes_AsString(s)     ((const char*) PyBytes_AS_STRING(s))
+#define __Pyx_PyBytes_AsSString(s)    ((const signed char*) PyBytes_AS_STRING(s))
+#define __Pyx_PyBytes_AsUString(s)    ((const unsigned char*) PyBytes_A
