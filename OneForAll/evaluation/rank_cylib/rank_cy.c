@@ -863,4 +863,72 @@ bad:
 #if __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT && PY_MAJOR_VERSION >= 3
 #define __Pyx_PyUnicode_FromStringAndSize(c_str, size) PyUnicode_DecodeUTF8(c_str, size, NULL)
 #else
-#define __Py
+#define __Pyx_PyUnicode_FromStringAndSize(c_str, size) PyUnicode_Decode(c_str, size, __PYX_DEFAULT_STRING_ENCODING, NULL)
+#if __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT
+static char* __PYX_DEFAULT_STRING_ENCODING;
+static int __Pyx_init_sys_getdefaultencoding_params(void) {
+    PyObject* sys;
+    PyObject* default_encoding = NULL;
+    char* default_encoding_c;
+    sys = PyImport_ImportModule("sys");
+    if (!sys) goto bad;
+    default_encoding = PyObject_CallMethod(sys, (char*) (const char*) "getdefaultencoding", NULL);
+    Py_DECREF(sys);
+    if (!default_encoding) goto bad;
+    default_encoding_c = PyBytes_AsString(default_encoding);
+    if (!default_encoding_c) goto bad;
+    __PYX_DEFAULT_STRING_ENCODING = (char*) malloc(strlen(default_encoding_c) + 1);
+    if (!__PYX_DEFAULT_STRING_ENCODING) goto bad;
+    strcpy(__PYX_DEFAULT_STRING_ENCODING, default_encoding_c);
+    Py_DECREF(default_encoding);
+    return 0;
+bad:
+    Py_XDECREF(default_encoding);
+    return -1;
+}
+#endif
+#endif
+
+
+/* Test for GCC > 2.95 */
+#if defined(__GNUC__)     && (__GNUC__ > 2 || (__GNUC__ == 2 && (__GNUC_MINOR__ > 95)))
+  #define likely(x)   __builtin_expect(!!(x), 1)
+  #define unlikely(x) __builtin_expect(!!(x), 0)
+#else /* !__GNUC__ or GCC < 2.95 */
+  #define likely(x)   (x)
+  #define unlikely(x) (x)
+#endif /* __GNUC__ */
+static CYTHON_INLINE void __Pyx_pretend_to_initialize(void* ptr) { (void)ptr; }
+
+static PyObject *__pyx_m = NULL;
+static PyObject *__pyx_d;
+static PyObject *__pyx_b;
+static PyObject *__pyx_cython_runtime = NULL;
+static PyObject *__pyx_empty_tuple;
+static PyObject *__pyx_empty_bytes;
+static PyObject *__pyx_empty_unicode;
+static int __pyx_lineno;
+static int __pyx_clineno = 0;
+static const char * __pyx_cfilenm= __FILE__;
+static const char *__pyx_filename;
+
+/* Header.proto */
+#if !defined(CYTHON_CCOMPLEX)
+  #if defined(__cplusplus)
+    #define CYTHON_CCOMPLEX 1
+  #elif defined(_Complex_I)
+    #define CYTHON_CCOMPLEX 1
+  #else
+    #define CYTHON_CCOMPLEX 0
+  #endif
+#endif
+#if CYTHON_CCOMPLEX
+  #ifdef __cplusplus
+    #include <complex>
+  #else
+    #include <complex.h>
+  #endif
+#endif
+#if CYTHON_CCOMPLEX && !defined(__cplusplus) && defined(__sun__) && defined(__GNUC__)
+  #undef _Complex_I
+  
