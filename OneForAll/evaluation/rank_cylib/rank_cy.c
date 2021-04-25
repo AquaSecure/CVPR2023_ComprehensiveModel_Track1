@@ -931,4 +931,68 @@ static const char *__pyx_filename;
 #endif
 #if CYTHON_CCOMPLEX && !defined(__cplusplus) && defined(__sun__) && defined(__GNUC__)
   #undef _Complex_I
-  
+  #define _Complex_I 1.0fj
+#endif
+
+
+static const char *__pyx_f[] = {
+  "rank_cy.pyx",
+  "__init__.pxd",
+  "stringsource",
+  "type.pxd",
+};
+/* MemviewSliceStruct.proto */
+struct __pyx_memoryview_obj;
+typedef struct {
+  struct __pyx_memoryview_obj *memview;
+  char *data;
+  Py_ssize_t shape[8];
+  Py_ssize_t strides[8];
+  Py_ssize_t suboffsets[8];
+} __Pyx_memviewslice;
+#define __Pyx_MemoryView_Len(m)  (m.shape[0])
+
+/* Atomics.proto */
+#include <pythread.h>
+#ifndef CYTHON_ATOMICS
+    #define CYTHON_ATOMICS 1
+#endif
+#define __pyx_atomic_int_type int
+#if CYTHON_ATOMICS && __GNUC__ >= 4 && (__GNUC_MINOR__ > 1 ||\
+                    (__GNUC_MINOR__ == 1 && __GNUC_PATCHLEVEL >= 2)) &&\
+                    !defined(__i386__)
+    #define __pyx_atomic_incr_aligned(value, lock) __sync_fetch_and_add(value, 1)
+    #define __pyx_atomic_decr_aligned(value, lock) __sync_fetch_and_sub(value, 1)
+    #ifdef __PYX_DEBUG_ATOMICS
+        #warning "Using GNU atomics"
+    #endif
+#elif CYTHON_ATOMICS && defined(_MSC_VER) && 0
+    #include <Windows.h>
+    #undef __pyx_atomic_int_type
+    #define __pyx_atomic_int_type LONG
+    #define __pyx_atomic_incr_aligned(value, lock) InterlockedIncrement(value)
+    #define __pyx_atomic_decr_aligned(value, lock) InterlockedDecrement(value)
+    #ifdef __PYX_DEBUG_ATOMICS
+        #pragma message ("Using MSVC atomics")
+    #endif
+#elif CYTHON_ATOMICS && (defined(__ICC) || defined(__INTEL_COMPILER)) && 0
+    #define __pyx_atomic_incr_aligned(value, lock) _InterlockedIncrement(value)
+    #define __pyx_atomic_decr_aligned(value, lock) _InterlockedDecrement(value)
+    #ifdef __PYX_DEBUG_ATOMICS
+        #warning "Using Intel atomics"
+    #endif
+#else
+    #undef CYTHON_ATOMICS
+    #define CYTHON_ATOMICS 0
+    #ifdef __PYX_DEBUG_ATOMICS
+        #warning "Not using atomics"
+    #endif
+#endif
+typedef volatile __pyx_atomic_int_type __pyx_atomic_int;
+#if CYTHON_ATOMICS
+    #define __pyx_add_acquisition_count(memview)\
+             __pyx_atomic_incr_aligned(__pyx_get_slice_count_pointer(memview), memview->lock)
+    #define __pyx_sub_acquisition_count(memview)\
+            __pyx_atomic_decr_aligned(__pyx_get_slice_count_pointer(memview), memview->lock)
+#else
+    #define __pyx_add_acqui
