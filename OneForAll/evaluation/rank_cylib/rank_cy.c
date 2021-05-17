@@ -1420,4 +1420,57 @@ static struct __pyx_vtabstruct_array *__pyx_vtabptr_array;
 
 struct __pyx_vtabstruct_memoryview {
   char *(*get_item_pointer)(struct __pyx_memoryview_obj *, PyObject *);
-  PyObject *(*is_slice)(struct __pyx_memoryv
+  PyObject *(*is_slice)(struct __pyx_memoryview_obj *, PyObject *);
+  PyObject *(*setitem_slice_assignment)(struct __pyx_memoryview_obj *, PyObject *, PyObject *);
+  PyObject *(*setitem_slice_assign_scalar)(struct __pyx_memoryview_obj *, struct __pyx_memoryview_obj *, PyObject *);
+  PyObject *(*setitem_indexed)(struct __pyx_memoryview_obj *, PyObject *, PyObject *);
+  PyObject *(*convert_item_to_object)(struct __pyx_memoryview_obj *, char *);
+  PyObject *(*assign_item_from_object)(struct __pyx_memoryview_obj *, char *, PyObject *);
+};
+static struct __pyx_vtabstruct_memoryview *__pyx_vtabptr_memoryview;
+
+
+/* "View.MemoryView":965
+ * 
+ * @cname('__pyx_memoryviewslice')
+ * cdef class _memoryviewslice(memoryview):             # <<<<<<<<<<<<<<
+ *     "Internal class for passing memoryview slices to Python"
+ * 
+ */
+
+struct __pyx_vtabstruct__memoryviewslice {
+  struct __pyx_vtabstruct_memoryview __pyx_base;
+};
+static struct __pyx_vtabstruct__memoryviewslice *__pyx_vtabptr__memoryviewslice;
+
+/* --- Runtime support code (head) --- */
+/* Refnanny.proto */
+#ifndef CYTHON_REFNANNY
+  #define CYTHON_REFNANNY 0
+#endif
+#if CYTHON_REFNANNY
+  typedef struct {
+    void (*INCREF)(void*, PyObject*, int);
+    void (*DECREF)(void*, PyObject*, int);
+    void (*GOTREF)(void*, PyObject*, int);
+    void (*GIVEREF)(void*, PyObject*, int);
+    void* (*SetupContext)(const char*, int, const char*);
+    void (*FinishContext)(void**);
+  } __Pyx_RefNannyAPIStruct;
+  static __Pyx_RefNannyAPIStruct *__Pyx_RefNanny = NULL;
+  static __Pyx_RefNannyAPIStruct *__Pyx_RefNannyImportAPI(const char *modname);
+  #define __Pyx_RefNannyDeclarations void *__pyx_refnanny = NULL;
+#ifdef WITH_THREAD
+  #define __Pyx_RefNannySetupContext(name, acquire_gil)\
+          if (acquire_gil) {\
+              PyGILState_STATE __pyx_gilstate_save = PyGILState_Ensure();\
+              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__);\
+              PyGILState_Release(__pyx_gilstate_save);\
+          } else {\
+              __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__);\
+          }
+#else
+  #define __Pyx_RefNannySetupContext(name, acquire_gil)\
+          __pyx_refnanny = __Pyx_RefNanny->SetupContext((name), __LINE__, __FILE__)
+#endif
+  #define __Pyx_RefNannyFini
