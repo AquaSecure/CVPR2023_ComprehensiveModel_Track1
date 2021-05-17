@@ -1314,4 +1314,110 @@ struct __pyx_opt_args_7rank_cy_evaluate_cy;
  *     q_pids = np.asarray(q_pids, dtype=np.int64)
  */
 struct __pyx_opt_args_7rank_cy_evaluate_cy {
-  
+  int __pyx_n;
+  PyObject *use_metric_cuhk03;
+};
+
+/* "View.MemoryView":105
+ * 
+ * @cname("__pyx_array")
+ * cdef class array:             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+struct __pyx_array_obj {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_array *__pyx_vtab;
+  char *data;
+  Py_ssize_t len;
+  char *format;
+  int ndim;
+  Py_ssize_t *_shape;
+  Py_ssize_t *_strides;
+  Py_ssize_t itemsize;
+  PyObject *mode;
+  PyObject *_format;
+  void (*callback_free_data)(void *);
+  int free_data;
+  int dtype_is_object;
+};
+
+
+/* "View.MemoryView":279
+ * 
+ * @cname('__pyx_MemviewEnum')
+ * cdef class Enum(object):             # <<<<<<<<<<<<<<
+ *     cdef object name
+ *     def __init__(self, name):
+ */
+struct __pyx_MemviewEnum_obj {
+  PyObject_HEAD
+  PyObject *name;
+};
+
+
+/* "View.MemoryView":330
+ * 
+ * @cname('__pyx_memoryview')
+ * cdef class memoryview(object):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef object obj
+ */
+struct __pyx_memoryview_obj {
+  PyObject_HEAD
+  struct __pyx_vtabstruct_memoryview *__pyx_vtab;
+  PyObject *obj;
+  PyObject *_size;
+  PyObject *_array_interface;
+  PyThread_type_lock lock;
+  __pyx_atomic_int acquisition_count[2];
+  __pyx_atomic_int *acquisition_count_aligned_p;
+  Py_buffer view;
+  int flags;
+  int dtype_is_object;
+  __Pyx_TypeInfo *typeinfo;
+};
+
+
+/* "View.MemoryView":965
+ * 
+ * @cname('__pyx_memoryviewslice')
+ * cdef class _memoryviewslice(memoryview):             # <<<<<<<<<<<<<<
+ *     "Internal class for passing memoryview slices to Python"
+ * 
+ */
+struct __pyx_memoryviewslice_obj {
+  struct __pyx_memoryview_obj __pyx_base;
+  __Pyx_memviewslice from_slice;
+  PyObject *from_object;
+  PyObject *(*to_object_func)(char *);
+  int (*to_dtype_func)(char *, PyObject *);
+};
+
+
+
+/* "View.MemoryView":105
+ * 
+ * @cname("__pyx_array")
+ * cdef class array:             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+
+struct __pyx_vtabstruct_array {
+  PyObject *(*get_memview)(struct __pyx_array_obj *);
+};
+static struct __pyx_vtabstruct_array *__pyx_vtabptr_array;
+
+
+/* "View.MemoryView":330
+ * 
+ * @cname('__pyx_memoryview')
+ * cdef class memoryview(object):             # <<<<<<<<<<<<<<
+ * 
+ *     cdef object obj
+ */
+
+struct __pyx_vtabstruct_memoryview {
+  char *(*get_item_pointer)(struct __pyx_memoryview_obj *, PyObject *);
+  PyObject *(*is_slice)(struct __pyx_memoryv
