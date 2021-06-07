@@ -2299,4 +2299,54 @@ static void __pyx_memoryview_refcount_objects_in_slice(char *, Py_ssize_t *, Py_
 static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *, int, size_t, void *, int); /*proto*/
 static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize_t *, int, size_t, void *); /*proto*/
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
-static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 
+static __Pyx_TypeInfo __Pyx_TypeInfo_float = { "float", NULL, sizeof(float), { 0 }, 0, 'R', 0, 0 };
+static __Pyx_TypeInfo __Pyx_TypeInfo_long = { "long", NULL, sizeof(long), { 0 }, 0, IS_UNSIGNED(long) ? 'U' : 'I', IS_UNSIGNED(long), 0 };
+#define __Pyx_MODULE_NAME "rank_cy"
+extern int __pyx_module_is_main_rank_cy;
+int __pyx_module_is_main_rank_cy = 0;
+
+/* Implementation of 'rank_cy' */
+static PyObject *__pyx_builtin_range;
+static PyObject *__pyx_builtin_ImportError;
+static PyObject *__pyx_builtin_ValueError;
+static PyObject *__pyx_builtin_MemoryError;
+static PyObject *__pyx_builtin_enumerate;
+static PyObject *__pyx_builtin_TypeError;
+static PyObject *__pyx_builtin_Ellipsis;
+static PyObject *__pyx_builtin_id;
+static PyObject *__pyx_builtin_IndexError;
+static const char __pyx_k_O[] = "O";
+static const char __pyx_k_c[] = "c";
+static const char __pyx_k_id[] = "id";
+static const char __pyx_k_np[] = "np";
+static const char __pyx_k_end[] = "end";
+static const char __pyx_k_new[] = "__new__";
+static const char __pyx_k_obj[] = "obj";
+static const char __pyx_k_axis[] = "axis";
+static const char __pyx_k_base[] = "base";
+static const char __pyx_k_dict[] = "__dict__";
+static const char __pyx_k_file[] = "file";
+static const char __pyx_k_main[] = "__main__";
+static const char __pyx_k_mode[] = "mode";
+static const char __pyx_k_name[] = "name";
+static const char __pyx_k_ndim[] = "ndim";
+static const char __pyx_k_pack[] = "pack";
+static const char __pyx_k_size[] = "size";
+static const char __pyx_k_step[] = "step";
+static const char __pyx_k_stop[] = "stop";
+static const char __pyx_k_test[] = "__test__";
+static const char __pyx_k_ASCII[] = "ASCII";
+static const char __pyx_k_class[] = "__class__";
+static const char __pyx_k_dtype[] = "dtype";
+static const char __pyx_k_error[] = "error";
+static const char __pyx_k_flags[] = "flags";
+static const char __pyx_k_int64[] = "int64";
+static const char __pyx_k_items[] = "items";
+static const char __pyx_k_numpy[] = "numpy";
+static const char __pyx_k_print[] = "print";
+static const char __pyx_k_range[] = "range";
+static const char __pyx_k_shape[] = "shape";
+static const char __pyx_k_start[] = "start";
+static const char __pyx_k_zeros[] = "zeros";
+static const char __pyx_k_append[] = "append";
+static const char __pyx_k_asty
