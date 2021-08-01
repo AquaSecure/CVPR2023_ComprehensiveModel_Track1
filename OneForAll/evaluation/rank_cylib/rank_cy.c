@@ -3060,4 +3060,62 @@ static PyObject *__pyx_pw_7rank_cy_1evaluate_cy(PyObject *__pyx_self, PyObject *
         values[1] = PyTuple_GET_ITEM(__pyx_args, 1);
         values[0] = PyTuple_GET_ITEM(__pyx_args, 0);
         break;
-        default: goto __pyx_L5_argtuple
+        default: goto __pyx_L5_argtuple_error;
+      }
+    }
+    __pyx_v_distmat = values[0];
+    __pyx_v_q_pids = values[1];
+    __pyx_v_g_pids = values[2];
+    __pyx_v_q_camids = values[3];
+    __pyx_v_g_camids = values[4];
+    __pyx_v_max_rank = values[5];
+    __pyx_v_use_metric_cuhk03 = values[6];
+  }
+  goto __pyx_L4_argument_unpacking_done;
+  __pyx_L5_argtuple_error:;
+  __Pyx_RaiseArgtupleInvalid("evaluate_cy", 0, 6, 7, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 20, __pyx_L3_error)
+  __pyx_L3_error:;
+  __Pyx_AddTraceback("rank_cy.evaluate_cy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_RefNannyFinishContext();
+  return NULL;
+  __pyx_L4_argument_unpacking_done:;
+  __pyx_r = __pyx_pf_7rank_cy_evaluate_cy(__pyx_self, __pyx_v_distmat, __pyx_v_q_pids, __pyx_v_g_pids, __pyx_v_q_camids, __pyx_v_g_camids, __pyx_v_max_rank, __pyx_v_use_metric_cuhk03);
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_7rank_cy_evaluate_cy(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_distmat, PyObject *__pyx_v_q_pids, PyObject *__pyx_v_g_pids, PyObject *__pyx_v_q_camids, PyObject *__pyx_v_g_camids, PyObject *__pyx_v_max_rank, PyObject *__pyx_v_use_metric_cuhk03) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  struct __pyx_opt_args_7rank_cy_evaluate_cy __pyx_t_2;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("evaluate_cy", 0);
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2.__pyx_n = 1;
+  __pyx_t_2.use_metric_cuhk03 = __pyx_v_use_metric_cuhk03;
+  __pyx_t_1 = __pyx_f_7rank_cy_evaluate_cy(__pyx_v_distmat, __pyx_v_q_pids, __pyx_v_g_pids, __pyx_v_q_camids, __pyx_v_g_camids, __pyx_v_max_rank, 0, &__pyx_t_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 20, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("rank_cy.evaluate_cy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "rank_cy.pyx":31
+ * 
+ * 
+ * cpdef eval_cuhk03_cy(float[:,:] distmat, long[:] q_pids, long[:]g_pids,     
