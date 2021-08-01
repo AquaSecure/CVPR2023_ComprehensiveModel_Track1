@@ -3118,4 +3118,50 @@ static PyObject *__pyx_pf_7rank_cy_evaluate_cy(CYTHON_UNUSED PyObject *__pyx_sel
 /* "rank_cy.pyx":31
  * 
  * 
- * cpdef eval_cuhk03_cy(float[:,:] distmat, long[:] q_pids, long[:]g_pids,     
+ * cpdef eval_cuhk03_cy(float[:,:] distmat, long[:] q_pids, long[:]g_pids,             # <<<<<<<<<<<<<<
+ *                      long[:]q_camids, long[:]g_camids, long max_rank):
+ *     cdef long num_q = distmat.shape[0]
+ */
+
+static PyObject *__pyx_pw_7rank_cy_3eval_cuhk03_cy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_distmat, __Pyx_memviewslice __pyx_v_q_pids, __Pyx_memviewslice __pyx_v_g_pids, __Pyx_memviewslice __pyx_v_q_camids, __Pyx_memviewslice __pyx_v_g_camids, long __pyx_v_max_rank, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  long __pyx_v_num_q;
+  long __pyx_v_num_g;
+  long __pyx_v_num_repeats;
+  __Pyx_memviewslice __pyx_v_indices = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_matches = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_all_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_all_AP = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_num_valid_q;
+  long __pyx_v_q_idx;
+  long __pyx_v_q_pid;
+  long __pyx_v_q_camid;
+  long __pyx_v_g_idx;
+  __Pyx_memviewslice __pyx_v_order = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_raw_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_masked_raw_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_masked_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  long __pyx_v_num_g_real;
+  long __pyx_v_num_g_real_masked;
+  long __pyx_v_rank_idx;
+  long __pyx_v_rnd_idx;
+  unsigned long __pyx_v_meet_condition;
+  __Pyx_memviewslice __pyx_v_kept_g_pids = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_mask = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_num_rel;
+  __Pyx_memviewslice __pyx_v_tmp_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_tmp_cmc_sum;
+  PyObject *__pyx_v_g_pids_dict = NULL;
+  CYTHON_UNUSED PyObject *__pyx_v__ = NULL;
+  PyObject *__pyx_v_idxs = NULL;
+  __Pyx_memviewslice __pyx_v_avg_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_mAP;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  __Pyx_memviewslice __pyx_
