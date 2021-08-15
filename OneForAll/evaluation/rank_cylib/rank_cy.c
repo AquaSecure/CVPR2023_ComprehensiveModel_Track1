@@ -3712,4 +3712,65 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
  *         q_camid = q_camids[q_idx]
  * 
  */
-    __pyx_t
+    __pyx_t_15 = __pyx_v_q_idx;
+    __pyx_v_q_pid = (*((long *) ( /* dim=0 */ (__pyx_v_q_pids.data + __pyx_t_15 * __pyx_v_q_pids.strides[0]) )));
+
+    /* "rank_cy.pyx":69
+ *         # get query pid and camid
+ *         q_pid = q_pids[q_idx]
+ *         q_camid = q_camids[q_idx]             # <<<<<<<<<<<<<<
+ * 
+ *         # remove gallery samples that have the same pid and camid with query
+ */
+    __pyx_t_15 = __pyx_v_q_idx;
+    __pyx_v_q_camid = (*((long *) ( /* dim=0 */ (__pyx_v_q_camids.data + __pyx_t_15 * __pyx_v_q_camids.strides[0]) )));
+
+    /* "rank_cy.pyx":72
+ * 
+ *         # remove gallery samples that have the same pid and camid with query
+ *         for g_idx in range(num_g):             # <<<<<<<<<<<<<<
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0
+ */
+    __pyx_t_16 = __pyx_v_num_g;
+    __pyx_t_17 = __pyx_t_16;
+    for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+      __pyx_v_g_idx = __pyx_t_18;
+
+      /* "rank_cy.pyx":73
+ *         # remove gallery samples that have the same pid and camid with query
+ *         for g_idx in range(num_g):
+ *             order[g_idx] = indices[q_idx, g_idx]             # <<<<<<<<<<<<<<
+ *         num_g_real = 0
+ *         meet_condition = 0
+ */
+      __pyx_t_15 = __pyx_v_q_idx;
+      __pyx_t_19 = __pyx_v_g_idx;
+      __pyx_t_20 = __pyx_v_g_idx;
+      *((long *) ( /* dim=0 */ (__pyx_v_order.data + __pyx_t_20 * __pyx_v_order.strides[0]) )) = (*((long *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_15 * __pyx_v_indices.strides[0]) ) + __pyx_t_19 * __pyx_v_indices.strides[1]) )));
+    }
+
+    /* "rank_cy.pyx":74
+ *         for g_idx in range(num_g):
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0             # <<<<<<<<<<<<<<
+ *         meet_condition = 0
+ *         kept_g_pids = np.zeros(num_g, dtype=np.int64)
+ */
+    __pyx_v_num_g_real = 0;
+
+    /* "rank_cy.pyx":75
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0
+ *         meet_condition = 0             # <<<<<<<<<<<<<<
+ *         kept_g_pids = np.zeros(num_g, dtype=np.int64)
+ * 
+ */
+    __pyx_v_meet_condition = 0;
+
+    /* "rank_cy.pyx":76
+ *         num_g_real = 0
+ *         meet_condition = 0
+ *         kept_g_pids = np.zeros(num_g, dtype=np.int64)             # <<<<<<<<<<<<<<
+ * 
+ *         for g_idx in ra
