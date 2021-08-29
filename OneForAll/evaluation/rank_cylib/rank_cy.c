@@ -3855,4 +3855,57 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
         *((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_20 * __pyx_v_raw_cmc.strides[0]) )) = (*((long *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_matches.data + __pyx_t_19 * __pyx_v_matches.strides[0]) ) + __pyx_t_15 * __pyx_v_matches.strides[1]) )));
 
         /* "rank_cy.pyx":81
- *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):
+ *                 raw_cmc[num_g_real] = matches[q_idx][g_idx]
+ *                 kept_g_pids[num_g_real] = g_pids[order[g_idx]]             # <<<<<<<<<<<<<<
+ *                 num_g_real += 1
+ *                 if matches[q_idx][g_idx] > 1e-31:
+ */
+        __pyx_t_15 = __pyx_v_g_idx;
+        __pyx_t_19 = (*((long *) ( /* dim=0 */ (__pyx_v_order.data + __pyx_t_15 * __pyx_v_order.strides[0]) )));
+        __pyx_t_20 = __pyx_v_num_g_real;
+        *((long *) ( /* dim=0 */ (__pyx_v_kept_g_pids.data + __pyx_t_20 * __pyx_v_kept_g_pids.strides[0]) )) = (*((long *) ( /* dim=0 */ (__pyx_v_g_pids.data + __pyx_t_19 * __pyx_v_g_pids.strides[0]) )));
+
+        /* "rank_cy.pyx":82
+ *                 raw_cmc[num_g_real] = matches[q_idx][g_idx]
+ *                 kept_g_pids[num_g_real] = g_pids[order[g_idx]]
+ *                 num_g_real += 1             # <<<<<<<<<<<<<<
+ *                 if matches[q_idx][g_idx] > 1e-31:
+ *                     meet_condition = 1
+ */
+        __pyx_v_num_g_real = (__pyx_v_num_g_real + 1);
+
+        /* "rank_cy.pyx":83
+ *                 kept_g_pids[num_g_real] = g_pids[order[g_idx]]
+ *                 num_g_real += 1
+ *                 if matches[q_idx][g_idx] > 1e-31:             # <<<<<<<<<<<<<<
+ *                     meet_condition = 1
+ * 
+ */
+        __pyx_t_15 = __pyx_v_q_idx;
+        __pyx_t_19 = __pyx_v_g_idx;
+        __pyx_t_1 = (((*((long *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_matches.data + __pyx_t_15 * __pyx_v_matches.strides[0]) ) + __pyx_t_19 * __pyx_v_matches.strides[1]) ))) > 1e-31) != 0);
+        if (__pyx_t_1) {
+
+          /* "rank_cy.pyx":84
+ *                 num_g_real += 1
+ *                 if matches[q_idx][g_idx] > 1e-31:
+ *                     meet_condition = 1             # <<<<<<<<<<<<<<
+ * 
+ *         if not meet_condition:
+ */
+          __pyx_v_meet_condition = 1;
+
+          /* "rank_cy.pyx":83
+ *                 kept_g_pids[num_g_real] = g_pids[order[g_idx]]
+ *                 num_g_real += 1
+ *                 if matches[q_idx][g_idx] > 1e-31:             # <<<<<<<<<<<<<<
+ *                     meet_condition = 1
+ * 
+ */
+        }
+
+        /* "rank_cy.pyx":79
+ * 
+ *         for g_idx in range(num_g):
+ *             if (g_pids[order[g_idx]] != q_pid) or (
