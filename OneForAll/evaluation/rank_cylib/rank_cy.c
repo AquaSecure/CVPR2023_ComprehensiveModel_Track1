@@ -3908,4 +3908,66 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
         /* "rank_cy.pyx":79
  * 
  *         for g_idx in range(num_g):
- *             if (g_pids[order[g_idx]] != q_pid) or (
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):             # <<<<<<<<<<<<<<
+ *                 raw_cmc[num_g_real] = matches[q_idx][g_idx]
+ *                 kept_g_pids[num_g_real] = g_pids[order[g_idx]]
+ */
+      }
+    }
+
+    /* "rank_cy.pyx":86
+ *                     meet_condition = 1
+ * 
+ *         if not meet_condition:             # <<<<<<<<<<<<<<
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue
+ */
+    __pyx_t_1 = ((!(__pyx_v_meet_condition != 0)) != 0);
+    if (__pyx_t_1) {
+
+      /* "rank_cy.pyx":88
+ *         if not meet_condition:
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue             # <<<<<<<<<<<<<<
+ * 
+ *         # cuhk03-specific setting
+ */
+      goto __pyx_L4_continue;
+
+      /* "rank_cy.pyx":86
+ *                     meet_condition = 1
+ * 
+ *         if not meet_condition:             # <<<<<<<<<<<<<<
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue
+ */
+    }
+
+    /* "rank_cy.pyx":91
+ * 
+ *         # cuhk03-specific setting
+ *         g_pids_dict = defaultdict(list) # overhead!             # <<<<<<<<<<<<<<
+ *         for g_idx in range(num_g_real):
+ *             g_pids_dict[kept_g_pids[g_idx]].append(g_idx)
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_defaultdict); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 91, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    __pyx_t_7 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_5))) {
+      __pyx_t_7 = PyMethod_GET_SELF(__pyx_t_5);
+      if (likely(__pyx_t_7)) {
+        PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+        __Pyx_INCREF(__pyx_t_7);
+        __Pyx_INCREF(function);
+        __Pyx_DECREF_SET(__pyx_t_5, function);
+      }
+    }
+    __pyx_t_2 = (__pyx_t_7) ? __Pyx_PyObject_Call2Args(__pyx_t_5, __pyx_t_7, ((PyObject *)(&PyList_Type))) : __Pyx_PyObject_CallOneArg(__pyx_t_5, ((PyObject *)(&PyList_Type)));
+    __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 91, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __Pyx_XDECREF_SET(__pyx_v_g_pids_dict, __pyx_t_2);
+    __pyx_t_2 = 0;
+
+    /* "rank_cy.p
