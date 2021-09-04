@@ -4232,4 +4232,51 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
           __pyx_t_28 = Py_TYPE(__pyx_t_3)->tp_iternext;
           index = 0; __pyx_t_2 = __pyx_t_28(__pyx_t_3); if (unlikely(!__pyx_t_2)) goto __pyx_L21_unpacking_failed;
           __Pyx_GOTREF(__pyx_t_2);
-          index = 1; __pyx_t_7 = __pyx_t_28(__pyx_t_3); if (unlikely(!__pyx_t_7)) goto __pyx_L21
+          index = 1; __pyx_t_7 = __pyx_t_28(__pyx_t_3); if (unlikely(!__pyx_t_7)) goto __pyx_L21_unpacking_failed;
+          __Pyx_GOTREF(__pyx_t_7);
+          if (__Pyx_IternextUnpackEndCheck(__pyx_t_28(__pyx_t_3), 2) < 0) __PYX_ERR(0, 99, __pyx_L1_error)
+          __pyx_t_28 = NULL;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          goto __pyx_L22_unpacking_done;
+          __pyx_L21_unpacking_failed:;
+          __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+          __pyx_t_28 = NULL;
+          if (__Pyx_IterFinish() == 0) __Pyx_RaiseNeedMoreValuesError(index);
+          __PYX_ERR(0, 99, __pyx_L1_error)
+          __pyx_L22_unpacking_done:;
+        }
+        __Pyx_DECREF_SET(__pyx_v__, __pyx_t_2);
+        __pyx_t_2 = 0;
+        __Pyx_XDECREF_SET(__pyx_v_idxs, __pyx_t_7);
+        __pyx_t_7 = 0;
+
+        /* "rank_cy.pyx":101
+ *             for _, idxs in g_pids_dict.items():
+ *                 # randomly sample one image for each gallery person
+ *                 rnd_idx = np.random.choice(idxs)             # <<<<<<<<<<<<<<
+ *                 #rnd_idx = idxs[0] # use deterministic for debugging
+ *                 mask[rnd_idx] = 1
+ */
+        __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_np); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 101, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_7);
+        __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_random); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 101, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_2);
+        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+        __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_choice); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 101, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_7);
+        __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+        __pyx_t_2 = NULL;
+        if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_7))) {
+          __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_7);
+          if (likely(__pyx_t_2)) {
+            PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_7);
+            __Pyx_INCREF(__pyx_t_2);
+            __Pyx_INCREF(function);
+            __Pyx_DECREF_SET(__pyx_t_7, function);
+          }
+        }
+        __pyx_t_8 = (__pyx_t_2) ? __Pyx_PyObject_Call2Args(__pyx_t_7, __pyx_t_2, __pyx_v_idxs) : __Pyx_PyObject_CallOneArg(__pyx_t_7, __pyx_v_idxs);
+        __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+        if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 101, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_8);
+     
