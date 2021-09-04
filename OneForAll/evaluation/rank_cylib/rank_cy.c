@@ -4057,4 +4057,51 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
       __pyx_t_25 = NULL;
     } else {
       __pyx_t_24 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 96, __pyx_L1_error)
-      __Pyx_
+      __Pyx_GOTREF(__pyx_t_4);
+      __pyx_t_25 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_25)) __PYX_ERR(0, 96, __pyx_L1_error)
+    }
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    for (;;) {
+      if (likely(!__pyx_t_25)) {
+        if (likely(PyList_CheckExact(__pyx_t_4))) {
+          if (__pyx_t_24 >= PyList_GET_SIZE(__pyx_t_4)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_24); __Pyx_INCREF(__pyx_t_5); __pyx_t_24++; if (unlikely(0 < 0)) __PYX_ERR(0, 96, __pyx_L1_error)
+          #else
+          __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_24); __pyx_t_24++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_5);
+          #endif
+        } else {
+          if (__pyx_t_24 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
+          #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+          __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_24); __Pyx_INCREF(__pyx_t_5); __pyx_t_24++; if (unlikely(0 < 0)) __PYX_ERR(0, 96, __pyx_L1_error)
+          #else
+          __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_24); __pyx_t_24++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 96, __pyx_L1_error)
+          __Pyx_GOTREF(__pyx_t_5);
+          #endif
+        }
+      } else {
+        __pyx_t_5 = __pyx_t_25(__pyx_t_4);
+        if (unlikely(!__pyx_t_5)) {
+          PyObject* exc_type = PyErr_Occurred();
+          if (exc_type) {
+            if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
+            else __PYX_ERR(0, 96, __pyx_L1_error)
+          }
+          break;
+        }
+        __Pyx_GOTREF(__pyx_t_5);
+      }
+      __Pyx_XDECREF_SET(__pyx_v__, __pyx_t_5);
+      __pyx_t_5 = 0;
+
+      /* "rank_cy.pyx":97
+ *         cmc = np.zeros(max_rank, dtype=np.float32)
+ *         for _ in range(num_repeats):
+ *             mask = np.zeros(num_g_real, dtype=np.int64)             # <<<<<<<<<<<<<<
+ * 
+ *             for _, idxs in g_pids_dict.items():
+ */
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 97, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_7)
