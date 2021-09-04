@@ -4145,4 +4145,47 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
       __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_v_g_pids_dict, __pyx_n_s_items); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_5);
       __pyx_t_2 = NULL;
-      if (CYTHON_UNPACK_METHODS && lik
+      if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_5))) {
+        __pyx_t_2 = PyMethod_GET_SELF(__pyx_t_5);
+        if (likely(__pyx_t_2)) {
+          PyObject* function = PyMethod_GET_FUNCTION(__pyx_t_5);
+          __Pyx_INCREF(__pyx_t_2);
+          __Pyx_INCREF(function);
+          __Pyx_DECREF_SET(__pyx_t_5, function);
+        }
+      }
+      __pyx_t_8 = (__pyx_t_2) ? __Pyx_PyObject_CallOneArg(__pyx_t_5, __pyx_t_2) : __Pyx_PyObject_CallNoArg(__pyx_t_5);
+      __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 99, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      if (likely(PyList_CheckExact(__pyx_t_8)) || PyTuple_CheckExact(__pyx_t_8)) {
+        __pyx_t_5 = __pyx_t_8; __Pyx_INCREF(__pyx_t_5); __pyx_t_26 = 0;
+        __pyx_t_27 = NULL;
+      } else {
+        __pyx_t_26 = -1; __pyx_t_5 = PyObject_GetIter(__pyx_t_8); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 99, __pyx_L1_error)
+        __Pyx_GOTREF(__pyx_t_5);
+        __pyx_t_27 = Py_TYPE(__pyx_t_5)->tp_iternext; if (unlikely(!__pyx_t_27)) __PYX_ERR(0, 99, __pyx_L1_error)
+      }
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      for (;;) {
+        if (likely(!__pyx_t_27)) {
+          if (likely(PyList_CheckExact(__pyx_t_5))) {
+            if (__pyx_t_26 >= PyList_GET_SIZE(__pyx_t_5)) break;
+            #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+            __pyx_t_8 = PyList_GET_ITEM(__pyx_t_5, __pyx_t_26); __Pyx_INCREF(__pyx_t_8); __pyx_t_26++; if (unlikely(0 < 0)) __PYX_ERR(0, 99, __pyx_L1_error)
+            #else
+            __pyx_t_8 = PySequence_ITEM(__pyx_t_5, __pyx_t_26); __pyx_t_26++; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 99, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_8);
+            #endif
+          } else {
+            if (__pyx_t_26 >= PyTuple_GET_SIZE(__pyx_t_5)) break;
+            #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+            __pyx_t_8 = PyTuple_GET_ITEM(__pyx_t_5, __pyx_t_26); __Pyx_INCREF(__pyx_t_8); __pyx_t_26++; if (unlikely(0 < 0)) __PYX_ERR(0, 99, __pyx_L1_error)
+            #else
+            __pyx_t_8 = PySequence_ITEM(__pyx_t_5, __pyx_t_26); __pyx_t_26++; if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 99, __pyx_L1_error)
+            __Pyx_GOTREF(__pyx_t_8);
+            #endif
+          }
+        } else {
+          __pyx_t_8 = __pyx_t_27(__pyx_t_5);
