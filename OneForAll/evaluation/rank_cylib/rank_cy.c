@@ -4336,4 +4336,52 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
         __pyx_t_1 = (((*((long *) ( /* dim=0 */ (__pyx_v_mask.data + __pyx_t_19 * __pyx_v_mask.strides[0]) ))) == 1) != 0);
         if (__pyx_t_1) {
 
-          /* "rank_cy.pyx
+          /* "rank_cy.pyx":108
+ *             for g_idx in range(num_g_real):
+ *                 if mask[g_idx] == 1:
+ *                     masked_raw_cmc[num_g_real_masked] = raw_cmc[g_idx]             # <<<<<<<<<<<<<<
+ *                     num_g_real_masked += 1
+ * 
+ */
+          __pyx_t_19 = __pyx_v_g_idx;
+          __pyx_t_15 = __pyx_v_num_g_real_masked;
+          *((float *) ( /* dim=0 */ (__pyx_v_masked_raw_cmc.data + __pyx_t_15 * __pyx_v_masked_raw_cmc.strides[0]) )) = (*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_19 * __pyx_v_raw_cmc.strides[0]) )));
+
+          /* "rank_cy.pyx":109
+ *                 if mask[g_idx] == 1:
+ *                     masked_raw_cmc[num_g_real_masked] = raw_cmc[g_idx]
+ *                     num_g_real_masked += 1             # <<<<<<<<<<<<<<
+ * 
+ *             masked_cmc = np.zeros(num_g, dtype=np.float32)
+ */
+          __pyx_v_num_g_real_masked = (__pyx_v_num_g_real_masked + 1);
+
+          /* "rank_cy.pyx":107
+ *             num_g_real_masked = 0
+ *             for g_idx in range(num_g_real):
+ *                 if mask[g_idx] == 1:             # <<<<<<<<<<<<<<
+ *                     masked_raw_cmc[num_g_real_masked] = raw_cmc[g_idx]
+ *                     num_g_real_masked += 1
+ */
+        }
+      }
+
+      /* "rank_cy.pyx":111
+ *                     num_g_real_masked += 1
+ * 
+ *             masked_cmc = np.zeros(num_g, dtype=np.float32)             # <<<<<<<<<<<<<<
+ *             function_cumsum(masked_raw_cmc, masked_cmc, num_g_real_masked)
+ *             for g_idx in range(num_g_real_masked):
+ */
+      __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_zeros); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_8);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_5 = __Pyx_PyInt_From_long(__pyx_v_num_g); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_7);
+      __Pyx_GIVEREF(__pyx_t_5);
+      PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5);
+      __pyx_t_5 = 0
