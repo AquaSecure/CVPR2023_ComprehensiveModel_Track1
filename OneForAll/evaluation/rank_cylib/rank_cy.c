@@ -4279,4 +4279,61 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
         __Pyx_XDECREF(__pyx_t_2); __pyx_t_2 = 0;
         if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 101, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_8);
-     
+        __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+        __pyx_t_16 = __Pyx_PyInt_As_long(__pyx_t_8); if (unlikely((__pyx_t_16 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 101, __pyx_L1_error)
+        __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+        __pyx_v_rnd_idx = __pyx_t_16;
+
+        /* "rank_cy.pyx":103
+ *                 rnd_idx = np.random.choice(idxs)
+ *                 #rnd_idx = idxs[0] # use deterministic for debugging
+ *                 mask[rnd_idx] = 1             # <<<<<<<<<<<<<<
+ * 
+ *             num_g_real_masked = 0
+ */
+        __pyx_t_19 = __pyx_v_rnd_idx;
+        *((long *) ( /* dim=0 */ (__pyx_v_mask.data + __pyx_t_19 * __pyx_v_mask.strides[0]) )) = 1;
+
+        /* "rank_cy.pyx":99
+ *             mask = np.zeros(num_g_real, dtype=np.int64)
+ * 
+ *             for _, idxs in g_pids_dict.items():             # <<<<<<<<<<<<<<
+ *                 # randomly sample one image for each gallery person
+ *                 rnd_idx = np.random.choice(idxs)
+ */
+      }
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+
+      /* "rank_cy.pyx":105
+ *                 mask[rnd_idx] = 1
+ * 
+ *             num_g_real_masked = 0             # <<<<<<<<<<<<<<
+ *             for g_idx in range(num_g_real):
+ *                 if mask[g_idx] == 1:
+ */
+      __pyx_v_num_g_real_masked = 0;
+
+      /* "rank_cy.pyx":106
+ * 
+ *             num_g_real_masked = 0
+ *             for g_idx in range(num_g_real):             # <<<<<<<<<<<<<<
+ *                 if mask[g_idx] == 1:
+ *                     masked_raw_cmc[num_g_real_masked] = raw_cmc[g_idx]
+ */
+      __pyx_t_16 = __pyx_v_num_g_real;
+      __pyx_t_17 = __pyx_t_16;
+      for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+        __pyx_v_g_idx = __pyx_t_18;
+
+        /* "rank_cy.pyx":107
+ *             num_g_real_masked = 0
+ *             for g_idx in range(num_g_real):
+ *                 if mask[g_idx] == 1:             # <<<<<<<<<<<<<<
+ *                     masked_raw_cmc[num_g_real_masked] = raw_cmc[g_idx]
+ *                     num_g_real_masked += 1
+ */
+        __pyx_t_19 = __pyx_v_g_idx;
+        __pyx_t_1 = (((*((long *) ( /* dim=0 */ (__pyx_v_mask.data + __pyx_t_19 * __pyx_v_mask.strides[0]) ))) == 1) != 0);
+        if (__pyx_t_1) {
+
+          /* "rank_cy.pyx
