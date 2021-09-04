@@ -4384,4 +4384,48 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
       __Pyx_GOTREF(__pyx_t_7);
       __Pyx_GIVEREF(__pyx_t_5);
       PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_5);
-      __pyx_t_5 = 0
+      __pyx_t_5 = 0;
+      __pyx_t_5 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_GetModuleGlobalName(__pyx_t_2, __pyx_n_s_np); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_2);
+      __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_2, __pyx_n_s_float32); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+      if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_3) < 0) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __pyx_t_3 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_7, __pyx_t_5); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+      __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_3, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 111, __pyx_L1_error)
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+      __PYX_XDEC_MEMVIEW(&__pyx_v_masked_cmc, 1);
+      __pyx_v_masked_cmc = __pyx_t_10;
+      __pyx_t_10.memview = NULL;
+      __pyx_t_10.data = NULL;
+
+      /* "rank_cy.pyx":112
+ * 
+ *             masked_cmc = np.zeros(num_g, dtype=np.float32)
+ *             function_cumsum(masked_raw_cmc, masked_cmc, num_g_real_masked)             # <<<<<<<<<<<<<<
+ *             for g_idx in range(num_g_real_masked):
+ *                 if masked_cmc[g_idx] > 1:
+ */
+      __pyx_fuse_3__pyx_f_7rank_cy_function_cumsum(__pyx_v_masked_raw_cmc, __pyx_v_masked_cmc, __pyx_v_num_g_real_masked);
+
+      /* "rank_cy.pyx":113
+ *             masked_cmc = np.zeros(num_g, dtype=np.float32)
+ *             function_cumsum(masked_raw_cmc, masked_cmc, num_g_real_masked)
+ *             for g_idx in range(num_g_real_masked):             # <<<<<<<<<<<<<<
+ *                 if masked_cmc[g_idx] > 1:
+ *                     masked_cmc[g_idx] = 1
+ */
+      __pyx_t_16 = __pyx_v_num_g_real_masked;
+      __pyx_t_17 = __pyx_t_16;
+      for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+        __pyx_v_g_idx = __pyx_t_18;
+
+        /* "rank_cy.pyx":114
+ *             function_c
