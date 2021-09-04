@@ -4428,4 +4428,60 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
         __pyx_v_g_idx = __pyx_t_18;
 
         /* "rank_cy.pyx":114
- *             function_c
+ *             function_cumsum(masked_raw_cmc, masked_cmc, num_g_real_masked)
+ *             for g_idx in range(num_g_real_masked):
+ *                 if masked_cmc[g_idx] > 1:             # <<<<<<<<<<<<<<
+ *                     masked_cmc[g_idx] = 1
+ * 
+ */
+        __pyx_t_19 = __pyx_v_g_idx;
+        __pyx_t_1 = (((*((float *) ( /* dim=0 */ (__pyx_v_masked_cmc.data + __pyx_t_19 * __pyx_v_masked_cmc.strides[0]) ))) > 1.0) != 0);
+        if (__pyx_t_1) {
+
+          /* "rank_cy.pyx":115
+ *             for g_idx in range(num_g_real_masked):
+ *                 if masked_cmc[g_idx] > 1:
+ *                     masked_cmc[g_idx] = 1             # <<<<<<<<<<<<<<
+ * 
+ *             for rank_idx in range(max_rank):
+ */
+          __pyx_t_19 = __pyx_v_g_idx;
+          *((float *) ( /* dim=0 */ (__pyx_v_masked_cmc.data + __pyx_t_19 * __pyx_v_masked_cmc.strides[0]) )) = 1.0;
+
+          /* "rank_cy.pyx":114
+ *             function_cumsum(masked_raw_cmc, masked_cmc, num_g_real_masked)
+ *             for g_idx in range(num_g_real_masked):
+ *                 if masked_cmc[g_idx] > 1:             # <<<<<<<<<<<<<<
+ *                     masked_cmc[g_idx] = 1
+ * 
+ */
+        }
+      }
+
+      /* "rank_cy.pyx":117
+ *                     masked_cmc[g_idx] = 1
+ * 
+ *             for rank_idx in range(max_rank):             # <<<<<<<<<<<<<<
+ *                 cmc[rank_idx] += masked_cmc[rank_idx] / num_repeats
+ * 
+ */
+      __pyx_t_16 = __pyx_v_max_rank;
+      __pyx_t_17 = __pyx_t_16;
+      for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+        __pyx_v_rank_idx = __pyx_t_18;
+
+        /* "rank_cy.pyx":118
+ * 
+ *             for rank_idx in range(max_rank):
+ *                 cmc[rank_idx] += masked_cmc[rank_idx] / num_repeats             # <<<<<<<<<<<<<<
+ * 
+ *         for rank_idx in range(max_rank):
+ */
+        __pyx_t_19 = __pyx_v_rank_idx;
+        __pyx_t_15 = __pyx_v_rank_idx;
+        *((float *) ( /* dim=0 */ (__pyx_v_cmc.data + __pyx_t_15 * __pyx_v_cmc.strides[0]) )) += ((*((float *) ( /* dim=0 */ (__pyx_v_masked_cmc.data + __pyx_t_19 * __pyx_v_masked_cmc.strides[0]) ))) / __pyx_v_num_repeats);
+      }
+
+      /* "rank_cy.pyx":96
+ * 
+ *         cmc = np.zeros(max_rank, d
