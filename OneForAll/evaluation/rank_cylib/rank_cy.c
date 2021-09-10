@@ -4538,4 +4538,56 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
     /* "rank_cy.pyx":126
  *         function_cumsum(raw_cmc, tmp_cmc, num_g_real)
  *         num_rel = 0
- *         tmp_cmc_su
+ *         tmp_cmc_sum = 0             # <<<<<<<<<<<<<<
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ */
+    __pyx_v_tmp_cmc_sum = 0.0;
+
+    /* "rank_cy.pyx":127
+ *         num_rel = 0
+ *         tmp_cmc_sum = 0
+ *         for g_idx in range(num_g_real):             # <<<<<<<<<<<<<<
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]
+ */
+    __pyx_t_16 = __pyx_v_num_g_real;
+    __pyx_t_17 = __pyx_t_16;
+    for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+      __pyx_v_g_idx = __pyx_t_18;
+
+      /* "rank_cy.pyx":128
+ *         tmp_cmc_sum = 0
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]             # <<<<<<<<<<<<<<
+ *             num_rel += raw_cmc[g_idx]
+ *         all_AP[q_idx] = tmp_cmc_sum / num_rel
+ */
+      __pyx_t_19 = __pyx_v_g_idx;
+      __pyx_t_20 = __pyx_v_g_idx;
+      __pyx_v_tmp_cmc_sum = (__pyx_v_tmp_cmc_sum + (((*((float *) ( /* dim=0 */ (__pyx_v_tmp_cmc.data + __pyx_t_19 * __pyx_v_tmp_cmc.strides[0]) ))) / (__pyx_v_g_idx + 1.)) * (*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_20 * __pyx_v_raw_cmc.strides[0]) )))));
+
+      /* "rank_cy.pyx":129
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]             # <<<<<<<<<<<<<<
+ *         all_AP[q_idx] = tmp_cmc_sum / num_rel
+ *         num_valid_q += 1.
+ */
+      __pyx_t_20 = __pyx_v_g_idx;
+      __pyx_v_num_rel = (__pyx_v_num_rel + (*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_20 * __pyx_v_raw_cmc.strides[0]) ))));
+    }
+
+    /* "rank_cy.pyx":130
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]
+ *         all_AP[q_idx] = tmp_cmc_sum / num_rel             # <<<<<<<<<<<<<<
+ *         num_valid_q += 1.
+ * 
+ */
+    __pyx_t_20 = __pyx_v_q_idx;
+    *((float *) ( /* dim=0 */ (__pyx_v_all_AP.data + __pyx_t_20 * __pyx_v_all_AP.strides[0]) )) = (__pyx_v_tmp_cmc_sum / __pyx_v_num_rel);
+
+    /* "rank_cy.pyx":131
+ *             num_rel += raw_cmc[g_idx]
+ *      
