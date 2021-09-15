@@ -4641,4 +4641,55 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
   __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_float32); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 136, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_8) < 
+  if (PyDict_SetItem(__pyx_t_4, __pyx_n_s_dtype, __pyx_t_8) < 0) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __pyx_t_8 = __Pyx_PyObject_Call(__pyx_t_3, __pyx_t_5, __pyx_t_4); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_8);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __pyx_t_10 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_8, PyBUF_WRITABLE); if (unlikely(!__pyx_t_10.memview)) __PYX_ERR(0, 136, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
+  __pyx_v_avg_cmc = __pyx_t_10;
+  __pyx_t_10.memview = NULL;
+  __pyx_t_10.data = NULL;
+
+  /* "rank_cy.pyx":137
+ *     # compute averaged cmc
+ *     cdef float[:] avg_cmc = np.zeros(max_rank, dtype=np.float32)
+ *     for rank_idx in range(max_rank):             # <<<<<<<<<<<<<<
+ *         for q_idx in range(num_q):
+ *             avg_cmc[rank_idx] += all_cmc[q_idx, rank_idx]
+ */
+  __pyx_t_12 = __pyx_v_max_rank;
+  __pyx_t_13 = __pyx_t_12;
+  for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
+    __pyx_v_rank_idx = __pyx_t_14;
+
+    /* "rank_cy.pyx":138
+ *     cdef float[:] avg_cmc = np.zeros(max_rank, dtype=np.float32)
+ *     for rank_idx in range(max_rank):
+ *         for q_idx in range(num_q):             # <<<<<<<<<<<<<<
+ *             avg_cmc[rank_idx] += all_cmc[q_idx, rank_idx]
+ *         avg_cmc[rank_idx] /= num_valid_q
+ */
+    __pyx_t_16 = __pyx_v_num_q;
+    __pyx_t_17 = __pyx_t_16;
+    for (__pyx_t_18 = 0; __pyx_t_18 < __pyx_t_17; __pyx_t_18+=1) {
+      __pyx_v_q_idx = __pyx_t_18;
+
+      /* "rank_cy.pyx":139
+ *     for rank_idx in range(max_rank):
+ *         for q_idx in range(num_q):
+ *             avg_cmc[rank_idx] += all_cmc[q_idx, rank_idx]             # <<<<<<<<<<<<<<
+ *         avg_cmc[rank_idx] /= num_valid_q
+ * 
+ */
+      __pyx_t_20 = __pyx_v_q_idx;
+      __pyx_t_19 = __pyx_v_rank_idx;
+      __pyx_t_15 = __pyx_v_rank_idx;
+      *((float *) ( /* dim=0 */ (__pyx_v_avg_cmc.data + __pyx_t_15 * __pyx_v_avg_cmc.strides[0]) )) += (*((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_all_cmc.data + __pyx_t_20 * __pyx_v_all_cmc.strides[0]) ) + __pyx_t_19 * __pyx_v_all_cmc.strides[1]) )));
+    }
+
+    /* "rank_cy.pyx":140
+ *   
