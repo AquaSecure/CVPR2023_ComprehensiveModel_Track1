@@ -4692,4 +4692,71 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
     }
 
     /* "rank_cy.pyx":140
- *   
+ *         for q_idx in range(num_q):
+ *             avg_cmc[rank_idx] += all_cmc[q_idx, rank_idx]
+ *         avg_cmc[rank_idx] /= num_valid_q             # <<<<<<<<<<<<<<
+ * 
+ *     cdef float mAP = 0
+ */
+    __pyx_t_19 = __pyx_v_rank_idx;
+    *((float *) ( /* dim=0 */ (__pyx_v_avg_cmc.data + __pyx_t_19 * __pyx_v_avg_cmc.strides[0]) )) /= __pyx_v_num_valid_q;
+  }
+
+  /* "rank_cy.pyx":142
+ *         avg_cmc[rank_idx] /= num_valid_q
+ * 
+ *     cdef float mAP = 0             # <<<<<<<<<<<<<<
+ *     for q_idx in range(num_q):
+ *         mAP += all_AP[q_idx]
+ */
+  __pyx_v_mAP = 0.0;
+
+  /* "rank_cy.pyx":143
+ * 
+ *     cdef float mAP = 0
+ *     for q_idx in range(num_q):             # <<<<<<<<<<<<<<
+ *         mAP += all_AP[q_idx]
+ *     mAP /= num_valid_q
+ */
+  __pyx_t_12 = __pyx_v_num_q;
+  __pyx_t_13 = __pyx_t_12;
+  for (__pyx_t_14 = 0; __pyx_t_14 < __pyx_t_13; __pyx_t_14+=1) {
+    __pyx_v_q_idx = __pyx_t_14;
+
+    /* "rank_cy.pyx":144
+ *     cdef float mAP = 0
+ *     for q_idx in range(num_q):
+ *         mAP += all_AP[q_idx]             # <<<<<<<<<<<<<<
+ *     mAP /= num_valid_q
+ * 
+ */
+    __pyx_t_19 = __pyx_v_q_idx;
+    __pyx_v_mAP = (__pyx_v_mAP + (*((float *) ( /* dim=0 */ (__pyx_v_all_AP.data + __pyx_t_19 * __pyx_v_all_AP.strides[0]) ))));
+  }
+
+  /* "rank_cy.pyx":145
+ *     for q_idx in range(num_q):
+ *         mAP += all_AP[q_idx]
+ *     mAP /= num_valid_q             # <<<<<<<<<<<<<<
+ * 
+ *     return np.asarray(avg_cmc).astype(np.float32), mAP
+ */
+  __pyx_v_mAP = (__pyx_v_mAP / __pyx_v_num_valid_q);
+
+  /* "rank_cy.pyx":147
+ *     mAP /= num_valid_q
+ * 
+ *     return np.asarray(avg_cmc).astype(np.float32), mAP             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_GetModuleGlobalName(__pyx_t_5, __pyx_n_s_np); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_asarray); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_5 = __pyx_memoryview_fromslice(__pyx_v_avg_cmc, 1, (PyObject *(*)(char *)) __pyx_memview_get_float, (int (*)(char *, PyObject *)) __pyx_memview_set_float, 0);; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 147, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_t_7 = NULL;
+  if (CYTHON_UNPACK_ME
