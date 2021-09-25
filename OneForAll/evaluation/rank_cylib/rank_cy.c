@@ -4803,4 +4803,66 @@ static PyObject *__pyx_f_7rank_cy_eval_cuhk03_cy(__Pyx_memviewslice __pyx_v_dist
   __pyx_t_5 = PyTuple_New(2); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 147, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GIVEREF(__pyx_t_8);
-  PyTuple_
+  PyTuple_SET_ITEM(__pyx_t_5, 0, __pyx_t_8);
+  __Pyx_GIVEREF(__pyx_t_3);
+  PyTuple_SET_ITEM(__pyx_t_5, 1, __pyx_t_3);
+  __pyx_t_8 = 0;
+  __pyx_t_3 = 0;
+  __pyx_r = __pyx_t_5;
+  __pyx_t_5 = 0;
+  goto __pyx_L0;
+
+  /* "rank_cy.pyx":31
+ * 
+ * 
+ * cpdef eval_cuhk03_cy(float[:,:] distmat, long[:] q_pids, long[:]g_pids,             # <<<<<<<<<<<<<<
+ *                      long[:]q_camids, long[:]g_camids, long max_rank):
+ *     cdef long num_q = distmat.shape[0]
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_6, 1);
+  __Pyx_XDECREF(__pyx_t_7);
+  __Pyx_XDECREF(__pyx_t_8);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_9, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_10, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_11, 1);
+  __Pyx_AddTraceback("rank_cy.eval_cuhk03_cy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_indices, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_matches, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_all_cmc, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_all_AP, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_order, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_raw_cmc, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_masked_raw_cmc, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_cmc, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_masked_cmc, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_kept_g_pids, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_mask, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_tmp_cmc, 1);
+  __Pyx_XDECREF(__pyx_v_g_pids_dict);
+  __Pyx_XDECREF(__pyx_v__);
+  __Pyx_XDECREF(__pyx_v_idxs);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_avg_cmc, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* Python wrapper */
+static PyObject *__pyx_pw_7rank_cy_3eval_cuhk03_cy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_pw_7rank_cy_3eval_cuhk03_cy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+  __Pyx_memviewslice __pyx_v_distmat = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_q_pids = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_g_pids = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_q_camids = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_g_camids = { 0, 0, { 0 }, { 0 }, { 0 } };
+  long __pyx_v_max_rank;
+  int
