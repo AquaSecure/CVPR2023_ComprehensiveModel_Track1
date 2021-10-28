@@ -4994,4 +4994,56 @@ static PyObject *__pyx_pf_7rank_cy_2eval_cuhk03_cy(CYTHON_UNUSED PyObject *__pyx
   __PYX_XDEC_MEMVIEW(&__pyx_v_q_pids, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_g_pids, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_v_q_camids, 1);
-  __PYX_XDEC_MEMVIE
+  __PYX_XDEC_MEMVIEW(&__pyx_v_g_camids, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "rank_cy.pyx":150
+ * 
+ * 
+ * cpdef eval_market1501_cy(float[:,:] distmat, long[:] q_pids, long[:]g_pids,             # <<<<<<<<<<<<<<
+ *                          long[:]q_camids, long[:]g_camids, long max_rank):
+ * 
+ */
+
+static PyObject *__pyx_pw_7rank_cy_5eval_market1501_cy(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_distmat, __Pyx_memviewslice __pyx_v_q_pids, __Pyx_memviewslice __pyx_v_g_pids, __Pyx_memviewslice __pyx_v_q_camids, __Pyx_memviewslice __pyx_v_g_camids, long __pyx_v_max_rank, CYTHON_UNUSED int __pyx_skip_dispatch) {
+  long __pyx_v_num_q;
+  long __pyx_v_num_g;
+  __Pyx_memviewslice __pyx_v_indices = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_matches = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_all_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_all_AP = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_all_INP = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_num_valid_q;
+  long __pyx_v_valid_index;
+  long __pyx_v_q_idx;
+  long __pyx_v_q_pid;
+  long __pyx_v_q_camid;
+  long __pyx_v_g_idx;
+  __Pyx_memviewslice __pyx_v_order = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_raw_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_v_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  long __pyx_v_max_pos_idx;
+  float __pyx_v_inp;
+  long __pyx_v_num_g_real;
+  long __pyx_v_rank_idx;
+  unsigned long __pyx_v_meet_condition;
+  float __pyx_v_num_rel;
+  __Pyx_memviewslice __pyx_v_tmp_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  float __pyx_v_tmp_cmc_sum;
+  __Pyx_memviewslice __pyx_v_avg_cmc = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  __Pyx_memviewslice __pyx_t_6 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  PyObject *__pyx_t_7 = NULL;
+  __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  __Pyx_memviewslice __pyx_
