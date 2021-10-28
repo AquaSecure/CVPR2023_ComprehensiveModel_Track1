@@ -5046,4 +5046,74 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
   PyObject *__pyx_t_7 = NULL;
   __Pyx_memviewslice __pyx_t_8 = { 0, 0, { 0 }, { 0 }, { 0 } };
   __Pyx_memviewslice __pyx_t_9 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  __Pyx_memviewslice __pyx_
+  __Pyx_memviewslice __pyx_t_10 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  long __pyx_t_11;
+  long __pyx_t_12;
+  long __pyx_t_13;
+  Py_ssize_t __pyx_t_14;
+  long __pyx_t_15;
+  long __pyx_t_16;
+  long __pyx_t_17;
+  Py_ssize_t __pyx_t_18;
+  Py_ssize_t __pyx_t_19;
+  PyObject *__pyx_t_20 = NULL;
+  int __pyx_t_21;
+  int __pyx_t_22;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("eval_market1501_cy", 0);
+
+  /* "rank_cy.pyx":153
+ *                          long[:]q_camids, long[:]g_camids, long max_rank):
+ * 
+ *     cdef long num_q = distmat.shape[0]             # <<<<<<<<<<<<<<
+ *     cdef long num_g = distmat.shape[1]
+ * 
+ */
+  __pyx_v_num_q = (__pyx_v_distmat.shape[0]);
+
+  /* "rank_cy.pyx":154
+ * 
+ *     cdef long num_q = distmat.shape[0]
+ *     cdef long num_g = distmat.shape[1]             # <<<<<<<<<<<<<<
+ * 
+ *     if num_g < max_rank:
+ */
+  __pyx_v_num_g = (__pyx_v_distmat.shape[1]);
+
+  /* "rank_cy.pyx":156
+ *     cdef long num_g = distmat.shape[1]
+ * 
+ *     if num_g < max_rank:             # <<<<<<<<<<<<<<
+ *         max_rank = num_g
+ *         print('Note: number of gallery samples is quite small, got {}'.format(num_g))
+ */
+  __pyx_t_1 = ((__pyx_v_num_g < __pyx_v_max_rank) != 0);
+  if (__pyx_t_1) {
+
+    /* "rank_cy.pyx":157
+ * 
+ *     if num_g < max_rank:
+ *         max_rank = num_g             # <<<<<<<<<<<<<<
+ *         print('Note: number of gallery samples is quite small, got {}'.format(num_g))
+ * 
+ */
+    __pyx_v_max_rank = __pyx_v_num_g;
+
+    /* "rank_cy.pyx":158
+ *     if num_g < max_rank:
+ *         max_rank = num_g
+ *         print('Note: number of gallery samples is quite small, got {}'.format(num_g))             # <<<<<<<<<<<<<<
+ * 
+ *     cdef:
+ */
+    __pyx_t_3 = __Pyx_PyObject_GetAttrStr(__pyx_kp_s_Note_number_of_gallery_samples_i, __pyx_n_s_format); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = __Pyx_PyInt_From_long(__pyx_v_num_g); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 158, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = NULL;
+    if (CYTHON_UNPACK_METHODS && likely(PyMethod_Check(__pyx_t_3))) {
+      __pyx_t_5 = PyMethod_GET_SELF(__pyx_t_3);
+      if (likely(__pyx_t_5)) {
+ 
