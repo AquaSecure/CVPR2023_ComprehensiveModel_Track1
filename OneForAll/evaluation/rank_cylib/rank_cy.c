@@ -5467,4 +5467,62 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_GetModuleGlobalName(__pyx_t_3, __pyx_n_s_np); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 182, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(__pyx_t_3, __pyx_n_s_float32); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 182, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  if (PyDict_SetItem(__pyx_t_5, __pyx_n_s_dtype, __pyx_t_2) < 0) __PYX_ERR(0, 182, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 182, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+  __pyx_t_9 = __Pyx_PyObject_to_MemoryviewSlice_ds_float(__pyx_t_2, PyBUF_WRITABLE); if (unlikely(!__pyx_t_9.memview)) __PYX_ERR(0, 182, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  __pyx_v_tmp_cmc = __pyx_t_9;
+  __pyx_t_9.memview = NULL;
+  __pyx_t_9.data = NULL;
+
+  /* "rank_cy.pyx":186
+ * 
+ * 
+ *     for q_idx in range(num_q):             # <<<<<<<<<<<<<<
+ *         # get query pid and camid
+ *         q_pid = q_pids[q_idx]
+ */
+  __pyx_t_11 = __pyx_v_num_q;
+  __pyx_t_12 = __pyx_t_11;
+  for (__pyx_t_13 = 0; __pyx_t_13 < __pyx_t_12; __pyx_t_13+=1) {
+    __pyx_v_q_idx = __pyx_t_13;
+
+    /* "rank_cy.pyx":188
+ *     for q_idx in range(num_q):
+ *         # get query pid and camid
+ *         q_pid = q_pids[q_idx]             # <<<<<<<<<<<<<<
+ *         q_camid = q_camids[q_idx]
+ * 
+ */
+    __pyx_t_14 = __pyx_v_q_idx;
+    __pyx_v_q_pid = (*((long *) ( /* dim=0 */ (__pyx_v_q_pids.data + __pyx_t_14 * __pyx_v_q_pids.strides[0]) )));
+
+    /* "rank_cy.pyx":189
+ *         # get query pid and camid
+ *         q_pid = q_pids[q_idx]
+ *         q_camid = q_camids[q_idx]             # <<<<<<<<<<<<<<
+ * 
+ *         for g_idx in range(num_g):
+ */
+    __pyx_t_14 = __pyx_v_q_idx;
+    __pyx_v_q_camid = (*((long *) ( /* dim=0 */ (__pyx_v_q_camids.data + __pyx_t_14 * __pyx_v_q_camids.strides[0]) )));
+
+    /* "rank_cy.pyx":191
+ *         q_camid = q_camids[q_idx]
+ * 
+ *         for g_idx in range(num_g):             # <<<<<<<<<<<<<<
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0
+ */
+    __pyx_t_15 = __pyx_v_num_g;
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_g_idx = __pyx_
