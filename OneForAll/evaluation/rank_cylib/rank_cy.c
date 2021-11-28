@@ -5525,4 +5525,54 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
     __pyx_t_15 = __pyx_v_num_g;
     __pyx_t_16 = __pyx_t_15;
     for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
-      __pyx_v_g_idx = __pyx_
+      __pyx_v_g_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":192
+ * 
+ *         for g_idx in range(num_g):
+ *             order[g_idx] = indices[q_idx, g_idx]             # <<<<<<<<<<<<<<
+ *         num_g_real = 0
+ *         meet_condition = 0
+ */
+      __pyx_t_14 = __pyx_v_q_idx;
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_19 = __pyx_v_g_idx;
+      *((long *) ( /* dim=0 */ (__pyx_v_order.data + __pyx_t_19 * __pyx_v_order.strides[0]) )) = (*((long *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_indices.data + __pyx_t_14 * __pyx_v_indices.strides[0]) ) + __pyx_t_18 * __pyx_v_indices.strides[1]) )));
+    }
+
+    /* "rank_cy.pyx":193
+ *         for g_idx in range(num_g):
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0             # <<<<<<<<<<<<<<
+ *         meet_condition = 0
+ *         matches = (np.asarray(g_pids)[np.asarray(order)] == q_pid).astype(np.int64)
+ */
+    __pyx_v_num_g_real = 0;
+
+    /* "rank_cy.pyx":194
+ *             order[g_idx] = indices[q_idx, g_idx]
+ *         num_g_real = 0
+ *         meet_condition = 0             # <<<<<<<<<<<<<<
+ *         matches = (np.asarray(g_pids)[np.asarray(order)] == q_pid).astype(np.int64)
+ * 
+ */
+    __pyx_v_meet_condition = 0;
+
+    /* "rank_cy.pyx":195
+ *         num_g_real = 0
+ *         meet_condition = 0
+ *         matches = (np.asarray(g_pids)[np.asarray(order)] == q_pid).astype(np.int64)             # <<<<<<<<<<<<<<
+ * 
+ *         # remove gallery samples that have the same pid and camid with query
+ */
+    __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_np); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_4, __pyx_n_s_asarray); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_7);
+    __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+    __pyx_t_4 = __pyx_memoryview_fromslice(__pyx_v_g_pids, 1, (PyObject *(*)(char *)) __pyx_memview_get_long, (int (*)(char *, PyObject *)) __pyx_memview_set_long, 0);; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 195, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_3 = NULL;
+    if (CYTHON_UNPACK_METHODS && unlikely(PyMethod_Check(__pyx_t_7))) {
+      __pyx_t_3 = PyMethod_GET_SELF(__pyx_t_7);
+      if (likely(__pyx_t_
