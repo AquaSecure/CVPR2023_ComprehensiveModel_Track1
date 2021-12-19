@@ -5659,4 +5659,46 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *                 raw_cmc[num_g_real] = matches[g_idx]
  */
     __pyx_t_15 = __pyx_v_num_g;
-    __pyx_t_16 = __p
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_g_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":199
+ *         # remove gallery samples that have the same pid and camid with query
+ *         for g_idx in range(num_g):
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):             # <<<<<<<<<<<<<<
+ *                 raw_cmc[num_g_real] = matches[g_idx]
+ *                 num_g_real += 1
+ */
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_14 = (*((long *) ( /* dim=0 */ (__pyx_v_order.data + __pyx_t_18 * __pyx_v_order.strides[0]) )));
+      __pyx_t_21 = (((*((long *) ( /* dim=0 */ (__pyx_v_g_pids.data + __pyx_t_14 * __pyx_v_g_pids.strides[0]) ))) != __pyx_v_q_pid) != 0);
+      if (!__pyx_t_21) {
+      } else {
+        __pyx_t_1 = __pyx_t_21;
+        goto __pyx_L11_bool_binop_done;
+      }
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_14 = (*((long *) ( /* dim=0 */ (__pyx_v_order.data + __pyx_t_18 * __pyx_v_order.strides[0]) )));
+      __pyx_t_21 = (((*((long *) ( /* dim=0 */ (__pyx_v_g_camids.data + __pyx_t_14 * __pyx_v_g_camids.strides[0]) ))) != __pyx_v_q_camid) != 0);
+      __pyx_t_1 = __pyx_t_21;
+      __pyx_L11_bool_binop_done:;
+      if (__pyx_t_1) {
+
+        /* "rank_cy.pyx":200
+ *         for g_idx in range(num_g):
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):
+ *                 raw_cmc[num_g_real] = matches[g_idx]             # <<<<<<<<<<<<<<
+ *                 num_g_real += 1
+ *                 # this condition is true if query appear in gallery
+ */
+        __pyx_t_18 = __pyx_v_g_idx;
+        __pyx_t_14 = __pyx_v_num_g_real;
+        *((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_14 * __pyx_v_raw_cmc.strides[0]) )) = (*((long *) ( /* dim=0 */ (__pyx_v_matches.data + __pyx_t_18 * __pyx_v_matches.strides[0]) )));
+
+        /* "rank_cy.pyx":201
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):
+ *                 raw_cmc[num_g_real] = matches[g_idx]
+ *                 num_g_real += 1             # <<<<<<<<<<<<<<
+ *                 # this condition is true if query appear in gallery
+ *                 if matches[g_idx] > 1e-31:
