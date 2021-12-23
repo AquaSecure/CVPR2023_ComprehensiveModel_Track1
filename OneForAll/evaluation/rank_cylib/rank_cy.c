@@ -5767,4 +5767,62 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *                     meet_condition = 1
  * 
  *         if not meet_condition:             # <<<<<<<<<<<<<<
- *             # this condition is true when query identity
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue
+ */
+    }
+
+    /* "rank_cy.pyx":211
+ * 
+ *         # compute cmc
+ *         function_cumsum(raw_cmc, cmc, num_g_real)             # <<<<<<<<<<<<<<
+ *         # compute mean inverse negative penalty
+ *         # reference : https://github.com/mangye16/ReID-Survey/blob/master/utils/reid_metric.py
+ */
+    __pyx_fuse_3__pyx_f_7rank_cy_function_cumsum(__pyx_v_raw_cmc, __pyx_v_cmc, __pyx_v_num_g_real);
+
+    /* "rank_cy.pyx":214
+ *         # compute mean inverse negative penalty
+ *         # reference : https://github.com/mangye16/ReID-Survey/blob/master/utils/reid_metric.py
+ *         max_pos_idx = 0             # <<<<<<<<<<<<<<
+ *         for g_idx in range(num_g_real):
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):
+ */
+    __pyx_v_max_pos_idx = 0;
+
+    /* "rank_cy.pyx":215
+ *         # reference : https://github.com/mangye16/ReID-Survey/blob/master/utils/reid_metric.py
+ *         max_pos_idx = 0
+ *         for g_idx in range(num_g_real):             # <<<<<<<<<<<<<<
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):
+ *                 max_pos_idx = g_idx
+ */
+    __pyx_t_15 = __pyx_v_num_g_real;
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_g_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":216
+ *         max_pos_idx = 0
+ *         for g_idx in range(num_g_real):
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):             # <<<<<<<<<<<<<<
+ *                 max_pos_idx = g_idx
+ *         inp = cmc[max_pos_idx] / (max_pos_idx + 1.0)
+ */
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_21 = (((*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_18 * __pyx_v_raw_cmc.strides[0]) ))) == 1.0) != 0);
+      if (__pyx_t_21) {
+      } else {
+        __pyx_t_1 = __pyx_t_21;
+        goto __pyx_L18_bool_binop_done;
+      }
+      __pyx_t_21 = ((__pyx_v_g_idx > __pyx_v_max_pos_idx) != 0);
+      __pyx_t_1 = __pyx_t_21;
+      __pyx_L18_bool_binop_done:;
+      if (__pyx_t_1) {
+
+        /* "rank_cy.pyx":217
+ *         for g_idx in range(num_g_real):
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):
+ *                 max_pos_idx = g_idx             # <<<<<<<<<<<<<<
+ *         inp = cmc
