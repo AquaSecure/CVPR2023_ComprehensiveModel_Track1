@@ -5702,3 +5702,69 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *                 num_g_real += 1             # <<<<<<<<<<<<<<
  *                 # this condition is true if query appear in gallery
  *                 if matches[g_idx] > 1e-31:
+ */
+        __pyx_v_num_g_real = (__pyx_v_num_g_real + 1);
+
+        /* "rank_cy.pyx":203
+ *                 num_g_real += 1
+ *                 # this condition is true if query appear in gallery
+ *                 if matches[g_idx] > 1e-31:             # <<<<<<<<<<<<<<
+ *                     meet_condition = 1
+ * 
+ */
+        __pyx_t_18 = __pyx_v_g_idx;
+        __pyx_t_1 = (((*((long *) ( /* dim=0 */ (__pyx_v_matches.data + __pyx_t_18 * __pyx_v_matches.strides[0]) ))) > 1e-31) != 0);
+        if (__pyx_t_1) {
+
+          /* "rank_cy.pyx":204
+ *                 # this condition is true if query appear in gallery
+ *                 if matches[g_idx] > 1e-31:
+ *                     meet_condition = 1             # <<<<<<<<<<<<<<
+ * 
+ *         if not meet_condition:
+ */
+          __pyx_v_meet_condition = 1;
+
+          /* "rank_cy.pyx":203
+ *                 num_g_real += 1
+ *                 # this condition is true if query appear in gallery
+ *                 if matches[g_idx] > 1e-31:             # <<<<<<<<<<<<<<
+ *                     meet_condition = 1
+ * 
+ */
+        }
+
+        /* "rank_cy.pyx":199
+ *         # remove gallery samples that have the same pid and camid with query
+ *         for g_idx in range(num_g):
+ *             if (g_pids[order[g_idx]] != q_pid) or (g_camids[order[g_idx]] != q_camid):             # <<<<<<<<<<<<<<
+ *                 raw_cmc[num_g_real] = matches[g_idx]
+ *                 num_g_real += 1
+ */
+      }
+    }
+
+    /* "rank_cy.pyx":206
+ *                     meet_condition = 1
+ * 
+ *         if not meet_condition:             # <<<<<<<<<<<<<<
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue
+ */
+    __pyx_t_1 = ((!(__pyx_v_meet_condition != 0)) != 0);
+    if (__pyx_t_1) {
+
+      /* "rank_cy.pyx":208
+ *         if not meet_condition:
+ *             # this condition is true when query identity does not appear in gallery
+ *             continue             # <<<<<<<<<<<<<<
+ * 
+ *         # compute cmc
+ */
+      goto __pyx_L4_continue;
+
+      /* "rank_cy.pyx":206
+ *                     meet_condition = 1
+ * 
+ *         if not meet_condition:             # <<<<<<<<<<<<<<
+ *             # this condition is true when query identity
