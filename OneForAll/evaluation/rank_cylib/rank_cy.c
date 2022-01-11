@@ -5825,4 +5825,70 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *         for g_idx in range(num_g_real):
  *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):
  *                 max_pos_idx = g_idx             # <<<<<<<<<<<<<<
- *         inp = cmc
+ *         inp = cmc[max_pos_idx] / (max_pos_idx + 1.0)
+ *         all_INP[valid_index] = inp
+ */
+        __pyx_v_max_pos_idx = __pyx_v_g_idx;
+
+        /* "rank_cy.pyx":216
+ *         max_pos_idx = 0
+ *         for g_idx in range(num_g_real):
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):             # <<<<<<<<<<<<<<
+ *                 max_pos_idx = g_idx
+ *         inp = cmc[max_pos_idx] / (max_pos_idx + 1.0)
+ */
+      }
+    }
+
+    /* "rank_cy.pyx":218
+ *             if (raw_cmc[g_idx] == 1) and (g_idx > max_pos_idx):
+ *                 max_pos_idx = g_idx
+ *         inp = cmc[max_pos_idx] / (max_pos_idx + 1.0)             # <<<<<<<<<<<<<<
+ *         all_INP[valid_index] = inp
+ * 
+ */
+    __pyx_t_18 = __pyx_v_max_pos_idx;
+    __pyx_v_inp = ((*((float *) ( /* dim=0 */ (__pyx_v_cmc.data + __pyx_t_18 * __pyx_v_cmc.strides[0]) ))) / (__pyx_v_max_pos_idx + 1.0));
+
+    /* "rank_cy.pyx":219
+ *                 max_pos_idx = g_idx
+ *         inp = cmc[max_pos_idx] / (max_pos_idx + 1.0)
+ *         all_INP[valid_index] = inp             # <<<<<<<<<<<<<<
+ * 
+ *         for g_idx in range(num_g_real):
+ */
+    __pyx_t_18 = __pyx_v_valid_index;
+    *((float *) ( /* dim=0 */ (__pyx_v_all_INP.data + __pyx_t_18 * __pyx_v_all_INP.strides[0]) )) = __pyx_v_inp;
+
+    /* "rank_cy.pyx":221
+ *         all_INP[valid_index] = inp
+ * 
+ *         for g_idx in range(num_g_real):             # <<<<<<<<<<<<<<
+ *             if cmc[g_idx] > 1:
+ *                 cmc[g_idx] = 1
+ */
+    __pyx_t_15 = __pyx_v_num_g_real;
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_g_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":222
+ * 
+ *         for g_idx in range(num_g_real):
+ *             if cmc[g_idx] > 1:             # <<<<<<<<<<<<<<
+ *                 cmc[g_idx] = 1
+ * 
+ */
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_1 = (((*((float *) ( /* dim=0 */ (__pyx_v_cmc.data + __pyx_t_18 * __pyx_v_cmc.strides[0]) ))) > 1.0) != 0);
+      if (__pyx_t_1) {
+
+        /* "rank_cy.pyx":223
+ *         for g_idx in range(num_g_real):
+ *             if cmc[g_idx] > 1:
+ *                 cmc[g_idx] = 1             # <<<<<<<<<<<<<<
+ * 
+ *         for rank_idx in range(max_rank):
+ */
+        __pyx_t_18 = __pyx_v_g_idx;
+        *((float *) ( /* dim=0 */ (__pyx_v_cmc.data +
