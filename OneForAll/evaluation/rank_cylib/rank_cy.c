@@ -5891,4 +5891,64 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *         for rank_idx in range(max_rank):
  */
         __pyx_t_18 = __pyx_v_g_idx;
-        *((float *) ( /* dim=0 */ (__pyx_v_cmc.data +
+        *((float *) ( /* dim=0 */ (__pyx_v_cmc.data + __pyx_t_18 * __pyx_v_cmc.strides[0]) )) = 1.0;
+
+        /* "rank_cy.pyx":222
+ * 
+ *         for g_idx in range(num_g_real):
+ *             if cmc[g_idx] > 1:             # <<<<<<<<<<<<<<
+ *                 cmc[g_idx] = 1
+ * 
+ */
+      }
+    }
+
+    /* "rank_cy.pyx":225
+ *                 cmc[g_idx] = 1
+ * 
+ *         for rank_idx in range(max_rank):             # <<<<<<<<<<<<<<
+ *             all_cmc[q_idx, rank_idx] = cmc[rank_idx]
+ *         num_valid_q += 1.
+ */
+    __pyx_t_15 = __pyx_v_max_rank;
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_rank_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":226
+ * 
+ *         for rank_idx in range(max_rank):
+ *             all_cmc[q_idx, rank_idx] = cmc[rank_idx]             # <<<<<<<<<<<<<<
+ *         num_valid_q += 1.
+ * 
+ */
+      __pyx_t_18 = __pyx_v_rank_idx;
+      __pyx_t_14 = __pyx_v_q_idx;
+      __pyx_t_19 = __pyx_v_rank_idx;
+      *((float *) ( /* dim=1 */ (( /* dim=0 */ (__pyx_v_all_cmc.data + __pyx_t_14 * __pyx_v_all_cmc.strides[0]) ) + __pyx_t_19 * __pyx_v_all_cmc.strides[1]) )) = (*((float *) ( /* dim=0 */ (__pyx_v_cmc.data + __pyx_t_18 * __pyx_v_cmc.strides[0]) )));
+    }
+
+    /* "rank_cy.pyx":227
+ *         for rank_idx in range(max_rank):
+ *             all_cmc[q_idx, rank_idx] = cmc[rank_idx]
+ *         num_valid_q += 1.             # <<<<<<<<<<<<<<
+ * 
+ *         # compute average precision
+ */
+    __pyx_v_num_valid_q = (__pyx_v_num_valid_q + 1.);
+
+    /* "rank_cy.pyx":231
+ *         # compute average precision
+ *         # reference: https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Average_precision
+ *         function_cumsum(raw_cmc, tmp_cmc, num_g_real)             # <<<<<<<<<<<<<<
+ *         num_rel = 0
+ *         tmp_cmc_sum = 0
+ */
+    __pyx_fuse_3__pyx_f_7rank_cy_function_cumsum(__pyx_v_raw_cmc, __pyx_v_tmp_cmc, __pyx_v_num_g_real);
+
+    /* "rank_cy.pyx":232
+ *         # reference: https://en.wikipedia.org/wiki/Evaluation_measures_(information_retrieval)#Average_precision
+ *         function_cumsum(raw_cmc, tmp_cmc, num_g_real)
+ *         num_rel = 0             # <<<<<<<<<<<<<<
+ *         tmp_cmc_sum = 0
+ *         for g_idx in range(num_
