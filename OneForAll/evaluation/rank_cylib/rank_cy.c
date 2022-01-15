@@ -5951,4 +5951,59 @@ static PyObject *__pyx_f_7rank_cy_eval_market1501_cy(__Pyx_memviewslice __pyx_v_
  *         function_cumsum(raw_cmc, tmp_cmc, num_g_real)
  *         num_rel = 0             # <<<<<<<<<<<<<<
  *         tmp_cmc_sum = 0
- *         for g_idx in range(num_
+ *         for g_idx in range(num_g_real):
+ */
+    __pyx_v_num_rel = 0.0;
+
+    /* "rank_cy.pyx":233
+ *         function_cumsum(raw_cmc, tmp_cmc, num_g_real)
+ *         num_rel = 0
+ *         tmp_cmc_sum = 0             # <<<<<<<<<<<<<<
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ */
+    __pyx_v_tmp_cmc_sum = 0.0;
+
+    /* "rank_cy.pyx":234
+ *         num_rel = 0
+ *         tmp_cmc_sum = 0
+ *         for g_idx in range(num_g_real):             # <<<<<<<<<<<<<<
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]
+ */
+    __pyx_t_15 = __pyx_v_num_g_real;
+    __pyx_t_16 = __pyx_t_15;
+    for (__pyx_t_17 = 0; __pyx_t_17 < __pyx_t_16; __pyx_t_17+=1) {
+      __pyx_v_g_idx = __pyx_t_17;
+
+      /* "rank_cy.pyx":235
+ *         tmp_cmc_sum = 0
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]             # <<<<<<<<<<<<<<
+ *             num_rel += raw_cmc[g_idx]
+ *         all_AP[valid_index] = tmp_cmc_sum / num_rel
+ */
+      __pyx_t_18 = __pyx_v_g_idx;
+      __pyx_t_19 = __pyx_v_g_idx;
+      __pyx_v_tmp_cmc_sum = (__pyx_v_tmp_cmc_sum + (((*((float *) ( /* dim=0 */ (__pyx_v_tmp_cmc.data + __pyx_t_18 * __pyx_v_tmp_cmc.strides[0]) ))) / (__pyx_v_g_idx + 1.)) * (*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_19 * __pyx_v_raw_cmc.strides[0]) )))));
+
+      /* "rank_cy.pyx":236
+ *         for g_idx in range(num_g_real):
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]             # <<<<<<<<<<<<<<
+ *         all_AP[valid_index] = tmp_cmc_sum / num_rel
+ *         valid_index += 1
+ */
+      __pyx_t_19 = __pyx_v_g_idx;
+      __pyx_v_num_rel = (__pyx_v_num_rel + (*((float *) ( /* dim=0 */ (__pyx_v_raw_cmc.data + __pyx_t_19 * __pyx_v_raw_cmc.strides[0]) ))));
+    }
+
+    /* "rank_cy.pyx":237
+ *             tmp_cmc_sum += (tmp_cmc[g_idx] / (g_idx + 1.)) * raw_cmc[g_idx]
+ *             num_rel += raw_cmc[g_idx]
+ *         all_AP[valid_index] = tmp_cmc_sum / num_rel             # <<<<<<<<<<<<<<
+ *         valid_index += 1
+ * 
+ */
+    __pyx_t_19 = __pyx_v_valid_index;
+    *((float *) ( /* dim=0 */ (__pyx_v_all_AP.data + __pyx_t_19 * __pyx_v_all_AP.s
