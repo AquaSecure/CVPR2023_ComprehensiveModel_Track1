@@ -6448,4 +6448,73 @@ static PyObject *__pyx_pf_7rank_cy_4eval_market1501_cy(CYTHON_UNUSED PyObject *_
   if (unlikely(!__pyx_v_g_camids.memview)) { __Pyx_RaiseUnboundLocalError("g_camids"); __PYX_ERR(0, 150, __pyx_L1_error) }
   __pyx_t_1 = __pyx_f_7rank_cy_eval_market1501_cy(__pyx_v_distmat, __pyx_v_q_pids, __pyx_v_g_pids, __pyx_v_q_camids, __pyx_v_g_camids, __pyx_v_max_rank, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 150, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_r = __pyx_t
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("rank_cy.eval_market1501_cy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __PYX_XDEC_MEMVIEW(&__pyx_v_distmat, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_q_pids, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_g_pids, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_q_camids, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_v_g_camids, 1);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "rank_cy.pyx":253
+ * 
+ * # Compute the cumulative sum
+ * cdef void function_cumsum(cython.numeric[:] src, cython.numeric[:] dst, long n):             # <<<<<<<<<<<<<<
+ *     cdef long i
+ *     dst[0] = src[0]
+ */
+
+static void __pyx_fuse_3__pyx_f_7rank_cy_function_cumsum(__Pyx_memviewslice __pyx_v_src, __Pyx_memviewslice __pyx_v_dst, long __pyx_v_n) {
+  long __pyx_v_i;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  long __pyx_t_3;
+  long __pyx_t_4;
+  long __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
+  __Pyx_RefNannySetupContext("__pyx_fuse_3function_cumsum", 0);
+
+  /* "rank_cy.pyx":255
+ * cdef void function_cumsum(cython.numeric[:] src, cython.numeric[:] dst, long n):
+ *     cdef long i
+ *     dst[0] = src[0]             # <<<<<<<<<<<<<<
+ *     for i in range(1, n):
+ *         dst[i] = src[i] + dst[i - 1]
+ */
+  __pyx_t_1 = 0;
+  __pyx_t_2 = 0;
+  *((float *) ( /* dim=0 */ (__pyx_v_dst.data + __pyx_t_2 * __pyx_v_dst.strides[0]) )) = (*((float *) ( /* dim=0 */ (__pyx_v_src.data + __pyx_t_1 * __pyx_v_src.strides[0]) )));
+
+  /* "rank_cy.pyx":256
+ *     cdef long i
+ *     dst[0] = src[0]
+ *     for i in range(1, n):             # <<<<<<<<<<<<<<
+ *         dst[i] = src[i] + dst[i - 1]
+ */
+  __pyx_t_3 = __pyx_v_n;
+  __pyx_t_4 = __pyx_t_3;
+  for (__pyx_t_5 = 1; __pyx_t_5 < __pyx_t_4; __pyx_t_5+=1) {
+    __pyx_v_i = __pyx_t_5;
+
+    /* "rank_cy.pyx":257
+ *     dst[0] = src[0]
+ *     for i in range(1, n):
+ *         dst[i] = src[i] + dst[i - 1]             # <<<<<<<<<<<<<<
+ */
+    __pyx_t_1 = __pyx_v_i;
+    __pyx_t_2 = (__pyx_v_i - 1);
+    __pyx_t_6 = __pyx_v_i;
+    *((float *) ( /* dim=0 */ (__pyx_v_dst.data + __pyx_t_6 * __pyx_v_dst.strides[0]) )) = ((*((float *) ( /* dim=0 */ (__pyx_v_src.data + __pyx_t_1 * __pyx_v_src.strides[0]) ))) + (*(
