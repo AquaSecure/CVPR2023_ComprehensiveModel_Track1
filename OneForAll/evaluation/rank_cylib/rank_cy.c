@@ -6517,4 +6517,72 @@ static void __pyx_fuse_3__pyx_f_7rank_cy_function_cumsum(__Pyx_memviewslice __py
     __pyx_t_1 = __pyx_v_i;
     __pyx_t_2 = (__pyx_v_i - 1);
     __pyx_t_6 = __pyx_v_i;
-    *((float *) ( /* dim=0 */ (__pyx_v_dst.data + __pyx_t_6 * __pyx_v_dst.strides[0]) )) = ((*((float *) ( /* dim=0 */ (__pyx_v_src.data + __pyx_t_1 * __pyx_v_src.strides[0]) ))) + (*(
+    *((float *) ( /* dim=0 */ (__pyx_v_dst.data + __pyx_t_6 * __pyx_v_dst.strides[0]) )) = ((*((float *) ( /* dim=0 */ (__pyx_v_src.data + __pyx_t_1 * __pyx_v_src.strides[0]) ))) + (*((float *) ( /* dim=0 */ (__pyx_v_dst.data + __pyx_t_2 * __pyx_v_dst.strides[0]) ))));
+  }
+
+  /* "rank_cy.pyx":253
+ * 
+ * # Compute the cumulative sum
+ * cdef void function_cumsum(cython.numeric[:] src, cython.numeric[:] dst, long n):             # <<<<<<<<<<<<<<
+ *     cdef long i
+ *     dst[0] = src[0]
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* "../../../../../../../../anaconda3/envs/py37_torch17_cu11/lib/python3.7/site-packages/numpy/__init__.pxd":734
+ * ctypedef npy_cdouble     complex_t
+ * 
+ * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
+ *     return PyArray_MultiIterNew(1, <void*>a)
+ * 
+ */
+
+static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__pyx_v_a) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 0);
+
+  /* "../../../../../../../../anaconda3/envs/py37_torch17_cu11/lib/python3.7/site-packages/numpy/__init__.pxd":735
+ * 
+ * cdef inline object PyArray_MultiIterNew1(a):
+ *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
+ * 
+ * cdef inline object PyArray_MultiIterNew2(a, b):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = PyArray_MultiIterNew(1, ((void *)__pyx_v_a)); if (unlikely(!__pyx_t_1)) __PYX_ERR(1, 735, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "../../../../../../../../anaconda3/envs/py37_torch17_cu11/lib/python3.7/site-packages/numpy/__init__.pxd":734
+ * ctypedef npy_cdouble     complex_t
+ * 
+ * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
+ *     return PyArray_MultiIterNew(1, <void*>a)
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("numpy.PyArray_MultiIterNew1", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "../../../../../../../../anaconda3/envs/py37_torch17_cu11/lib/python3.7/site-packages/numpy/__init__.pxd":737
+ *     return PyArray_MultiIterNew(1, <void*>a)
+ * 
+ * c
