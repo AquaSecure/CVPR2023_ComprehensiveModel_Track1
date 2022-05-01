@@ -7561,4 +7561,77 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  */
   __pyx_v_self->itemsize = __pyx_v_itemsize;
 
-  /* "V
+  /* "View.MemoryView":132
+ *         self.itemsize = itemsize
+ * 
+ *         if not self.ndim:             # <<<<<<<<<<<<<<
+ *             raise ValueError("Empty shape tuple for cython.array")
+ * 
+ */
+  __pyx_t_2 = ((!(__pyx_v_self->ndim != 0)) != 0);
+  if (unlikely(__pyx_t_2)) {
+
+    /* "View.MemoryView":133
+ * 
+ *         if not self.ndim:
+ *             raise ValueError("Empty shape tuple for cython.array")             # <<<<<<<<<<<<<<
+ * 
+ *         if itemsize <= 0:
+ */
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__4, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 133, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(2, 133, __pyx_L1_error)
+
+    /* "View.MemoryView":132
+ *         self.itemsize = itemsize
+ * 
+ *         if not self.ndim:             # <<<<<<<<<<<<<<
+ *             raise ValueError("Empty shape tuple for cython.array")
+ * 
+ */
+  }
+
+  /* "View.MemoryView":135
+ *             raise ValueError("Empty shape tuple for cython.array")
+ * 
+ *         if itemsize <= 0:             # <<<<<<<<<<<<<<
+ *             raise ValueError("itemsize <= 0 for cython.array")
+ * 
+ */
+  __pyx_t_2 = ((__pyx_v_itemsize <= 0) != 0);
+  if (unlikely(__pyx_t_2)) {
+
+    /* "View.MemoryView":136
+ * 
+ *         if itemsize <= 0:
+ *             raise ValueError("itemsize <= 0 for cython.array")             # <<<<<<<<<<<<<<
+ * 
+ *         if not isinstance(format, bytes):
+ */
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__5, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 136, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(2, 136, __pyx_L1_error)
+
+    /* "View.MemoryView":135
+ *             raise ValueError("Empty shape tuple for cython.array")
+ * 
+ *         if itemsize <= 0:             # <<<<<<<<<<<<<<
+ *             raise ValueError("itemsize <= 0 for cython.array")
+ * 
+ */
+  }
+
+  /* "View.MemoryView":138
+ *             raise ValueError("itemsize <= 0 for cython.array")
+ * 
+ *         if not isinstance(format, bytes):             # <<<<<<<<<<<<<<
+ *             format = format.encode('ASCII')
+ *         self._format = format  # keep a reference to the byte string
+ */
+  __pyx_t_2 = PyBytes_Check(__pyx_v_format); 
+  __pyx_t_4 = ((!(__pyx_t_2 != 0)) != 0);
+  if (__p
