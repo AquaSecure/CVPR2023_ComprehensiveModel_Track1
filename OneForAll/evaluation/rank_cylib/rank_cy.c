@@ -7755,4 +7755,53 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
   /* "View.MemoryView":151
  * 
  * 
- *         for idx, dim 
+ *         for idx, dim in enumerate(shape):             # <<<<<<<<<<<<<<
+ *             if dim <= 0:
+ *                 raise ValueError("Invalid shape in axis %d: %d." % (idx, dim))
+ */
+  __pyx_t_8 = 0;
+  __pyx_t_3 = __pyx_v_shape; __Pyx_INCREF(__pyx_t_3); __pyx_t_1 = 0;
+  for (;;) {
+    if (__pyx_t_1 >= PyTuple_GET_SIZE(__pyx_t_3)) break;
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_3, __pyx_t_1); __Pyx_INCREF(__pyx_t_5); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(2, 151, __pyx_L1_error)
+    #else
+    __pyx_t_5 = PySequence_ITEM(__pyx_t_3, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 151, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    #endif
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_t_5); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 151, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+    __pyx_v_dim = __pyx_t_9;
+    __pyx_v_idx = __pyx_t_8;
+    __pyx_t_8 = (__pyx_t_8 + 1);
+
+    /* "View.MemoryView":152
+ * 
+ *         for idx, dim in enumerate(shape):
+ *             if dim <= 0:             # <<<<<<<<<<<<<<
+ *                 raise ValueError("Invalid shape in axis %d: %d." % (idx, dim))
+ *             self._shape[idx] = dim
+ */
+    __pyx_t_4 = ((__pyx_v_dim <= 0) != 0);
+    if (unlikely(__pyx_t_4)) {
+
+      /* "View.MemoryView":153
+ *         for idx, dim in enumerate(shape):
+ *             if dim <= 0:
+ *                 raise ValueError("Invalid shape in axis %d: %d." % (idx, dim))             # <<<<<<<<<<<<<<
+ *             self._shape[idx] = dim
+ * 
+ */
+      __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_idx); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 153, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __pyx_t_6 = PyInt_FromSsize_t(__pyx_v_dim); if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 153, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_6);
+      __pyx_t_10 = PyTuple_New(2); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 153, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_10);
+      __Pyx_GIVEREF(__pyx_t_5);
+      PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_5);
+      __Pyx_GIVEREF(__pyx_t_6);
+      PyTuple_SET_ITEM(__pyx_t_10, 1, __pyx_t_6);
+      __pyx_t_5 = 0;
+      __pyx_t_6 = 0;
+      __pyx_t_6 = __Pyx_PyString_Form
