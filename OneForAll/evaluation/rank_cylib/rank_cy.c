@@ -7936,4 +7936,62 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
   /*else*/ {
     __pyx_t_3 = __Pyx_PyString_FormatSafe(__pyx_kp_s_Invalid_mode_expected_c_or_fortr, __pyx_v_mode); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 164, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_3);
-    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_
+    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_ValueError, __pyx_t_3); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 164, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_10);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __Pyx_Raise(__pyx_t_10, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+    __PYX_ERR(2, 164, __pyx_L1_error)
+  }
+  __pyx_L10:;
+
+  /* "View.MemoryView":166
+ *             raise ValueError("Invalid mode, expected 'c' or 'fortran', got %s" % mode)
+ * 
+ *         self.len = fill_contig_strides_array(self._shape, self._strides,             # <<<<<<<<<<<<<<
+ *                                              itemsize, self.ndim, order)
+ * 
+ */
+  __pyx_v_self->len = __pyx_fill_contig_strides_array(__pyx_v_self->_shape, __pyx_v_self->_strides, __pyx_v_itemsize, __pyx_v_self->ndim, __pyx_v_order);
+
+  /* "View.MemoryView":169
+ *                                              itemsize, self.ndim, order)
+ * 
+ *         self.free_data = allocate_buffer             # <<<<<<<<<<<<<<
+ *         self.dtype_is_object = format == b'O'
+ *         if allocate_buffer:
+ */
+  __pyx_v_self->free_data = __pyx_v_allocate_buffer;
+
+  /* "View.MemoryView":170
+ * 
+ *         self.free_data = allocate_buffer
+ *         self.dtype_is_object = format == b'O'             # <<<<<<<<<<<<<<
+ *         if allocate_buffer:
+ * 
+ */
+  __pyx_t_10 = PyObject_RichCompare(__pyx_v_format, __pyx_n_b_O, Py_EQ); __Pyx_XGOTREF(__pyx_t_10); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 170, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_IsTrue(__pyx_t_10); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 170, __pyx_L1_error)
+  __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+  __pyx_v_self->dtype_is_object = __pyx_t_4;
+
+  /* "View.MemoryView":171
+ *         self.free_data = allocate_buffer
+ *         self.dtype_is_object = format == b'O'
+ *         if allocate_buffer:             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_4 = (__pyx_v_allocate_buffer != 0);
+  if (__pyx_t_4) {
+
+    /* "View.MemoryView":174
+ * 
+ * 
+ *             self.data = <char *>malloc(self.len)             # <<<<<<<<<<<<<<
+ *             if not self.data:
+ *                 raise MemoryError("unable to allocate array data.")
+ */
+    __pyx_v_self->data = ((char *)malloc(__pyx_v_self->len));
+
+    /* "View.M
