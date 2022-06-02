@@ -8056,4 +8056,70 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
         PyErr_SetString(PyExc_ZeroDivisionError, "integer division or modulo by zero");
         __PYX_ERR(2, 180, __pyx_L1_error)
       }
- 
+      else if (sizeof(Py_ssize_t) == sizeof(long) && (!(((Py_ssize_t)-1) > 0)) && unlikely(__pyx_v_itemsize == (Py_ssize_t)-1)  && unlikely(UNARY_NEG_WOULD_OVERFLOW(__pyx_v_self->len))) {
+        PyErr_SetString(PyExc_OverflowError, "value too large to perform division");
+        __PYX_ERR(2, 180, __pyx_L1_error)
+      }
+      __pyx_t_1 = (__pyx_v_self->len / __pyx_v_itemsize);
+      __pyx_t_9 = __pyx_t_1;
+      for (__pyx_t_11 = 0; __pyx_t_11 < __pyx_t_9; __pyx_t_11+=1) {
+        __pyx_v_i = __pyx_t_11;
+
+        /* "View.MemoryView":181
+ *                 p = <PyObject **> self.data
+ *                 for i in range(self.len / itemsize):
+ *                     p[i] = Py_None             # <<<<<<<<<<<<<<
+ *                     Py_INCREF(Py_None)
+ * 
+ */
+        (__pyx_v_p[__pyx_v_i]) = Py_None;
+
+        /* "View.MemoryView":182
+ *                 for i in range(self.len / itemsize):
+ *                     p[i] = Py_None
+ *                     Py_INCREF(Py_None)             # <<<<<<<<<<<<<<
+ * 
+ *     @cname('getbuffer')
+ */
+        Py_INCREF(Py_None);
+      }
+
+      /* "View.MemoryView":178
+ *                 raise MemoryError("unable to allocate array data.")
+ * 
+ *             if self.dtype_is_object:             # <<<<<<<<<<<<<<
+ *                 p = <PyObject **> self.data
+ *                 for i in range(self.len / itemsize):
+ */
+    }
+
+    /* "View.MemoryView":171
+ *         self.free_data = allocate_buffer
+ *         self.dtype_is_object = format == b'O'
+ *         if allocate_buffer:             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  }
+
+  /* "View.MemoryView":122
+ *         cdef bint dtype_is_object
+ * 
+ *     def __cinit__(array self, tuple shape, Py_ssize_t itemsize, format not None,             # <<<<<<<<<<<<<<
+ *                   mode="c", bint allocate_buffer=True):
+ * 
+ */
+
+  /* function exit code */
+  __pyx_r = 0;
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_10);
+  __Pyx_AddTraceback("View.MemoryView.array.__cinit__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = -1;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_format);
+  __Pyx_RefNannyFinishContext();
