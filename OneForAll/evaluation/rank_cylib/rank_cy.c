@@ -7994,4 +7994,66 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __
  */
     __pyx_v_self->data = ((char *)malloc(__pyx_v_self->len));
 
-    /* "View.M
+    /* "View.MemoryView":175
+ * 
+ *             self.data = <char *>malloc(self.len)
+ *             if not self.data:             # <<<<<<<<<<<<<<
+ *                 raise MemoryError("unable to allocate array data.")
+ * 
+ */
+    __pyx_t_4 = ((!(__pyx_v_self->data != 0)) != 0);
+    if (unlikely(__pyx_t_4)) {
+
+      /* "View.MemoryView":176
+ *             self.data = <char *>malloc(self.len)
+ *             if not self.data:
+ *                 raise MemoryError("unable to allocate array data.")             # <<<<<<<<<<<<<<
+ * 
+ *             if self.dtype_is_object:
+ */
+      __pyx_t_10 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple__7, NULL); if (unlikely(!__pyx_t_10)) __PYX_ERR(2, 176, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_10);
+      __Pyx_Raise(__pyx_t_10, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+      __PYX_ERR(2, 176, __pyx_L1_error)
+
+      /* "View.MemoryView":175
+ * 
+ *             self.data = <char *>malloc(self.len)
+ *             if not self.data:             # <<<<<<<<<<<<<<
+ *                 raise MemoryError("unable to allocate array data.")
+ * 
+ */
+    }
+
+    /* "View.MemoryView":178
+ *                 raise MemoryError("unable to allocate array data.")
+ * 
+ *             if self.dtype_is_object:             # <<<<<<<<<<<<<<
+ *                 p = <PyObject **> self.data
+ *                 for i in range(self.len / itemsize):
+ */
+    __pyx_t_4 = (__pyx_v_self->dtype_is_object != 0);
+    if (__pyx_t_4) {
+
+      /* "View.MemoryView":179
+ * 
+ *             if self.dtype_is_object:
+ *                 p = <PyObject **> self.data             # <<<<<<<<<<<<<<
+ *                 for i in range(self.len / itemsize):
+ *                     p[i] = Py_None
+ */
+      __pyx_v_p = ((PyObject **)__pyx_v_self->data);
+
+      /* "View.MemoryView":180
+ *             if self.dtype_is_object:
+ *                 p = <PyObject **> self.data
+ *                 for i in range(self.len / itemsize):             # <<<<<<<<<<<<<<
+ *                     p[i] = Py_None
+ *                     Py_INCREF(Py_None)
+ */
+      if (unlikely(__pyx_v_itemsize == 0)) {
+        PyErr_SetString(PyExc_ZeroDivisionError, "integer division or modulo by zero");
+        __PYX_ERR(2, 180, __pyx_L1_error)
+      }
+ 
