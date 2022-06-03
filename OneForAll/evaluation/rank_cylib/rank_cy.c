@@ -8303,4 +8303,82 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(stru
   /* "View.MemoryView":196
  *         info.len = self.len
  *         info.ndim = self.ndim
- *         info.shape = self._shap
+ *         info.shape = self._shape             # <<<<<<<<<<<<<<
+ *         info.strides = self._strides
+ *         info.suboffsets = NULL
+ */
+  __pyx_t_7 = __pyx_v_self->_shape;
+  __pyx_v_info->shape = __pyx_t_7;
+
+  /* "View.MemoryView":197
+ *         info.ndim = self.ndim
+ *         info.shape = self._shape
+ *         info.strides = self._strides             # <<<<<<<<<<<<<<
+ *         info.suboffsets = NULL
+ *         info.itemsize = self.itemsize
+ */
+  __pyx_t_7 = __pyx_v_self->_strides;
+  __pyx_v_info->strides = __pyx_t_7;
+
+  /* "View.MemoryView":198
+ *         info.shape = self._shape
+ *         info.strides = self._strides
+ *         info.suboffsets = NULL             # <<<<<<<<<<<<<<
+ *         info.itemsize = self.itemsize
+ *         info.readonly = 0
+ */
+  __pyx_v_info->suboffsets = NULL;
+
+  /* "View.MemoryView":199
+ *         info.strides = self._strides
+ *         info.suboffsets = NULL
+ *         info.itemsize = self.itemsize             # <<<<<<<<<<<<<<
+ *         info.readonly = 0
+ * 
+ */
+  __pyx_t_5 = __pyx_v_self->itemsize;
+  __pyx_v_info->itemsize = __pyx_t_5;
+
+  /* "View.MemoryView":200
+ *         info.suboffsets = NULL
+ *         info.itemsize = self.itemsize
+ *         info.readonly = 0             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_FORMAT:
+ */
+  __pyx_v_info->readonly = 0;
+
+  /* "View.MemoryView":202
+ *         info.readonly = 0
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             info.format = self.format
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_FORMAT) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":203
+ * 
+ *         if flags & PyBUF_FORMAT:
+ *             info.format = self.format             # <<<<<<<<<<<<<<
+ *         else:
+ *             info.format = NULL
+ */
+    __pyx_t_4 = __pyx_v_self->format;
+    __pyx_v_info->format = __pyx_t_4;
+
+    /* "View.MemoryView":202
+ *         info.readonly = 0
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             info.format = self.format
+ *         else:
+ */
+    goto __pyx_L5;
+  }
+
+  /* "View.MemoryView":205
+ *             info.format = self.format
+ *         else:
+ *             info.format = NULL       
