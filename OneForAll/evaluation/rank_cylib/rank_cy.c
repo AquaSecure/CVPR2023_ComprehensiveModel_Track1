@@ -8242,4 +8242,65 @@ static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(stru
  *         elif self.mode == u"fortran":
  *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
  *         if not (flags & bufmode):             # <<<<<<<<<<<<<<
- *             raise ValueError("Can only create a 
+ *             raise ValueError("Can only create a buffer that is contiguous in memory.")
+ *         info.buf = self.data
+ */
+  __pyx_t_1 = ((!((__pyx_v_flags & __pyx_v_bufmode) != 0)) != 0);
+  if (unlikely(__pyx_t_1)) {
+
+    /* "View.MemoryView":192
+ *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
+ *         if not (flags & bufmode):
+ *             raise ValueError("Can only create a buffer that is contiguous in memory.")             # <<<<<<<<<<<<<<
+ *         info.buf = self.data
+ *         info.len = self.len
+ */
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__8, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 192, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(2, 192, __pyx_L1_error)
+
+    /* "View.MemoryView":191
+ *         elif self.mode == u"fortran":
+ *             bufmode = PyBUF_F_CONTIGUOUS | PyBUF_ANY_CONTIGUOUS
+ *         if not (flags & bufmode):             # <<<<<<<<<<<<<<
+ *             raise ValueError("Can only create a buffer that is contiguous in memory.")
+ *         info.buf = self.data
+ */
+  }
+
+  /* "View.MemoryView":193
+ *         if not (flags & bufmode):
+ *             raise ValueError("Can only create a buffer that is contiguous in memory.")
+ *         info.buf = self.data             # <<<<<<<<<<<<<<
+ *         info.len = self.len
+ *         info.ndim = self.ndim
+ */
+  __pyx_t_4 = __pyx_v_self->data;
+  __pyx_v_info->buf = __pyx_t_4;
+
+  /* "View.MemoryView":194
+ *             raise ValueError("Can only create a buffer that is contiguous in memory.")
+ *         info.buf = self.data
+ *         info.len = self.len             # <<<<<<<<<<<<<<
+ *         info.ndim = self.ndim
+ *         info.shape = self._shape
+ */
+  __pyx_t_5 = __pyx_v_self->len;
+  __pyx_v_info->len = __pyx_t_5;
+
+  /* "View.MemoryView":195
+ *         info.buf = self.data
+ *         info.len = self.len
+ *         info.ndim = self.ndim             # <<<<<<<<<<<<<<
+ *         info.shape = self._shape
+ *         info.strides = self._strides
+ */
+  __pyx_t_6 = __pyx_v_self->ndim;
+  __pyx_v_info->ndim = __pyx_t_6;
+
+  /* "View.MemoryView":196
+ *         info.len = self.len
+ *         info.ndim = self.ndim
+ *         info.shape = self._shap
