@@ -8585,4 +8585,77 @@ static PyObject *__pyx_pw_15View_dot_MemoryView_5array_7memview_1__get__(PyObjec
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_15View_dot_MemoryVi
+static PyObject *__pyx_pf_15View_dot_MemoryView_5array_7memview___get__(struct __pyx_array_obj *__pyx_v_self) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "View.MemoryView":223
+ *     @property
+ *     def memview(self):
+ *         return self.get_memview()             # <<<<<<<<<<<<<<
+ * 
+ *     @cname('get_memview')
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_1 = ((struct __pyx_vtabstruct_array *)__pyx_v_self->__pyx_vtab)->get_memview(__pyx_v_self); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 223, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_r = __pyx_t_1;
+  __pyx_t_1 = 0;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":222
+ * 
+ *     @property
+ *     def memview(self):             # <<<<<<<<<<<<<<
+ *         return self.get_memview()
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_AddTraceback("View.MemoryView.array.memview.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":226
+ * 
+ *     @cname('get_memview')
+ *     cdef get_memview(self):             # <<<<<<<<<<<<<<
+ *         flags =  PyBUF_ANY_CONTIGUOUS|PyBUF_FORMAT|PyBUF_WRITABLE
+ *         return  memoryview(self, flags, self.dtype_is_object)
+ */
+
+static PyObject *__pyx_array_get_memview(struct __pyx_array_obj *__pyx_v_self) {
+  int __pyx_v_flags;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("get_memview", 0);
+
+  /* "View.MemoryView":227
+ *     @cname('get_memview')
+ *     cdef get_memview(self):
+ *         flags =  PyBUF_ANY_CONTIGUOUS|PyBUF_FORMAT|PyBUF_WRITABLE             # <<<<<<<<<<<<<<
+ *         return  memoryview(self, flags, self.dtype_is_object)
+ * 
+ */
+  __pyx_v_flags = ((PyBUF_ANY_CONTIGUOUS | PyBUF_FORMAT) | PyBUF_WRITABLE);
+
+  /* "View.MemoryView":228
+ *     cdef get_memview(self):
+ *         flags =  PyBUF_ANY_CONTIGUOUS|PyBUF_FOR
