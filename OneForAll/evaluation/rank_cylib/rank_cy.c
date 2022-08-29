@@ -10045,4 +10045,71 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview___cinit_
  *             if self.lock is NULL:             # <<<<<<<<<<<<<<
  *                 raise MemoryError
  * 
- *
+ */
+    }
+
+    /* "View.MemoryView":358
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]
+ *             __pyx_memoryview_thread_locks_used += 1
+ *         if self.lock is NULL:             # <<<<<<<<<<<<<<
+ *             self.lock = PyThread_allocate_lock()
+ *             if self.lock is NULL:
+ */
+  }
+
+  /* "View.MemoryView":363
+ *                 raise MemoryError
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             self.dtype_is_object = (self.view.format[0] == b'O' and self.view.format[1] == b'\0')
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_FORMAT) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":364
+ * 
+ *         if flags & PyBUF_FORMAT:
+ *             self.dtype_is_object = (self.view.format[0] == b'O' and self.view.format[1] == b'\0')             # <<<<<<<<<<<<<<
+ *         else:
+ *             self.dtype_is_object = dtype_is_object
+ */
+    __pyx_t_2 = (((__pyx_v_self->view.format[0]) == 'O') != 0);
+    if (__pyx_t_2) {
+    } else {
+      __pyx_t_1 = __pyx_t_2;
+      goto __pyx_L11_bool_binop_done;
+    }
+    __pyx_t_2 = (((__pyx_v_self->view.format[1]) == '\x00') != 0);
+    __pyx_t_1 = __pyx_t_2;
+    __pyx_L11_bool_binop_done:;
+    __pyx_v_self->dtype_is_object = __pyx_t_1;
+
+    /* "View.MemoryView":363
+ *                 raise MemoryError
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             self.dtype_is_object = (self.view.format[0] == b'O' and self.view.format[1] == b'\0')
+ *         else:
+ */
+    goto __pyx_L10;
+  }
+
+  /* "View.MemoryView":366
+ *             self.dtype_is_object = (self.view.format[0] == b'O' and self.view.format[1] == b'\0')
+ *         else:
+ *             self.dtype_is_object = dtype_is_object             # <<<<<<<<<<<<<<
+ * 
+ *         self.acquisition_count_aligned_p = <__pyx_atomic_int *> align_pointer(
+ */
+  /*else*/ {
+    __pyx_v_self->dtype_is_object = __pyx_v_dtype_is_object;
+  }
+  __pyx_L10:;
+
+  /* "View.MemoryView":368
+ *             self.dtype_is_object = dtype_is_object
+ * 
+ *         self.acquisition_count_aligned_p = <__pyx_atomic_int *> align_pointer(             # <<<<<<<<<<<<<<
+ *                   <void *> &self.acquisition_count[0], sizeof(__pyx_atomic_int))
+ *         
