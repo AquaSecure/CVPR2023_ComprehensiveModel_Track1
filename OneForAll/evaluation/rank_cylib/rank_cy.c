@@ -9871,4 +9871,62 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview___cinit_
  * 
  *     def __cinit__(memoryview self, object obj, int flags, bint dtype_is_object=False):
  *         self.obj = obj             # <<<<<<<<<<<<<<
- *
+ *         self.flags = flags
+ *         if type(self) is memoryview or obj is not None:
+ */
+  __Pyx_INCREF(__pyx_v_obj);
+  __Pyx_GIVEREF(__pyx_v_obj);
+  __Pyx_GOTREF(__pyx_v_self->obj);
+  __Pyx_DECREF(__pyx_v_self->obj);
+  __pyx_v_self->obj = __pyx_v_obj;
+
+  /* "View.MemoryView":347
+ *     def __cinit__(memoryview self, object obj, int flags, bint dtype_is_object=False):
+ *         self.obj = obj
+ *         self.flags = flags             # <<<<<<<<<<<<<<
+ *         if type(self) is memoryview or obj is not None:
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ */
+  __pyx_v_self->flags = __pyx_v_flags;
+
+  /* "View.MemoryView":348
+ *         self.obj = obj
+ *         self.flags = flags
+ *         if type(self) is memoryview or obj is not None:             # <<<<<<<<<<<<<<
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ *             if <PyObject *> self.view.obj == NULL:
+ */
+  __pyx_t_2 = (((PyObject *)Py_TYPE(((PyObject *)__pyx_v_self))) == ((PyObject *)__pyx_memoryview_type));
+  __pyx_t_3 = (__pyx_t_2 != 0);
+  if (!__pyx_t_3) {
+  } else {
+    __pyx_t_1 = __pyx_t_3;
+    goto __pyx_L4_bool_binop_done;
+  }
+  __pyx_t_3 = (__pyx_v_obj != Py_None);
+  __pyx_t_2 = (__pyx_t_3 != 0);
+  __pyx_t_1 = __pyx_t_2;
+  __pyx_L4_bool_binop_done:;
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":349
+ *         self.flags = flags
+ *         if type(self) is memoryview or obj is not None:
+ *             __Pyx_GetBuffer(obj, &self.view, flags)             # <<<<<<<<<<<<<<
+ *             if <PyObject *> self.view.obj == NULL:
+ *                 (<__pyx_buffer *> &self.view).obj = Py_None
+ */
+    __pyx_t_4 = __Pyx_GetBuffer(__pyx_v_obj, (&__pyx_v_self->view), __pyx_v_flags); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(2, 349, __pyx_L1_error)
+
+    /* "View.MemoryView":350
+ *         if type(self) is memoryview or obj is not None:
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ *             if <PyObject *> self.view.obj == NULL:             # <<<<<<<<<<<<<<
+ *                 (<__pyx_buffer *> &self.view).obj = Py_None
+ *                 Py_INCREF(Py_None)
+ */
+    __pyx_t_1 = ((((PyObject *)__pyx_v_self->view.obj) == NULL) != 0);
+    if (__pyx_t_1) {
+
+      /* "View.MemoryView":351
+ *             __Pyx_GetBuffer(obj, &sel
