@@ -9985,4 +9985,64 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview___cinit_
 
     /* "View.MemoryView":357
  *         if __pyx_memoryview_thread_locks_used < THREAD_LOCKS_PREALLOCATED:
- *             self.lock = __pyx_memoryview_th
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]
+ *             __pyx_memoryview_thread_locks_used += 1             # <<<<<<<<<<<<<<
+ *         if self.lock is NULL:
+ *             self.lock = PyThread_allocate_lock()
+ */
+    __pyx_memoryview_thread_locks_used = (__pyx_memoryview_thread_locks_used + 1);
+
+    /* "View.MemoryView":355
+ * 
+ *         global __pyx_memoryview_thread_locks_used
+ *         if __pyx_memoryview_thread_locks_used < THREAD_LOCKS_PREALLOCATED:             # <<<<<<<<<<<<<<
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]
+ *             __pyx_memoryview_thread_locks_used += 1
+ */
+  }
+
+  /* "View.MemoryView":358
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]
+ *             __pyx_memoryview_thread_locks_used += 1
+ *         if self.lock is NULL:             # <<<<<<<<<<<<<<
+ *             self.lock = PyThread_allocate_lock()
+ *             if self.lock is NULL:
+ */
+  __pyx_t_1 = ((__pyx_v_self->lock == NULL) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":359
+ *             __pyx_memoryview_thread_locks_used += 1
+ *         if self.lock is NULL:
+ *             self.lock = PyThread_allocate_lock()             # <<<<<<<<<<<<<<
+ *             if self.lock is NULL:
+ *                 raise MemoryError
+ */
+    __pyx_v_self->lock = PyThread_allocate_lock();
+
+    /* "View.MemoryView":360
+ *         if self.lock is NULL:
+ *             self.lock = PyThread_allocate_lock()
+ *             if self.lock is NULL:             # <<<<<<<<<<<<<<
+ *                 raise MemoryError
+ * 
+ */
+    __pyx_t_1 = ((__pyx_v_self->lock == NULL) != 0);
+    if (unlikely(__pyx_t_1)) {
+
+      /* "View.MemoryView":361
+ *             self.lock = PyThread_allocate_lock()
+ *             if self.lock is NULL:
+ *                 raise MemoryError             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_FORMAT:
+ */
+      PyErr_NoMemory(); __PYX_ERR(2, 361, __pyx_L1_error)
+
+      /* "View.MemoryView":360
+ *         if self.lock is NULL:
+ *             self.lock = PyThread_allocate_lock()
+ *             if self.lock is NULL:             # <<<<<<<<<<<<<<
+ *                 raise MemoryError
+ * 
+ *
