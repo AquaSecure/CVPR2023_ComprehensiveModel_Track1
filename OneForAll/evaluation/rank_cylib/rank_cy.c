@@ -9929,4 +9929,60 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview___cinit_
     if (__pyx_t_1) {
 
       /* "View.MemoryView":351
- *             __Pyx_GetBuffer(obj, &sel
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ *             if <PyObject *> self.view.obj == NULL:
+ *                 (<__pyx_buffer *> &self.view).obj = Py_None             # <<<<<<<<<<<<<<
+ *                 Py_INCREF(Py_None)
+ * 
+ */
+      ((Py_buffer *)(&__pyx_v_self->view))->obj = Py_None;
+
+      /* "View.MemoryView":352
+ *             if <PyObject *> self.view.obj == NULL:
+ *                 (<__pyx_buffer *> &self.view).obj = Py_None
+ *                 Py_INCREF(Py_None)             # <<<<<<<<<<<<<<
+ * 
+ *         global __pyx_memoryview_thread_locks_used
+ */
+      Py_INCREF(Py_None);
+
+      /* "View.MemoryView":350
+ *         if type(self) is memoryview or obj is not None:
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ *             if <PyObject *> self.view.obj == NULL:             # <<<<<<<<<<<<<<
+ *                 (<__pyx_buffer *> &self.view).obj = Py_None
+ *                 Py_INCREF(Py_None)
+ */
+    }
+
+    /* "View.MemoryView":348
+ *         self.obj = obj
+ *         self.flags = flags
+ *         if type(self) is memoryview or obj is not None:             # <<<<<<<<<<<<<<
+ *             __Pyx_GetBuffer(obj, &self.view, flags)
+ *             if <PyObject *> self.view.obj == NULL:
+ */
+  }
+
+  /* "View.MemoryView":355
+ * 
+ *         global __pyx_memoryview_thread_locks_used
+ *         if __pyx_memoryview_thread_locks_used < THREAD_LOCKS_PREALLOCATED:             # <<<<<<<<<<<<<<
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]
+ *             __pyx_memoryview_thread_locks_used += 1
+ */
+  __pyx_t_1 = ((__pyx_memoryview_thread_locks_used < 8) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":356
+ *         global __pyx_memoryview_thread_locks_used
+ *         if __pyx_memoryview_thread_locks_used < THREAD_LOCKS_PREALLOCATED:
+ *             self.lock = __pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]             # <<<<<<<<<<<<<<
+ *             __pyx_memoryview_thread_locks_used += 1
+ *         if self.lock is NULL:
+ */
+    __pyx_v_self->lock = (__pyx_memoryview_thread_locks[__pyx_memoryview_thread_locks_used]);
+
+    /* "View.MemoryView":357
+ *         if __pyx_memoryview_thread_locks_used < THREAD_LOCKS_PREALLOCATED:
+ *             self.lock = __pyx_memoryview_th
