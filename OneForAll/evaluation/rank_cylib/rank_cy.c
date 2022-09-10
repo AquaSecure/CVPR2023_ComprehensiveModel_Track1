@@ -10180,4 +10180,78 @@ static void __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_2__deal
  *     def __dealloc__(memoryview self):
  *         if self.obj is not None:             # <<<<<<<<<<<<<<
  *             __Pyx_ReleaseBuffer(&self.view)
- *         elif (<__pyx_buffe
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:
+ */
+  __pyx_t_1 = (__pyx_v_self->obj != Py_None);
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":374
+ *     def __dealloc__(memoryview self):
+ *         if self.obj is not None:
+ *             __Pyx_ReleaseBuffer(&self.view)             # <<<<<<<<<<<<<<
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:
+ * 
+ */
+    __Pyx_ReleaseBuffer((&__pyx_v_self->view));
+
+    /* "View.MemoryView":373
+ * 
+ *     def __dealloc__(memoryview self):
+ *         if self.obj is not None:             # <<<<<<<<<<<<<<
+ *             __Pyx_ReleaseBuffer(&self.view)
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "View.MemoryView":375
+ *         if self.obj is not None:
+ *             __Pyx_ReleaseBuffer(&self.view)
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:             # <<<<<<<<<<<<<<
+ * 
+ *             (<__pyx_buffer *> &self.view).obj = NULL
+ */
+  __pyx_t_2 = ((((Py_buffer *)(&__pyx_v_self->view))->obj == Py_None) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":377
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:
+ * 
+ *             (<__pyx_buffer *> &self.view).obj = NULL             # <<<<<<<<<<<<<<
+ *             Py_DECREF(Py_None)
+ * 
+ */
+    ((Py_buffer *)(&__pyx_v_self->view))->obj = NULL;
+
+    /* "View.MemoryView":378
+ * 
+ *             (<__pyx_buffer *> &self.view).obj = NULL
+ *             Py_DECREF(Py_None)             # <<<<<<<<<<<<<<
+ * 
+ *         cdef int i
+ */
+    Py_DECREF(Py_None);
+
+    /* "View.MemoryView":375
+ *         if self.obj is not None:
+ *             __Pyx_ReleaseBuffer(&self.view)
+ *         elif (<__pyx_buffer *> &self.view).obj == Py_None:             # <<<<<<<<<<<<<<
+ * 
+ *             (<__pyx_buffer *> &self.view).obj = NULL
+ */
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":382
+ *         cdef int i
+ *         global __pyx_memoryview_thread_locks_used
+ *         if self.lock != NULL:             # <<<<<<<<<<<<<<
+ *             for i in range(__pyx_memoryview_thread_locks_used):
+ *                 if __pyx_memoryview_thread_locks[i] is self.lock:
+ */
+  __pyx_t_2 = ((__pyx_v_self->lock != NULL) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":383
+ *         global
