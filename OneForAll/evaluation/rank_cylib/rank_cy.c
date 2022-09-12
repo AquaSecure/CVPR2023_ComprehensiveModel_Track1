@@ -10526,4 +10526,75 @@ static PyObject *__pyx_memoryview___getitem__(PyObject *__pyx_v_self, PyObject *
 static PyObject *__pyx_memoryview___getitem__(PyObject *__pyx_v_self, PyObject *__pyx_v_index) {
   PyObject *__pyx_r = 0;
   __Pyx_RefNannyDeclarations
-  __Pyx_RefNannySetupContext("__getitem__ (wra
+  __Pyx_RefNannySetupContext("__getitem__ (wrapper)", 0);
+  __pyx_r = __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4__getitem__(((struct __pyx_memoryview_obj *)__pyx_v_self), ((PyObject *)__pyx_v_index));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4__getitem__(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index) {
+  PyObject *__pyx_v_have_slices = NULL;
+  PyObject *__pyx_v_indices = NULL;
+  char *__pyx_v_itemp;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  char *__pyx_t_6;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__getitem__", 0);
+
+  /* "View.MemoryView":404
+ * 
+ *     def __getitem__(memoryview self, object index):
+ *         if index is Ellipsis:             # <<<<<<<<<<<<<<
+ *             return self
+ * 
+ */
+  __pyx_t_1 = (__pyx_v_index == __pyx_builtin_Ellipsis);
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":405
+ *     def __getitem__(memoryview self, object index):
+ *         if index is Ellipsis:
+ *             return self             # <<<<<<<<<<<<<<
+ * 
+ *         have_slices, indices = _unellipsify(index, self.view.ndim)
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __Pyx_INCREF(((PyObject *)__pyx_v_self));
+    __pyx_r = ((PyObject *)__pyx_v_self);
+    goto __pyx_L0;
+
+    /* "View.MemoryView":404
+ * 
+ *     def __getitem__(memoryview self, object index):
+ *         if index is Ellipsis:             # <<<<<<<<<<<<<<
+ *             return self
+ * 
+ */
+  }
+
+  /* "View.MemoryView":407
+ *             return self
+ * 
+ *         have_slices, indices = _unellipsify(index, self.view.ndim)             # <<<<<<<<<<<<<<
+ * 
+ *         cdef char *itemp
+ */
+  __pyx_t_3 = _unellipsify(__pyx_v_index, __pyx_v_self->view.ndim); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 407, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  if (likely(__pyx_t_3 != Py_None)) {
+    PyObject* sequence = __pyx_t_3;
+    Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
+    if (unlikely(size != 2)) {
+      if (size > 2) __Pyx_RaiseTooManyValuesError(2);
+ 
