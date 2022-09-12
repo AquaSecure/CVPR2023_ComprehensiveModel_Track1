@@ -10597,4 +10597,68 @@ static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_4_
     Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
     if (unlikely(size != 2)) {
       if (size > 2) __Pyx_RaiseTooManyValuesError(2);
- 
+      else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
+      __PYX_ERR(2, 407, __pyx_L1_error)
+    }
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    __pyx_t_4 = PyTuple_GET_ITEM(sequence, 0); 
+    __pyx_t_5 = PyTuple_GET_ITEM(sequence, 1); 
+    __Pyx_INCREF(__pyx_t_4);
+    __Pyx_INCREF(__pyx_t_5);
+    #else
+    __pyx_t_4 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 407, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_5 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 407, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_5);
+    #endif
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+  } else {
+    __Pyx_RaiseNoneNotIterableError(); __PYX_ERR(2, 407, __pyx_L1_error)
+  }
+  __pyx_v_have_slices = __pyx_t_4;
+  __pyx_t_4 = 0;
+  __pyx_v_indices = __pyx_t_5;
+  __pyx_t_5 = 0;
+
+  /* "View.MemoryView":410
+ * 
+ *         cdef char *itemp
+ *         if have_slices:             # <<<<<<<<<<<<<<
+ *             return memview_slice(self, indices)
+ *         else:
+ */
+  __pyx_t_2 = __Pyx_PyObject_IsTrue(__pyx_v_have_slices); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(2, 410, __pyx_L1_error)
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":411
+ *         cdef char *itemp
+ *         if have_slices:
+ *             return memview_slice(self, indices)             # <<<<<<<<<<<<<<
+ *         else:
+ *             itemp = self.get_item_pointer(indices)
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __pyx_t_3 = ((PyObject *)__pyx_memview_slice(__pyx_v_self, __pyx_v_indices)); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 411, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_r = __pyx_t_3;
+    __pyx_t_3 = 0;
+    goto __pyx_L0;
+
+    /* "View.MemoryView":410
+ * 
+ *         cdef char *itemp
+ *         if have_slices:             # <<<<<<<<<<<<<<
+ *             return memview_slice(self, indices)
+ *         else:
+ */
+  }
+
+  /* "View.MemoryView":413
+ *             return memview_slice(self, indices)
+ *         else:
+ *             itemp = self.get_item_pointer(indices)             # <<<<<<<<<<<<<<
+ *             return self.convert_item_to_object(itemp)
+ * 
+ */
+  /*else*/ {
+    __pyx_t_6 = ((struct __pyx_vtabst
