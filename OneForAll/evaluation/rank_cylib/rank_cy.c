@@ -10782,4 +10782,62 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_6__setit
   if (likely(__pyx_t_2 != Py_None)) {
     PyObject* sequence = __pyx_t_2;
     Py_ssize_t size = __Pyx_PySequence_SIZE(sequence);
-    if (unlike
+    if (unlikely(size != 2)) {
+      if (size > 2) __Pyx_RaiseTooManyValuesError(2);
+      else if (size >= 0) __Pyx_RaiseNeedMoreValuesError(size);
+      __PYX_ERR(2, 420, __pyx_L1_error)
+    }
+    #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
+    __pyx_t_3 = PyTuple_GET_ITEM(sequence, 0); 
+    __pyx_t_4 = PyTuple_GET_ITEM(sequence, 1); 
+    __Pyx_INCREF(__pyx_t_3);
+    __Pyx_INCREF(__pyx_t_4);
+    #else
+    __pyx_t_3 = PySequence_ITEM(sequence, 0); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 420, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __pyx_t_4 = PySequence_ITEM(sequence, 1); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 420, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    #endif
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+  } else {
+    __Pyx_RaiseNoneNotIterableError(); __PYX_ERR(2, 420, __pyx_L1_error)
+  }
+  __pyx_v_have_slices = __pyx_t_3;
+  __pyx_t_3 = 0;
+  __Pyx_DECREF_SET(__pyx_v_index, __pyx_t_4);
+  __pyx_t_4 = 0;
+
+  /* "View.MemoryView":422
+ *         have_slices, index = _unellipsify(index, self.view.ndim)
+ * 
+ *         if have_slices:             # <<<<<<<<<<<<<<
+ *             obj = self.is_slice(value)
+ *             if obj:
+ */
+  __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_have_slices); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(2, 422, __pyx_L1_error)
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":423
+ * 
+ *         if have_slices:
+ *             obj = self.is_slice(value)             # <<<<<<<<<<<<<<
+ *             if obj:
+ *                 self.setitem_slice_assignment(self[index], obj)
+ */
+    __pyx_t_2 = ((struct __pyx_vtabstruct_memoryview *)__pyx_v_self->__pyx_vtab)->is_slice(__pyx_v_self, __pyx_v_value); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 423, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_v_obj = __pyx_t_2;
+    __pyx_t_2 = 0;
+
+    /* "View.MemoryView":424
+ *         if have_slices:
+ *             obj = self.is_slice(value)
+ *             if obj:             # <<<<<<<<<<<<<<
+ *                 self.setitem_slice_assignment(self[index], obj)
+ *             else:
+ */
+    __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_v_obj); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(2, 424, __pyx_L1_error)
+    if (__pyx_t_1) {
+
+      /* "View.MemoryView":425
+ *             obj = self.is_slice(va
