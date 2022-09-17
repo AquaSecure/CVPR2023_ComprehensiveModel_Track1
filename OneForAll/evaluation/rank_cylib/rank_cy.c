@@ -11233,4 +11233,67 @@ static PyObject *__pyx_memoryview_setitem_slice_assignment(struct __pyx_memoryvi
 /* "View.MemoryView":449
  *                                  src.ndim, dst.ndim, self.dtype_is_object)
  * 
- *     cdef setitem_slice_assign_scalar(self, memoryview dst, va
+ *     cdef setitem_slice_assign_scalar(self, memoryview dst, value):             # <<<<<<<<<<<<<<
+ *         cdef int array[128]
+ *         cdef void *tmp = NULL
+ */
+
+static PyObject *__pyx_memoryview_setitem_slice_assign_scalar(struct __pyx_memoryview_obj *__pyx_v_self, struct __pyx_memoryview_obj *__pyx_v_dst, PyObject *__pyx_v_value) {
+  int __pyx_v_array[0x80];
+  void *__pyx_v_tmp;
+  void *__pyx_v_item;
+  __Pyx_memviewslice *__pyx_v_dst_slice;
+  __Pyx_memviewslice __pyx_v_tmp_slice;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  __Pyx_memviewslice *__pyx_t_1;
+  int __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_t_4;
+  int __pyx_t_5;
+  char const *__pyx_t_6;
+  PyObject *__pyx_t_7 = NULL;
+  PyObject *__pyx_t_8 = NULL;
+  PyObject *__pyx_t_9 = NULL;
+  PyObject *__pyx_t_10 = NULL;
+  PyObject *__pyx_t_11 = NULL;
+  PyObject *__pyx_t_12 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("setitem_slice_assign_scalar", 0);
+
+  /* "View.MemoryView":451
+ *     cdef setitem_slice_assign_scalar(self, memoryview dst, value):
+ *         cdef int array[128]
+ *         cdef void *tmp = NULL             # <<<<<<<<<<<<<<
+ *         cdef void *item
+ * 
+ */
+  __pyx_v_tmp = NULL;
+
+  /* "View.MemoryView":456
+ *         cdef __Pyx_memviewslice *dst_slice
+ *         cdef __Pyx_memviewslice tmp_slice
+ *         dst_slice = get_slice_from_memview(dst, &tmp_slice)             # <<<<<<<<<<<<<<
+ * 
+ *         if <size_t>self.view.itemsize > sizeof(array):
+ */
+  __pyx_t_1 = __pyx_memoryview_get_slice_from_memoryview(__pyx_v_dst, (&__pyx_v_tmp_slice)); if (unlikely(__pyx_t_1 == ((__Pyx_memviewslice *)NULL))) __PYX_ERR(2, 456, __pyx_L1_error)
+  __pyx_v_dst_slice = __pyx_t_1;
+
+  /* "View.MemoryView":458
+ *         dst_slice = get_slice_from_memview(dst, &tmp_slice)
+ * 
+ *         if <size_t>self.view.itemsize > sizeof(array):             # <<<<<<<<<<<<<<
+ *             tmp = PyMem_Malloc(self.view.itemsize)
+ *             if tmp == NULL:
+ */
+  __pyx_t_2 = ((((size_t)__pyx_v_self->view.itemsize) > (sizeof(__pyx_v_array))) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":459
+ * 
+ *         if <size_t>self.view.itemsize > sizeof(array):
+ *             tmp = PyMem_Malloc(self.view.itemsize)             # <<<<<<<<<<<<<<
+ *          
