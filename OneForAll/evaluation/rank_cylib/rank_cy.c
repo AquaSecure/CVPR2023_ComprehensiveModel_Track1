@@ -11376,4 +11376,65 @@ static PyObject *__pyx_memoryview_setitem_slice_assign_scalar(struct __pyx_memor
  *                 (<PyObject **> item)[0] = <PyObject *> value
  *             else:
  */
-    __pyx_t_2 = (__pyx_v_self->dt
+    __pyx_t_2 = (__pyx_v_self->dtype_is_object != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":468
+ *         try:
+ *             if self.dtype_is_object:
+ *                 (<PyObject **> item)[0] = <PyObject *> value             # <<<<<<<<<<<<<<
+ *             else:
+ *                 self.assign_item_from_object(<char *> item, value)
+ */
+      (((PyObject **)__pyx_v_item)[0]) = ((PyObject *)__pyx_v_value);
+
+      /* "View.MemoryView":467
+ * 
+ *         try:
+ *             if self.dtype_is_object:             # <<<<<<<<<<<<<<
+ *                 (<PyObject **> item)[0] = <PyObject *> value
+ *             else:
+ */
+      goto __pyx_L8;
+    }
+
+    /* "View.MemoryView":470
+ *                 (<PyObject **> item)[0] = <PyObject *> value
+ *             else:
+ *                 self.assign_item_from_object(<char *> item, value)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    /*else*/ {
+      __pyx_t_3 = ((struct __pyx_vtabstruct_memoryview *)__pyx_v_self->__pyx_vtab)->assign_item_from_object(__pyx_v_self, ((char *)__pyx_v_item), __pyx_v_value); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 470, __pyx_L6_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    }
+    __pyx_L8:;
+
+    /* "View.MemoryView":474
+ * 
+ * 
+ *             if self.view.suboffsets != NULL:             # <<<<<<<<<<<<<<
+ *                 assert_direct_dimensions(self.view.suboffsets, self.view.ndim)
+ *             slice_assign_scalar(dst_slice, dst.view.ndim, self.view.itemsize,
+ */
+    __pyx_t_2 = ((__pyx_v_self->view.suboffsets != NULL) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":475
+ * 
+ *             if self.view.suboffsets != NULL:
+ *                 assert_direct_dimensions(self.view.suboffsets, self.view.ndim)             # <<<<<<<<<<<<<<
+ *             slice_assign_scalar(dst_slice, dst.view.ndim, self.view.itemsize,
+ *                                 item, self.dtype_is_object)
+ */
+      __pyx_t_3 = assert_direct_dimensions(__pyx_v_self->view.suboffsets, __pyx_v_self->view.ndim); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 475, __pyx_L6_error)
+      __Pyx_GOTREF(__pyx_t_3);
+      __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+      /* "View.MemoryView":474
+ * 
+ * 
+ *             if self.view.suboffsets != NULL:             # <<<<<<<<<<<<<<
+ *                 assert_direct_dimen
