@@ -11492,4 +11492,68 @@ static PyObject *__pyx_memoryview_setitem_slice_assign_scalar(struct __pyx_memor
       __Pyx_XGIVEREF(__pyx_t_8);
       __Pyx_XGIVEREF(__pyx_t_9);
       __Pyx_ErrRestore(__pyx_t_7, __pyx_t_8, __pyx_t_9);
-      __pyx_t_7 = 0; __pyx_t_8 = 0; __pyx_t_9 = 0; __pyx_t_10 = 0
+      __pyx_t_7 = 0; __pyx_t_8 = 0; __pyx_t_9 = 0; __pyx_t_10 = 0; __pyx_t_11 = 0; __pyx_t_12 = 0;
+      __pyx_lineno = __pyx_t_4; __pyx_clineno = __pyx_t_5; __pyx_filename = __pyx_t_6;
+      goto __pyx_L1_error;
+    }
+    __pyx_L7:;
+  }
+
+  /* "View.MemoryView":449
+ *                                  src.ndim, dst.ndim, self.dtype_is_object)
+ * 
+ *     cdef setitem_slice_assign_scalar(self, memoryview dst, value):             # <<<<<<<<<<<<<<
+ *         cdef int array[128]
+ *         cdef void *tmp = NULL
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("View.MemoryView.memoryview.setitem_slice_assign_scalar", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":481
+ *             PyMem_Free(tmp)
+ * 
+ *     cdef setitem_indexed(self, index, value):             # <<<<<<<<<<<<<<
+ *         cdef char *itemp = self.get_item_pointer(index)
+ *         self.assign_item_from_object(itemp, value)
+ */
+
+static PyObject *__pyx_memoryview_setitem_indexed(struct __pyx_memoryview_obj *__pyx_v_self, PyObject *__pyx_v_index, PyObject *__pyx_v_value) {
+  char *__pyx_v_itemp;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  char *__pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("setitem_indexed", 0);
+
+  /* "View.MemoryView":482
+ * 
+ *     cdef setitem_indexed(self, index, value):
+ *         cdef char *itemp = self.get_item_pointer(index)             # <<<<<<<<<<<<<<
+ *         self.assign_item_from_object(itemp, value)
+ * 
+ */
+  __pyx_t_1 = ((struct __pyx_vtabstruct_memoryview *)__pyx_v_self->__pyx_vtab)->get_item_pointer(__pyx_v_self, __pyx_v_index); if (unlikely(__pyx_t_1 == ((char *)NULL))) __PYX_ERR(2, 482, __pyx_L1_error)
+  __pyx_v_itemp = __pyx_t_1;
+
+  /* "View.MemoryView":483
+ *     cdef setitem_indexed(self, index, value):
+ *         cdef char *itemp = self.get_item_pointer(index)
+ *         self.assign_item_from_object(itemp, value)             # <<<<<<<<<<<<<<
+ * 
+ *     cdef convert_item_to_object(self, char *itemp):
+ */
+  __
