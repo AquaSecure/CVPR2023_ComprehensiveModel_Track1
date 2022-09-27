@@ -11853,4 +11853,74 @@ static PyObject *__pyx_memoryview_convert_item_to_object(struct __pyx_memoryview
   __Pyx_XDECREF(__pyx_v_struct);
   __Pyx_XDECREF(__pyx_v_bytesitem);
   __Pyx_XDECREF(__pyx_v_result);
-  _
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":501
+ *             return result
+ * 
+ *     cdef assign_item_from_object(self, char *itemp, object value):             # <<<<<<<<<<<<<<
+ *         """Only used if instantiated manually by the user, or if Cython doesn't
+ *         know how to convert the type"""
+ */
+
+static PyObject *__pyx_memoryview_assign_item_from_object(struct __pyx_memoryview_obj *__pyx_v_self, char *__pyx_v_itemp, PyObject *__pyx_v_value) {
+  PyObject *__pyx_v_struct = NULL;
+  char __pyx_v_c;
+  PyObject *__pyx_v_bytesvalue = 0;
+  Py_ssize_t __pyx_v_i;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  PyObject *__pyx_t_1 = NULL;
+  int __pyx_t_2;
+  int __pyx_t_3;
+  PyObject *__pyx_t_4 = NULL;
+  PyObject *__pyx_t_5 = NULL;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_t_7;
+  PyObject *__pyx_t_8 = NULL;
+  Py_ssize_t __pyx_t_9;
+  PyObject *__pyx_t_10 = NULL;
+  char *__pyx_t_11;
+  char *__pyx_t_12;
+  char *__pyx_t_13;
+  char *__pyx_t_14;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("assign_item_from_object", 0);
+
+  /* "View.MemoryView":504
+ *         """Only used if instantiated manually by the user, or if Cython doesn't
+ *         know how to convert the type"""
+ *         import struct             # <<<<<<<<<<<<<<
+ *         cdef char c
+ *         cdef bytes bytesvalue
+ */
+  __pyx_t_1 = __Pyx_Import(__pyx_n_s_struct, 0, 0); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 504, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_1);
+  __pyx_v_struct = __pyx_t_1;
+  __pyx_t_1 = 0;
+
+  /* "View.MemoryView":509
+ *         cdef Py_ssize_t i
+ * 
+ *         if isinstance(value, tuple):             # <<<<<<<<<<<<<<
+ *             bytesvalue = struct.pack(self.view.format, *value)
+ *         else:
+ */
+  __pyx_t_2 = PyTuple_Check(__pyx_v_value); 
+  __pyx_t_3 = (__pyx_t_2 != 0);
+  if (__pyx_t_3) {
+
+    /* "View.MemoryView":510
+ * 
+ *         if isinstance(value, tuple):
+ *             bytesvalue = struct.pack(self.view.format, *value)             # <<<<<<<<<<<<<<
+ *         else:
+ *             bytesvalue = struct.pack(self.view.format, value)
+ */
+    __pyx_t_1 = __Pyx_PyObject_GetAttrStr(__pyx_v_struct, __pyx_n_s_pack); if (unlikely(!__pyx_t_1)) __PYX_ERR(2, 510, __pyx_L1_error)
+    __Pyx_GOTREF(__py
