@@ -12021,4 +12021,78 @@ static PyObject *__pyx_memoryview_assign_item_from_object(struct __pyx_memoryvie
   __pyx_L3:;
 
   /* "View.MemoryView":514
- *     
+ *             bytesvalue = struct.pack(self.view.format, value)
+ * 
+ *         for i, c in enumerate(bytesvalue):             # <<<<<<<<<<<<<<
+ *             itemp[i] = c
+ * 
+ */
+  __pyx_t_9 = 0;
+  if (unlikely(__pyx_v_bytesvalue == Py_None)) {
+    PyErr_SetString(PyExc_TypeError, "'NoneType' is not iterable");
+    __PYX_ERR(2, 514, __pyx_L1_error)
+  }
+  __Pyx_INCREF(__pyx_v_bytesvalue);
+  __pyx_t_10 = __pyx_v_bytesvalue;
+  __pyx_t_12 = PyBytes_AS_STRING(__pyx_t_10);
+  __pyx_t_13 = (__pyx_t_12 + PyBytes_GET_SIZE(__pyx_t_10));
+  for (__pyx_t_14 = __pyx_t_12; __pyx_t_14 < __pyx_t_13; __pyx_t_14++) {
+    __pyx_t_11 = __pyx_t_14;
+    __pyx_v_c = (__pyx_t_11[0]);
+
+    /* "View.MemoryView":515
+ * 
+ *         for i, c in enumerate(bytesvalue):
+ *             itemp[i] = c             # <<<<<<<<<<<<<<
+ * 
+ *     @cname('getbuffer')
+ */
+    __pyx_v_i = __pyx_t_9;
+
+    /* "View.MemoryView":514
+ *             bytesvalue = struct.pack(self.view.format, value)
+ * 
+ *         for i, c in enumerate(bytesvalue):             # <<<<<<<<<<<<<<
+ *             itemp[i] = c
+ * 
+ */
+    __pyx_t_9 = (__pyx_t_9 + 1);
+
+    /* "View.MemoryView":515
+ * 
+ *         for i, c in enumerate(bytesvalue):
+ *             itemp[i] = c             # <<<<<<<<<<<<<<
+ * 
+ *     @cname('getbuffer')
+ */
+    (__pyx_v_itemp[__pyx_v_i]) = __pyx_v_c;
+  }
+  __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
+
+  /* "View.MemoryView":501
+ *             return result
+ * 
+ *     cdef assign_item_from_object(self, char *itemp, object value):             # <<<<<<<<<<<<<<
+ *         """Only used if instantiated manually by the user, or if Cython doesn't
+ *         know how to convert the type"""
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_4);
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_XDECREF(__pyx_t_6);
+  __Pyx_XDECREF(__pyx_t_8);
+  __Pyx_XDECREF(__pyx_t_10);
+  __Pyx_AddTraceback("View.MemoryView.memoryview.assign_item_from_object", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XDECREF(__pyx_v_struct);
+  __Pyx_XDECREF(__pyx_v_bytesvalue);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
