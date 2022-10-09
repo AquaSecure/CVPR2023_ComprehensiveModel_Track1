@@ -12155,4 +12155,78 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_8__getbu
   }
   __pyx_t_2 = (__pyx_v_self->view.readonly != 0);
   __pyx_t_1 = __pyx_t_2;
-  __pyx_L4_b
+  __pyx_L4_bool_binop_done:;
+  if (unlikely(__pyx_t_1)) {
+
+    /* "View.MemoryView":520
+ *     def __getbuffer__(self, Py_buffer *info, int flags):
+ *         if flags & PyBUF_WRITABLE and self.view.readonly:
+ *             raise ValueError("Cannot create writable memory view from read-only memoryview")             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_ND:
+ */
+    __pyx_t_3 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__13, NULL); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 520, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_Raise(__pyx_t_3, 0, 0, 0);
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __PYX_ERR(2, 520, __pyx_L1_error)
+
+    /* "View.MemoryView":519
+ *     @cname('getbuffer')
+ *     def __getbuffer__(self, Py_buffer *info, int flags):
+ *         if flags & PyBUF_WRITABLE and self.view.readonly:             # <<<<<<<<<<<<<<
+ *             raise ValueError("Cannot create writable memory view from read-only memoryview")
+ * 
+ */
+  }
+
+  /* "View.MemoryView":522
+ *             raise ValueError("Cannot create writable memory view from read-only memoryview")
+ * 
+ *         if flags & PyBUF_ND:             # <<<<<<<<<<<<<<
+ *             info.shape = self.view.shape
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_ND) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":523
+ * 
+ *         if flags & PyBUF_ND:
+ *             info.shape = self.view.shape             # <<<<<<<<<<<<<<
+ *         else:
+ *             info.shape = NULL
+ */
+    __pyx_t_4 = __pyx_v_self->view.shape;
+    __pyx_v_info->shape = __pyx_t_4;
+
+    /* "View.MemoryView":522
+ *             raise ValueError("Cannot create writable memory view from read-only memoryview")
+ * 
+ *         if flags & PyBUF_ND:             # <<<<<<<<<<<<<<
+ *             info.shape = self.view.shape
+ *         else:
+ */
+    goto __pyx_L6;
+  }
+
+  /* "View.MemoryView":525
+ *             info.shape = self.view.shape
+ *         else:
+ *             info.shape = NULL             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_STRIDES:
+ */
+  /*else*/ {
+    __pyx_v_info->shape = NULL;
+  }
+  __pyx_L6:;
+
+  /* "View.MemoryView":527
+ *             info.shape = NULL
+ * 
+ *         if flags & PyBUF_STRIDES:             # <<<<<<<<<<<<<<
+ *             info.strides = self.view.strides
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & Py
