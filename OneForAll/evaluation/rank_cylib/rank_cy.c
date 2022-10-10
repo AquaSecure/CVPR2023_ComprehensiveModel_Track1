@@ -12319,4 +12319,81 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_8__getbu
     /* "View.MemoryView":538
  * 
  *         if flags & PyBUF_FORMAT:
- *             info
+ *             info.format = self.view.format             # <<<<<<<<<<<<<<
+ *         else:
+ *             info.format = NULL
+ */
+    __pyx_t_5 = __pyx_v_self->view.format;
+    __pyx_v_info->format = __pyx_t_5;
+
+    /* "View.MemoryView":537
+ *             info.suboffsets = NULL
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             info.format = self.view.format
+ *         else:
+ */
+    goto __pyx_L9;
+  }
+
+  /* "View.MemoryView":540
+ *             info.format = self.view.format
+ *         else:
+ *             info.format = NULL             # <<<<<<<<<<<<<<
+ * 
+ *         info.buf = self.view.buf
+ */
+  /*else*/ {
+    __pyx_v_info->format = NULL;
+  }
+  __pyx_L9:;
+
+  /* "View.MemoryView":542
+ *             info.format = NULL
+ * 
+ *         info.buf = self.view.buf             # <<<<<<<<<<<<<<
+ *         info.ndim = self.view.ndim
+ *         info.itemsize = self.view.itemsize
+ */
+  __pyx_t_6 = __pyx_v_self->view.buf;
+  __pyx_v_info->buf = __pyx_t_6;
+
+  /* "View.MemoryView":543
+ * 
+ *         info.buf = self.view.buf
+ *         info.ndim = self.view.ndim             # <<<<<<<<<<<<<<
+ *         info.itemsize = self.view.itemsize
+ *         info.len = self.view.len
+ */
+  __pyx_t_7 = __pyx_v_self->view.ndim;
+  __pyx_v_info->ndim = __pyx_t_7;
+
+  /* "View.MemoryView":544
+ *         info.buf = self.view.buf
+ *         info.ndim = self.view.ndim
+ *         info.itemsize = self.view.itemsize             # <<<<<<<<<<<<<<
+ *         info.len = self.view.len
+ *         info.readonly = self.view.readonly
+ */
+  __pyx_t_8 = __pyx_v_self->view.itemsize;
+  __pyx_v_info->itemsize = __pyx_t_8;
+
+  /* "View.MemoryView":545
+ *         info.ndim = self.view.ndim
+ *         info.itemsize = self.view.itemsize
+ *         info.len = self.view.len             # <<<<<<<<<<<<<<
+ *         info.readonly = self.view.readonly
+ *         info.obj = self
+ */
+  __pyx_t_8 = __pyx_v_self->view.len;
+  __pyx_v_info->len = __pyx_t_8;
+
+  /* "View.MemoryView":546
+ *         info.itemsize = self.view.itemsize
+ *         info.len = self.view.len
+ *         info.readonly = self.view.readonly             # <<<<<<<<<<<<<<
+ *         info.obj = self
+ * 
+ */
+  __pyx_t_1 = __pyx_v_self->view.readonly;
+  __
