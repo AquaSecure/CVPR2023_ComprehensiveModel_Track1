@@ -12229,4 +12229,94 @@ static int __pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_8__getbu
  *             info.strides = self.view.strides
  *         else:
  */
-  __pyx_t_1 = ((__pyx_v_flags & Py
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_STRIDES) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":528
+ * 
+ *         if flags & PyBUF_STRIDES:
+ *             info.strides = self.view.strides             # <<<<<<<<<<<<<<
+ *         else:
+ *             info.strides = NULL
+ */
+    __pyx_t_4 = __pyx_v_self->view.strides;
+    __pyx_v_info->strides = __pyx_t_4;
+
+    /* "View.MemoryView":527
+ *             info.shape = NULL
+ * 
+ *         if flags & PyBUF_STRIDES:             # <<<<<<<<<<<<<<
+ *             info.strides = self.view.strides
+ *         else:
+ */
+    goto __pyx_L7;
+  }
+
+  /* "View.MemoryView":530
+ *             info.strides = self.view.strides
+ *         else:
+ *             info.strides = NULL             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_INDIRECT:
+ */
+  /*else*/ {
+    __pyx_v_info->strides = NULL;
+  }
+  __pyx_L7:;
+
+  /* "View.MemoryView":532
+ *             info.strides = NULL
+ * 
+ *         if flags & PyBUF_INDIRECT:             # <<<<<<<<<<<<<<
+ *             info.suboffsets = self.view.suboffsets
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_INDIRECT) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":533
+ * 
+ *         if flags & PyBUF_INDIRECT:
+ *             info.suboffsets = self.view.suboffsets             # <<<<<<<<<<<<<<
+ *         else:
+ *             info.suboffsets = NULL
+ */
+    __pyx_t_4 = __pyx_v_self->view.suboffsets;
+    __pyx_v_info->suboffsets = __pyx_t_4;
+
+    /* "View.MemoryView":532
+ *             info.strides = NULL
+ * 
+ *         if flags & PyBUF_INDIRECT:             # <<<<<<<<<<<<<<
+ *             info.suboffsets = self.view.suboffsets
+ *         else:
+ */
+    goto __pyx_L8;
+  }
+
+  /* "View.MemoryView":535
+ *             info.suboffsets = self.view.suboffsets
+ *         else:
+ *             info.suboffsets = NULL             # <<<<<<<<<<<<<<
+ * 
+ *         if flags & PyBUF_FORMAT:
+ */
+  /*else*/ {
+    __pyx_v_info->suboffsets = NULL;
+  }
+  __pyx_L8:;
+
+  /* "View.MemoryView":537
+ *             info.suboffsets = NULL
+ * 
+ *         if flags & PyBUF_FORMAT:             # <<<<<<<<<<<<<<
+ *             info.format = self.view.format
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_flags & PyBUF_FORMAT) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":538
+ * 
+ *         if flags & PyBUF_FORMAT:
+ *             info
