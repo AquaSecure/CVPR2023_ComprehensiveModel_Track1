@@ -12800,3 +12800,67 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_10suboffsets___get_
   Py_ssize_t __pyx_v_suboffset;
   PyObject *__pyx_r = NULL;
   __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  PyObject *__pyx_t_3 = NULL;
+  Py_ssize_t *__pyx_t_4;
+  Py_ssize_t *__pyx_t_5;
+  Py_ssize_t *__pyx_t_6;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "View.MemoryView":576
+ *     @property
+ *     def suboffsets(self):
+ *         if self.view.suboffsets == NULL:             # <<<<<<<<<<<<<<
+ *             return (-1,) * self.view.ndim
+ * 
+ */
+  __pyx_t_1 = ((__pyx_v_self->view.suboffsets == NULL) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":577
+ *     def suboffsets(self):
+ *         if self.view.suboffsets == NULL:
+ *             return (-1,) * self.view.ndim             # <<<<<<<<<<<<<<
+ * 
+ *         return tuple([suboffset for suboffset in self.view.suboffsets[:self.view.ndim]])
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __pyx_t_2 = __Pyx_PyInt_From_int(__pyx_v_self->view.ndim); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 577, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PyNumber_Multiply(__pyx_tuple__15, __pyx_t_2); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 577, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_r = __pyx_t_3;
+    __pyx_t_3 = 0;
+    goto __pyx_L0;
+
+    /* "View.MemoryView":576
+ *     @property
+ *     def suboffsets(self):
+ *         if self.view.suboffsets == NULL:             # <<<<<<<<<<<<<<
+ *             return (-1,) * self.view.ndim
+ * 
+ */
+  }
+
+  /* "View.MemoryView":579
+ *             return (-1,) * self.view.ndim
+ * 
+ *         return tuple([suboffset for suboffset in self.view.suboffsets[:self.view.ndim]])             # <<<<<<<<<<<<<<
+ * 
+ *     @property
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 579, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_t_5 = (__pyx_v_self->view.suboffsets + __pyx_v_self->view.ndim);
+  for (__pyx_t_6 = __pyx_v_self->view.suboffsets; __pyx_t_6 < __pyx_t_5; __pyx_t_6++) {
+    __pyx_t_4 = __pyx_t_6;
+    __pyx_v_suboffset = (__pyx_t_4[0]);
+    __pyx_t_2 = PyInt_FromSsize_t(__pyx_v_suboffset); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 579, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    if (unlikely(__Pyx_ListComp_Append(__pyx_t_
