@@ -13080,4 +13080,78 @@ static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_6nbytes___get__(str
  */
 
   /* function exit code */
-  __pyx_
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_1);
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("View.MemoryView.memoryview.nbytes.__get__", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":594
+ * 
+ *     @property
+ *     def size(self):             # <<<<<<<<<<<<<<
+ *         if self._size is None:
+ *             result = 1
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_pw_15View_dot_MemoryView_10memoryview_4size_1__get__(PyObject *__pyx_v_self); /*proto*/
+static PyObject *__pyx_pw_15View_dot_MemoryView_10memoryview_4size_1__get__(PyObject *__pyx_v_self) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__get__ (wrapper)", 0);
+  __pyx_r = __pyx_pf_15View_dot_MemoryView_10memoryview_4size___get__(((struct __pyx_memoryview_obj *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+static PyObject *__pyx_pf_15View_dot_MemoryView_10memoryview_4size___get__(struct __pyx_memoryview_obj *__pyx_v_self) {
+  PyObject *__pyx_v_result = NULL;
+  PyObject *__pyx_v_length = NULL;
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  Py_ssize_t *__pyx_t_3;
+  Py_ssize_t *__pyx_t_4;
+  Py_ssize_t *__pyx_t_5;
+  PyObject *__pyx_t_6 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("__get__", 0);
+
+  /* "View.MemoryView":595
+ *     @property
+ *     def size(self):
+ *         if self._size is None:             # <<<<<<<<<<<<<<
+ *             result = 1
+ * 
+ */
+  __pyx_t_1 = (__pyx_v_self->_size == Py_None);
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":596
+ *     def size(self):
+ *         if self._size is None:
+ *             result = 1             # <<<<<<<<<<<<<<
+ * 
+ *             for length in self.view.shape[:self.view.ndim]:
+ */
+    __Pyx_INCREF(__pyx_int_1);
+    __pyx_v_result = __pyx_int_1;
+
+    /* "View.MemoryView":598
+ *             result = 1
+ * 
+ *             for length in self.view.shape[:self.view.ndim]:             # <<<<<<<<<<<<<<
+ *                 result *= l
