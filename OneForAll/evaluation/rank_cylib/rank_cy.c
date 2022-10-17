@@ -13695,4 +13695,62 @@ static PyObject *__pyx_memoryview___pyx_pf_15View_dot_MemoryView_10memoryview_20
  *         mslice = slice_copy_contig(&mslice, "c", self.view.ndim,
  *                                    self.view.itemsize,
  */
-  __pyx_memoryview_slice_co
+  __pyx_memoryview_slice_copy(__pyx_v_self, (&__pyx_v_mslice));
+
+  /* "View.MemoryView":636
+ * 
+ *         slice_copy(self, &mslice)
+ *         mslice = slice_copy_contig(&mslice, "c", self.view.ndim,             # <<<<<<<<<<<<<<
+ *                                    self.view.itemsize,
+ *                                    flags|PyBUF_C_CONTIGUOUS,
+ */
+  __pyx_t_1 = __pyx_memoryview_copy_new_contig((&__pyx_v_mslice), ((char *)"c"), __pyx_v_self->view.ndim, __pyx_v_self->view.itemsize, (__pyx_v_flags | PyBUF_C_CONTIGUOUS), __pyx_v_self->dtype_is_object); if (unlikely(PyErr_Occurred())) __PYX_ERR(2, 636, __pyx_L1_error)
+  __pyx_v_mslice = __pyx_t_1;
+
+  /* "View.MemoryView":641
+ *                                    self.dtype_is_object)
+ * 
+ *         return memoryview_copy_from_slice(self, &mslice)             # <<<<<<<<<<<<<<
+ * 
+ *     def copy_fortran(self):
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __pyx_t_2 = __pyx_memoryview_copy_object_from_slice(__pyx_v_self, (&__pyx_v_mslice)); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 641, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __pyx_r = __pyx_t_2;
+  __pyx_t_2 = 0;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":631
+ *         return slice_is_contig(mslice[0], 'F', self.view.ndim)
+ * 
+ *     def copy(self):             # <<<<<<<<<<<<<<
+ *         cdef __Pyx_memviewslice mslice
+ *         cdef int flags = self.flags & ~PyBUF_F_CONTIGUOUS
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_AddTraceback("View.MemoryView.memoryview.copy", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = NULL;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":643
+ *         return memoryview_copy_from_slice(self, &mslice)
+ * 
+ *     def copy_fortran(self):             # <<<<<<<<<<<<<<
+ *         cdef __Pyx_memviewslice src, dst
+ *         cdef int flags = self.flags & ~PyBUF_C_CONTIGUOUS
+ */
+
+/* Python wrapper */
+static PyObject *__pyx_memoryview_copy_fortran(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused); /*proto*/
+static PyObject *__pyx_memoryview_copy_fortran(PyObject *__pyx_v_self, CYTHON_UNUSED PyObject *unused) {
+  PyObject *__pyx_r = 0;
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("copy_fortran (wrapper)", 0)
