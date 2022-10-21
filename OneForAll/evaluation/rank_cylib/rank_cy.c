@@ -14130,4 +14130,84 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
  *     else:
  *         tup = index
  */
-    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx
+    __pyx_t_3 = PyTuple_New(1); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 672, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_INCREF(__pyx_v_index);
+    __Pyx_GIVEREF(__pyx_v_index);
+    PyTuple_SET_ITEM(__pyx_t_3, 0, __pyx_v_index);
+    __pyx_v_tup = __pyx_t_3;
+    __pyx_t_3 = 0;
+
+    /* "View.MemoryView":671
+ *     full slices.
+ *     """
+ *     if not isinstance(index, tuple):             # <<<<<<<<<<<<<<
+ *         tup = (index,)
+ *     else:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "View.MemoryView":674
+ *         tup = (index,)
+ *     else:
+ *         tup = index             # <<<<<<<<<<<<<<
+ * 
+ *     result = []
+ */
+  /*else*/ {
+    __Pyx_INCREF(__pyx_v_index);
+    __pyx_v_tup = __pyx_v_index;
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":676
+ *         tup = index
+ * 
+ *     result = []             # <<<<<<<<<<<<<<
+ *     have_slices = False
+ *     seen_ellipsis = False
+ */
+  __pyx_t_3 = PyList_New(0); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 676, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_3);
+  __pyx_v_result = ((PyObject*)__pyx_t_3);
+  __pyx_t_3 = 0;
+
+  /* "View.MemoryView":677
+ * 
+ *     result = []
+ *     have_slices = False             # <<<<<<<<<<<<<<
+ *     seen_ellipsis = False
+ *     for idx, item in enumerate(tup):
+ */
+  __pyx_v_have_slices = 0;
+
+  /* "View.MemoryView":678
+ *     result = []
+ *     have_slices = False
+ *     seen_ellipsis = False             # <<<<<<<<<<<<<<
+ *     for idx, item in enumerate(tup):
+ *         if item is Ellipsis:
+ */
+  __pyx_v_seen_ellipsis = 0;
+
+  /* "View.MemoryView":679
+ *     have_slices = False
+ *     seen_ellipsis = False
+ *     for idx, item in enumerate(tup):             # <<<<<<<<<<<<<<
+ *         if item is Ellipsis:
+ *             if not seen_ellipsis:
+ */
+  __Pyx_INCREF(__pyx_int_0);
+  __pyx_t_3 = __pyx_int_0;
+  if (likely(PyList_CheckExact(__pyx_v_tup)) || PyTuple_CheckExact(__pyx_v_tup)) {
+    __pyx_t_4 = __pyx_v_tup; __Pyx_INCREF(__pyx_t_4); __pyx_t_5 = 0;
+    __pyx_t_6 = NULL;
+  } else {
+    __pyx_t_5 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_v_tup); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 679, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_4);
+    __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(2, 679, __pyx_L1_error)
+  }
+  for (;;) {
+    if (likely(!__pyx_t_6)) {
+      if (likely(PyList_CheckE
