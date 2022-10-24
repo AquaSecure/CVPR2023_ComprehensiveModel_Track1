@@ -14373,4 +14373,74 @@ static PyObject *_unellipsify(PyObject *__pyx_v_index, int __pyx_v_ndim) {
         __Pyx_GOTREF(__pyx_t_11);
         __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
         __Pyx_Raise(__pyx_t_11, 0, 0, 0);
-      
+        __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
+        __PYX_ERR(2, 689, __pyx_L1_error)
+
+        /* "View.MemoryView":688
+ *             have_slices = True
+ *         else:
+ *             if not isinstance(item, slice) and not PyIndex_Check(item):             # <<<<<<<<<<<<<<
+ *                 raise TypeError("Cannot index with type '%s'" % type(item))
+ * 
+ */
+      }
+
+      /* "View.MemoryView":691
+ *                 raise TypeError("Cannot index with type '%s'" % type(item))
+ * 
+ *             have_slices = have_slices or isinstance(item, slice)             # <<<<<<<<<<<<<<
+ *             result.append(item)
+ * 
+ */
+      __pyx_t_10 = (__pyx_v_have_slices != 0);
+      if (!__pyx_t_10) {
+      } else {
+        __pyx_t_1 = __pyx_t_10;
+        goto __pyx_L11_bool_binop_done;
+      }
+      __pyx_t_10 = PySlice_Check(__pyx_v_item); 
+      __pyx_t_2 = (__pyx_t_10 != 0);
+      __pyx_t_1 = __pyx_t_2;
+      __pyx_L11_bool_binop_done:;
+      __pyx_v_have_slices = __pyx_t_1;
+
+      /* "View.MemoryView":692
+ * 
+ *             have_slices = have_slices or isinstance(item, slice)
+ *             result.append(item)             # <<<<<<<<<<<<<<
+ * 
+ *     nslices = ndim - len(result)
+ */
+      __pyx_t_9 = __Pyx_PyList_Append(__pyx_v_result, __pyx_v_item); if (unlikely(__pyx_t_9 == ((int)-1))) __PYX_ERR(2, 692, __pyx_L1_error)
+    }
+    __pyx_L6:;
+
+    /* "View.MemoryView":679
+ *     have_slices = False
+ *     seen_ellipsis = False
+ *     for idx, item in enumerate(tup):             # <<<<<<<<<<<<<<
+ *         if item is Ellipsis:
+ *             if not seen_ellipsis:
+ */
+  }
+  __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "View.MemoryView":694
+ *             result.append(item)
+ * 
+ *     nslices = ndim - len(result)             # <<<<<<<<<<<<<<
+ *     if nslices:
+ *         result.extend([slice(None)] * nslices)
+ */
+  __pyx_t_5 = PyList_GET_SIZE(__pyx_v_result); if (unlikely(__pyx_t_5 == ((Py_ssize_t)-1))) __PYX_ERR(2, 694, __pyx_L1_error)
+  __pyx_v_nslices = (__pyx_v_ndim - __pyx_t_5);
+
+  /* "View.MemoryView":695
+ * 
+ *     nslices = ndim - len(result)
+ *     if nslices:             # <<<<<<<<<<<<<<
+ *         result.extend([slice(None)] * nslices)
+ * 
+ */
+  __pyx_t_1 = (__pyx_v_nslices !=
