@@ -14577,4 +14577,72 @@ static PyObject *assert_direct_dimensions(Py_ssize_t *__pyx_v_suboffsets, int __
  * 
  */
     __pyx_t_4 = ((__pyx_v_suboffset >= 0) != 0);
-    i
+    if (unlikely(__pyx_t_4)) {
+
+      /* "View.MemoryView":703
+ *     for suboffset in suboffsets[:ndim]:
+ *         if suboffset >= 0:
+ *             raise ValueError("Indirect dimensions not supported")             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+      __pyx_t_5 = __Pyx_PyObject_Call(__pyx_builtin_ValueError, __pyx_tuple__18, NULL); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 703, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_5);
+      __Pyx_Raise(__pyx_t_5, 0, 0, 0);
+      __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
+      __PYX_ERR(2, 703, __pyx_L1_error)
+
+      /* "View.MemoryView":702
+ * cdef assert_direct_dimensions(Py_ssize_t *suboffsets, int ndim):
+ *     for suboffset in suboffsets[:ndim]:
+ *         if suboffset >= 0:             # <<<<<<<<<<<<<<
+ *             raise ValueError("Indirect dimensions not supported")
+ * 
+ */
+    }
+  }
+
+  /* "View.MemoryView":700
+ *     return have_slices or nslices, tuple(result)
+ * 
+ * cdef assert_direct_dimensions(Py_ssize_t *suboffsets, int ndim):             # <<<<<<<<<<<<<<
+ *     for suboffset in suboffsets[:ndim]:
+ *         if suboffset >= 0:
+ */
+
+  /* function exit code */
+  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  goto __pyx_L0;
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("View.MemoryView.assert_direct_dimensions", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":710
+ * 
+ * @cname('__pyx_memview_slice')
+ * cdef memoryview memview_slice(memoryview memview, object indices):             # <<<<<<<<<<<<<<
+ *     cdef int new_ndim = 0, suboffset_dim = -1, dim
+ *     cdef bint negative_step
+ */
+
+static struct __pyx_memoryview_obj *__pyx_memview_slice(struct __pyx_memoryview_obj *__pyx_v_memview, PyObject *__pyx_v_indices) {
+  int __pyx_v_new_ndim;
+  int __pyx_v_suboffset_dim;
+  int __pyx_v_dim;
+  __Pyx_memviewslice __pyx_v_src;
+  __Pyx_memviewslice __pyx_v_dst;
+  __Pyx_memviewslice *__pyx_v_p_src;
+  struct __pyx_memoryviewslice_obj *__pyx_v_memviewsliceobj = 0;
+  __Pyx_memviewslice *__pyx_v_p_dst;
+  int *__pyx_v_p_suboffset_dim;
+  Py_ssize_t __pyx_v_start;
+  Py_ssize_t __pyx_v_stop;
+  Py_ssize_t __pyx_v_step;
+  int __pyx_v_have_start;
+  int __py
