@@ -14854,4 +14854,59 @@ static struct __pyx_memoryview_obj *__pyx_memview_slice(struct __pyx_memoryview_
     __Pyx_XDECREF_SET(__pyx_v_index, __pyx_t_9);
     __pyx_t_9 = 0;
     __pyx_v_dim = __pyx_t_6;
-    __pyx_t_6 = 
+    __pyx_t_6 = (__pyx_t_6 + 1);
+
+    /* "View.MemoryView":747
+ * 
+ *     for dim, index in enumerate(indices):
+ *         if PyIndex_Check(index):             # <<<<<<<<<<<<<<
+ *             slice_memviewslice(
+ *                 p_dst, p_src.shape[dim], p_src.strides[dim], p_src.suboffsets[dim],
+ */
+    __pyx_t_2 = (PyIndex_Check(__pyx_v_index) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":751
+ *                 p_dst, p_src.shape[dim], p_src.strides[dim], p_src.suboffsets[dim],
+ *                 dim, new_ndim, p_suboffset_dim,
+ *                 index, 0, 0, # start, stop, step             # <<<<<<<<<<<<<<
+ *                 0, 0, 0, # have_{start,stop,step}
+ *                 False)
+ */
+      __pyx_t_10 = __Pyx_PyIndex_AsSsize_t(__pyx_v_index); if (unlikely((__pyx_t_10 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 751, __pyx_L1_error)
+
+      /* "View.MemoryView":748
+ *     for dim, index in enumerate(indices):
+ *         if PyIndex_Check(index):
+ *             slice_memviewslice(             # <<<<<<<<<<<<<<
+ *                 p_dst, p_src.shape[dim], p_src.strides[dim], p_src.suboffsets[dim],
+ *                 dim, new_ndim, p_suboffset_dim,
+ */
+      __pyx_t_11 = __pyx_memoryview_slice_memviewslice(__pyx_v_p_dst, (__pyx_v_p_src->shape[__pyx_v_dim]), (__pyx_v_p_src->strides[__pyx_v_dim]), (__pyx_v_p_src->suboffsets[__pyx_v_dim]), __pyx_v_dim, __pyx_v_new_ndim, __pyx_v_p_suboffset_dim, __pyx_t_10, 0, 0, 0, 0, 0, 0); if (unlikely(__pyx_t_11 == ((int)-1))) __PYX_ERR(2, 748, __pyx_L1_error)
+
+      /* "View.MemoryView":747
+ * 
+ *     for dim, index in enumerate(indices):
+ *         if PyIndex_Check(index):             # <<<<<<<<<<<<<<
+ *             slice_memviewslice(
+ *                 p_dst, p_src.shape[dim], p_src.strides[dim], p_src.suboffsets[dim],
+ */
+      goto __pyx_L6;
+    }
+
+    /* "View.MemoryView":754
+ *                 0, 0, 0, # have_{start,stop,step}
+ *                 False)
+ *         elif index is None:             # <<<<<<<<<<<<<<
+ *             p_dst.shape[new_ndim] = 1
+ *             p_dst.strides[new_ndim] = 0
+ */
+    __pyx_t_2 = (__pyx_v_index == Py_None);
+    __pyx_t_1 = (__pyx_t_2 != 0);
+    if (__pyx_t_1) {
+
+      /* "View.MemoryView":755
+ *                 False)
+ *         elif index is None:
+ *             p_dst.shape[new_ndim] = 1             # <<<<<<<<<<<<<<
+ *             p_dst.s
