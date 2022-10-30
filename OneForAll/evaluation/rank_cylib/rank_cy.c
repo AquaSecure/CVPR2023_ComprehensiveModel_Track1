@@ -14971,4 +14971,58 @@ static struct __pyx_memoryview_obj *__pyx_memview_slice(struct __pyx_memoryview_
         goto __pyx_L7_bool_binop_done;
       }
       __pyx_t_10 = 0;
-      __pyx_L7_bool_b
+      __pyx_L7_bool_binop_done:;
+      __pyx_v_start = __pyx_t_10;
+
+      /* "View.MemoryView":761
+ *         else:
+ *             start = index.start or 0
+ *             stop = index.stop or 0             # <<<<<<<<<<<<<<
+ *             step = index.step or 0
+ * 
+ */
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_index, __pyx_n_s_stop); if (unlikely(!__pyx_t_9)) __PYX_ERR(2, 761, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(2, 761, __pyx_L1_error)
+      if (!__pyx_t_1) {
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      } else {
+        __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_t_9); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 761, __pyx_L1_error)
+        __pyx_t_10 = __pyx_t_12;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        goto __pyx_L9_bool_binop_done;
+      }
+      __pyx_t_10 = 0;
+      __pyx_L9_bool_binop_done:;
+      __pyx_v_stop = __pyx_t_10;
+
+      /* "View.MemoryView":762
+ *             start = index.start or 0
+ *             stop = index.stop or 0
+ *             step = index.step or 0             # <<<<<<<<<<<<<<
+ * 
+ *             have_start = index.start is not None
+ */
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_index, __pyx_n_s_step); if (unlikely(!__pyx_t_9)) __PYX_ERR(2, 762, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(2, 762, __pyx_L1_error)
+      if (!__pyx_t_1) {
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      } else {
+        __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_t_9); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 762, __pyx_L1_error)
+        __pyx_t_10 = __pyx_t_12;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        goto __pyx_L11_bool_binop_done;
+      }
+      __pyx_t_10 = 0;
+      __pyx_L11_bool_binop_done:;
+      __pyx_v_step = __pyx_t_10;
+
+      /* "View.MemoryView":764
+ *             step = index.step or 0
+ * 
+ *             have_start = index.start is not None             # <<<<<<<<<<<<<<
+ *             have_stop = index.stop is not None
+ *             have_step = index.step is not None
+ */
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_index, __pyx_n_s_start); if (unlikely(!_
