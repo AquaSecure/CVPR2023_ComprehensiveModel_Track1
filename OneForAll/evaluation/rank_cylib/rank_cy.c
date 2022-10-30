@@ -14909,4 +14909,66 @@ static struct __pyx_memoryview_obj *__pyx_memview_slice(struct __pyx_memoryview_
  *                 False)
  *         elif index is None:
  *             p_dst.shape[new_ndim] = 1             # <<<<<<<<<<<<<<
- *             p_dst.s
+ *             p_dst.strides[new_ndim] = 0
+ *             p_dst.suboffsets[new_ndim] = -1
+ */
+      (__pyx_v_p_dst->shape[__pyx_v_new_ndim]) = 1;
+
+      /* "View.MemoryView":756
+ *         elif index is None:
+ *             p_dst.shape[new_ndim] = 1
+ *             p_dst.strides[new_ndim] = 0             # <<<<<<<<<<<<<<
+ *             p_dst.suboffsets[new_ndim] = -1
+ *             new_ndim += 1
+ */
+      (__pyx_v_p_dst->strides[__pyx_v_new_ndim]) = 0;
+
+      /* "View.MemoryView":757
+ *             p_dst.shape[new_ndim] = 1
+ *             p_dst.strides[new_ndim] = 0
+ *             p_dst.suboffsets[new_ndim] = -1             # <<<<<<<<<<<<<<
+ *             new_ndim += 1
+ *         else:
+ */
+      (__pyx_v_p_dst->suboffsets[__pyx_v_new_ndim]) = -1L;
+
+      /* "View.MemoryView":758
+ *             p_dst.strides[new_ndim] = 0
+ *             p_dst.suboffsets[new_ndim] = -1
+ *             new_ndim += 1             # <<<<<<<<<<<<<<
+ *         else:
+ *             start = index.start or 0
+ */
+      __pyx_v_new_ndim = (__pyx_v_new_ndim + 1);
+
+      /* "View.MemoryView":754
+ *                 0, 0, 0, # have_{start,stop,step}
+ *                 False)
+ *         elif index is None:             # <<<<<<<<<<<<<<
+ *             p_dst.shape[new_ndim] = 1
+ *             p_dst.strides[new_ndim] = 0
+ */
+      goto __pyx_L6;
+    }
+
+    /* "View.MemoryView":760
+ *             new_ndim += 1
+ *         else:
+ *             start = index.start or 0             # <<<<<<<<<<<<<<
+ *             stop = index.stop or 0
+ *             step = index.step or 0
+ */
+    /*else*/ {
+      __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_v_index, __pyx_n_s_start); if (unlikely(!__pyx_t_9)) __PYX_ERR(2, 760, __pyx_L1_error)
+      __Pyx_GOTREF(__pyx_t_9);
+      __pyx_t_1 = __Pyx_PyObject_IsTrue(__pyx_t_9); if (unlikely(__pyx_t_1 < 0)) __PYX_ERR(2, 760, __pyx_L1_error)
+      if (!__pyx_t_1) {
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+      } else {
+        __pyx_t_12 = __Pyx_PyIndex_AsSsize_t(__pyx_t_9); if (unlikely((__pyx_t_12 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 760, __pyx_L1_error)
+        __pyx_t_10 = __pyx_t_12;
+        __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
+        goto __pyx_L7_bool_binop_done;
+      }
+      __pyx_t_10 = 0;
+      __pyx_L7_bool_b
