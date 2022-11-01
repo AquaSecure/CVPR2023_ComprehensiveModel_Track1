@@ -15077,4 +15077,57 @@ static struct __pyx_memoryview_obj *__pyx_memview_slice(struct __pyx_memoryview_
     }
     __pyx_L6:;
 
-    /* 
+    /* "View.MemoryView":746
+ *     cdef bint have_start, have_stop, have_step
+ * 
+ *     for dim, index in enumerate(indices):             # <<<<<<<<<<<<<<
+ *         if PyIndex_Check(index):
+ *             slice_memviewslice(
+ */
+  }
+  __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+
+  /* "View.MemoryView":776
+ *             new_ndim += 1
+ * 
+ *     if isinstance(memview, _memoryviewslice):             # <<<<<<<<<<<<<<
+ *         return memoryview_fromslice(dst, new_ndim,
+ *                                     memviewsliceobj.to_object_func,
+ */
+  __pyx_t_1 = __Pyx_TypeCheck(((PyObject *)__pyx_v_memview), __pyx_memoryviewslice_type); 
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":777
+ * 
+ *     if isinstance(memview, _memoryviewslice):
+ *         return memoryview_fromslice(dst, new_ndim,             # <<<<<<<<<<<<<<
+ *                                     memviewsliceobj.to_object_func,
+ *                                     memviewsliceobj.to_dtype_func,
+ */
+    __Pyx_XDECREF(((PyObject *)__pyx_r));
+
+    /* "View.MemoryView":778
+ *     if isinstance(memview, _memoryviewslice):
+ *         return memoryview_fromslice(dst, new_ndim,
+ *                                     memviewsliceobj.to_object_func,             # <<<<<<<<<<<<<<
+ *                                     memviewsliceobj.to_dtype_func,
+ *                                     memview.dtype_is_object)
+ */
+    if (unlikely(!__pyx_v_memviewsliceobj)) { __Pyx_RaiseUnboundLocalError("memviewsliceobj"); __PYX_ERR(2, 778, __pyx_L1_error) }
+
+    /* "View.MemoryView":779
+ *         return memoryview_fromslice(dst, new_ndim,
+ *                                     memviewsliceobj.to_object_func,
+ *                                     memviewsliceobj.to_dtype_func,             # <<<<<<<<<<<<<<
+ *                                     memview.dtype_is_object)
+ *     else:
+ */
+    if (unlikely(!__pyx_v_memviewsliceobj)) { __Pyx_RaiseUnboundLocalError("memviewsliceobj"); __PYX_ERR(2, 779, __pyx_L1_error) }
+
+    /* "View.MemoryView":777
+ * 
+ *     if isinstance(memview, _memoryviewslice):
+ *         return memoryview_fromslice(dst, new_ndim,             # <<<<<<<<<<<<<<
+ *                                     memviewsliceobj.to_object_func,
+ *     
