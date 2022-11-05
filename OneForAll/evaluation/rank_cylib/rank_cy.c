@@ -15341,4 +15341,77 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
 
       /* "View.MemoryView":838
  * 
- *         if have_st
+ *         if have_step and step == 0:
+ *             _err_dim(ValueError, "Step may not be zero (axis %d)", dim)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+      __pyx_t_3 = __pyx_memoryview_err_dim(__pyx_builtin_ValueError, ((char *)"Step may not be zero (axis %d)"), __pyx_v_dim); if (unlikely(__pyx_t_3 == ((int)-1))) __PYX_ERR(2, 838, __pyx_L1_error)
+
+      /* "View.MemoryView":837
+ *         negative_step = have_step != 0 and step < 0
+ * 
+ *         if have_step and step == 0:             # <<<<<<<<<<<<<<
+ *             _err_dim(ValueError, "Step may not be zero (axis %d)", dim)
+ * 
+ */
+    }
+
+    /* "View.MemoryView":841
+ * 
+ * 
+ *         if have_start:             # <<<<<<<<<<<<<<
+ *             if start < 0:
+ *                 start += shape
+ */
+    __pyx_t_2 = (__pyx_v_have_start != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":842
+ * 
+ *         if have_start:
+ *             if start < 0:             # <<<<<<<<<<<<<<
+ *                 start += shape
+ *                 if start < 0:
+ */
+      __pyx_t_2 = ((__pyx_v_start < 0) != 0);
+      if (__pyx_t_2) {
+
+        /* "View.MemoryView":843
+ *         if have_start:
+ *             if start < 0:
+ *                 start += shape             # <<<<<<<<<<<<<<
+ *                 if start < 0:
+ *                     start = 0
+ */
+        __pyx_v_start = (__pyx_v_start + __pyx_v_shape);
+
+        /* "View.MemoryView":844
+ *             if start < 0:
+ *                 start += shape
+ *                 if start < 0:             # <<<<<<<<<<<<<<
+ *                     start = 0
+ *             elif start >= shape:
+ */
+        __pyx_t_2 = ((__pyx_v_start < 0) != 0);
+        if (__pyx_t_2) {
+
+          /* "View.MemoryView":845
+ *                 start += shape
+ *                 if start < 0:
+ *                     start = 0             # <<<<<<<<<<<<<<
+ *             elif start >= shape:
+ *                 if negative_step:
+ */
+          __pyx_v_start = 0;
+
+          /* "View.MemoryView":844
+ *             if start < 0:
+ *                 start += shape
+ *                 if start < 0:             # <<<<<<<<<<<<<<
+ *                     start = 0
+ *             elif start >= shape:
+ */
+        }
+
+        /* "View.MemoryView":842
