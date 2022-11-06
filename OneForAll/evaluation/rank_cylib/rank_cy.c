@@ -15415,3 +15415,84 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
         }
 
         /* "View.MemoryView":842
+ * 
+ *         if have_start:
+ *             if start < 0:             # <<<<<<<<<<<<<<
+ *                 start += shape
+ *                 if start < 0:
+ */
+        goto __pyx_L12;
+      }
+
+      /* "View.MemoryView":846
+ *                 if start < 0:
+ *                     start = 0
+ *             elif start >= shape:             # <<<<<<<<<<<<<<
+ *                 if negative_step:
+ *                     start = shape - 1
+ */
+      __pyx_t_2 = ((__pyx_v_start >= __pyx_v_shape) != 0);
+      if (__pyx_t_2) {
+
+        /* "View.MemoryView":847
+ *                     start = 0
+ *             elif start >= shape:
+ *                 if negative_step:             # <<<<<<<<<<<<<<
+ *                     start = shape - 1
+ *                 else:
+ */
+        __pyx_t_2 = (__pyx_v_negative_step != 0);
+        if (__pyx_t_2) {
+
+          /* "View.MemoryView":848
+ *             elif start >= shape:
+ *                 if negative_step:
+ *                     start = shape - 1             # <<<<<<<<<<<<<<
+ *                 else:
+ *                     start = shape
+ */
+          __pyx_v_start = (__pyx_v_shape - 1);
+
+          /* "View.MemoryView":847
+ *                     start = 0
+ *             elif start >= shape:
+ *                 if negative_step:             # <<<<<<<<<<<<<<
+ *                     start = shape - 1
+ *                 else:
+ */
+          goto __pyx_L14;
+        }
+
+        /* "View.MemoryView":850
+ *                     start = shape - 1
+ *                 else:
+ *                     start = shape             # <<<<<<<<<<<<<<
+ *         else:
+ *             if negative_step:
+ */
+        /*else*/ {
+          __pyx_v_start = __pyx_v_shape;
+        }
+        __pyx_L14:;
+
+        /* "View.MemoryView":846
+ *                 if start < 0:
+ *                     start = 0
+ *             elif start >= shape:             # <<<<<<<<<<<<<<
+ *                 if negative_step:
+ *                     start = shape - 1
+ */
+      }
+      __pyx_L12:;
+
+      /* "View.MemoryView":841
+ * 
+ * 
+ *         if have_start:             # <<<<<<<<<<<<<<
+ *             if start < 0:
+ *                 start += shape
+ */
+      goto __pyx_L11;
+    }
+
+    /* "
