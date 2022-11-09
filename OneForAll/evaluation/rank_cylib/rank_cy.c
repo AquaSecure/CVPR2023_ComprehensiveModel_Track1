@@ -15495,4 +15495,92 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
       goto __pyx_L11;
     }
 
-    /* "
+    /* "View.MemoryView":852
+ *                     start = shape
+ *         else:
+ *             if negative_step:             # <<<<<<<<<<<<<<
+ *                 start = shape - 1
+ *             else:
+ */
+    /*else*/ {
+      __pyx_t_2 = (__pyx_v_negative_step != 0);
+      if (__pyx_t_2) {
+
+        /* "View.MemoryView":853
+ *         else:
+ *             if negative_step:
+ *                 start = shape - 1             # <<<<<<<<<<<<<<
+ *             else:
+ *                 start = 0
+ */
+        __pyx_v_start = (__pyx_v_shape - 1);
+
+        /* "View.MemoryView":852
+ *                     start = shape
+ *         else:
+ *             if negative_step:             # <<<<<<<<<<<<<<
+ *                 start = shape - 1
+ *             else:
+ */
+        goto __pyx_L15;
+      }
+
+      /* "View.MemoryView":855
+ *                 start = shape - 1
+ *             else:
+ *                 start = 0             # <<<<<<<<<<<<<<
+ * 
+ *         if have_stop:
+ */
+      /*else*/ {
+        __pyx_v_start = 0;
+      }
+      __pyx_L15:;
+    }
+    __pyx_L11:;
+
+    /* "View.MemoryView":857
+ *                 start = 0
+ * 
+ *         if have_stop:             # <<<<<<<<<<<<<<
+ *             if stop < 0:
+ *                 stop += shape
+ */
+    __pyx_t_2 = (__pyx_v_have_stop != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":858
+ * 
+ *         if have_stop:
+ *             if stop < 0:             # <<<<<<<<<<<<<<
+ *                 stop += shape
+ *                 if stop < 0:
+ */
+      __pyx_t_2 = ((__pyx_v_stop < 0) != 0);
+      if (__pyx_t_2) {
+
+        /* "View.MemoryView":859
+ *         if have_stop:
+ *             if stop < 0:
+ *                 stop += shape             # <<<<<<<<<<<<<<
+ *                 if stop < 0:
+ *                     stop = 0
+ */
+        __pyx_v_stop = (__pyx_v_stop + __pyx_v_shape);
+
+        /* "View.MemoryView":860
+ *             if stop < 0:
+ *                 stop += shape
+ *                 if stop < 0:             # <<<<<<<<<<<<<<
+ *                     stop = 0
+ *             elif stop > shape:
+ */
+        __pyx_t_2 = ((__pyx_v_stop < 0) != 0);
+        if (__pyx_t_2) {
+
+          /* "View.MemoryView":861
+ *                 stop += shape
+ *                 if stop < 0:
+ *                     stop = 0             # <<<<<<<<<<<<<<
+ *             elif stop > shape:
+ *             
