@@ -15677,4 +15677,98 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
 
       /* "View.MemoryView":868
  *                 stop = -1
- *     
+ *             else:
+ *                 stop = shape             # <<<<<<<<<<<<<<
+ * 
+ *         if not have_step:
+ */
+      /*else*/ {
+        __pyx_v_stop = __pyx_v_shape;
+      }
+      __pyx_L19:;
+    }
+    __pyx_L16:;
+
+    /* "View.MemoryView":870
+ *                 stop = shape
+ * 
+ *         if not have_step:             # <<<<<<<<<<<<<<
+ *             step = 1
+ * 
+ */
+    __pyx_t_2 = ((!(__pyx_v_have_step != 0)) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":871
+ * 
+ *         if not have_step:
+ *             step = 1             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+      __pyx_v_step = 1;
+
+      /* "View.MemoryView":870
+ *                 stop = shape
+ * 
+ *         if not have_step:             # <<<<<<<<<<<<<<
+ *             step = 1
+ * 
+ */
+    }
+
+    /* "View.MemoryView":875
+ * 
+ *         with cython.cdivision(True):
+ *             new_shape = (stop - start) // step             # <<<<<<<<<<<<<<
+ * 
+ *             if (stop - start) - step * new_shape:
+ */
+    __pyx_v_new_shape = ((__pyx_v_stop - __pyx_v_start) / __pyx_v_step);
+
+    /* "View.MemoryView":877
+ *             new_shape = (stop - start) // step
+ * 
+ *             if (stop - start) - step * new_shape:             # <<<<<<<<<<<<<<
+ *                 new_shape += 1
+ * 
+ */
+    __pyx_t_2 = (((__pyx_v_stop - __pyx_v_start) - (__pyx_v_step * __pyx_v_new_shape)) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":878
+ * 
+ *             if (stop - start) - step * new_shape:
+ *                 new_shape += 1             # <<<<<<<<<<<<<<
+ * 
+ *         if new_shape < 0:
+ */
+      __pyx_v_new_shape = (__pyx_v_new_shape + 1);
+
+      /* "View.MemoryView":877
+ *             new_shape = (stop - start) // step
+ * 
+ *             if (stop - start) - step * new_shape:             # <<<<<<<<<<<<<<
+ *                 new_shape += 1
+ * 
+ */
+    }
+
+    /* "View.MemoryView":880
+ *                 new_shape += 1
+ * 
+ *         if new_shape < 0:             # <<<<<<<<<<<<<<
+ *             new_shape = 0
+ * 
+ */
+    __pyx_t_2 = ((__pyx_v_new_shape < 0) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":881
+ * 
+ *         if new_shape < 0:
+ *             new_shape = 0             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+      __pyx_v_new_shape
