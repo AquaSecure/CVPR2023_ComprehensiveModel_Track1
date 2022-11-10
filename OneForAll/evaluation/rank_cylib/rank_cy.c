@@ -15771,4 +15771,87 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
  * 
  * 
  */
-      __pyx_v_new_shape
+      __pyx_v_new_shape = 0;
+
+      /* "View.MemoryView":880
+ *                 new_shape += 1
+ * 
+ *         if new_shape < 0:             # <<<<<<<<<<<<<<
+ *             new_shape = 0
+ * 
+ */
+    }
+
+    /* "View.MemoryView":884
+ * 
+ * 
+ *         dst.strides[new_ndim] = stride * step             # <<<<<<<<<<<<<<
+ *         dst.shape[new_ndim] = new_shape
+ *         dst.suboffsets[new_ndim] = suboffset
+ */
+    (__pyx_v_dst->strides[__pyx_v_new_ndim]) = (__pyx_v_stride * __pyx_v_step);
+
+    /* "View.MemoryView":885
+ * 
+ *         dst.strides[new_ndim] = stride * step
+ *         dst.shape[new_ndim] = new_shape             # <<<<<<<<<<<<<<
+ *         dst.suboffsets[new_ndim] = suboffset
+ * 
+ */
+    (__pyx_v_dst->shape[__pyx_v_new_ndim]) = __pyx_v_new_shape;
+
+    /* "View.MemoryView":886
+ *         dst.strides[new_ndim] = stride * step
+ *         dst.shape[new_ndim] = new_shape
+ *         dst.suboffsets[new_ndim] = suboffset             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    (__pyx_v_dst->suboffsets[__pyx_v_new_ndim]) = __pyx_v_suboffset;
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":889
+ * 
+ * 
+ *     if suboffset_dim[0] < 0:             # <<<<<<<<<<<<<<
+ *         dst.data += start * stride
+ *     else:
+ */
+  __pyx_t_2 = (((__pyx_v_suboffset_dim[0]) < 0) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":890
+ * 
+ *     if suboffset_dim[0] < 0:
+ *         dst.data += start * stride             # <<<<<<<<<<<<<<
+ *     else:
+ *         dst.suboffsets[suboffset_dim[0]] += start * stride
+ */
+    __pyx_v_dst->data = (__pyx_v_dst->data + (__pyx_v_start * __pyx_v_stride));
+
+    /* "View.MemoryView":889
+ * 
+ * 
+ *     if suboffset_dim[0] < 0:             # <<<<<<<<<<<<<<
+ *         dst.data += start * stride
+ *     else:
+ */
+    goto __pyx_L23;
+  }
+
+  /* "View.MemoryView":892
+ *         dst.data += start * stride
+ *     else:
+ *         dst.suboffsets[suboffset_dim[0]] += start * stride             # <<<<<<<<<<<<<<
+ * 
+ *     if suboffset >= 0:
+ */
+  /*else*/ {
+    __pyx_t_3 = (__pyx_v_suboffset_dim[0]);
+    (__pyx_v_dst->suboffsets[__pyx_t_3]) = ((__pyx_v_dst->suboffsets[__pyx_t_3]) + (__pyx_v_start * __pyx_v_stride));
+  }
+  __pyx_L23:;
+
+  /* "View.MemoryView":894
+ *         dst.suboffsets[suboffset_dim[0]] += start * 
