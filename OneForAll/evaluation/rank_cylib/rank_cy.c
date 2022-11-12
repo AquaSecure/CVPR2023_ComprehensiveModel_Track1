@@ -15922,4 +15922,87 @@ static int __pyx_memoryview_slice_memviewslice(__Pyx_memviewslice *__pyx_v_dst, 
       }
       __pyx_L26:;
 
-      /*
+      /* "View.MemoryView":895
+ * 
+ *     if suboffset >= 0:
+ *         if not is_slice:             # <<<<<<<<<<<<<<
+ *             if new_ndim == 0:
+ *                 dst.data = (<char **> dst.data)[0] + suboffset
+ */
+      goto __pyx_L25;
+    }
+
+    /* "View.MemoryView":902
+ *                                      "must be indexed and not sliced", dim)
+ *         else:
+ *             suboffset_dim[0] = new_ndim             # <<<<<<<<<<<<<<
+ * 
+ *     return 0
+ */
+    /*else*/ {
+      (__pyx_v_suboffset_dim[0]) = __pyx_v_new_ndim;
+    }
+    __pyx_L25:;
+
+    /* "View.MemoryView":894
+ *         dst.suboffsets[suboffset_dim[0]] += start * stride
+ * 
+ *     if suboffset >= 0:             # <<<<<<<<<<<<<<
+ *         if not is_slice:
+ *             if new_ndim == 0:
+ */
+  }
+
+  /* "View.MemoryView":904
+ *             suboffset_dim[0] = new_ndim
+ * 
+ *     return 0             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = 0;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":807
+ * 
+ * @cname('__pyx_memoryview_slice_memviewslice')
+ * cdef int slice_memviewslice(             # <<<<<<<<<<<<<<
+ *         __Pyx_memviewslice *dst,
+ *         Py_ssize_t shape, Py_ssize_t stride, Py_ssize_t suboffset,
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  {
+    #ifdef WITH_THREAD
+    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+    #endif
+    __Pyx_AddTraceback("View.MemoryView.slice_memviewslice", __pyx_clineno, __pyx_lineno, __pyx_filename);
+    #ifdef WITH_THREAD
+    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+    #endif
+  }
+  __pyx_r = -1;
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":910
+ * 
+ * @cname('__pyx_pybuffer_index')
+ * cdef char *pybuffer_index(Py_buffer *view, char *bufp, Py_ssize_t index,             # <<<<<<<<<<<<<<
+ *                           Py_ssize_t dim) except NULL:
+ *     cdef Py_ssize_t shape, stride, suboffset = -1
+ */
+
+static char *__pyx_pybuffer_index(Py_buffer *__pyx_v_view, char *__pyx_v_bufp, Py_ssize_t __pyx_v_index, Py_ssize_t __pyx_v_dim) {
+  Py_ssize_t __pyx_v_shape;
+  Py_ssize_t __pyx_v_stride;
+  Py_ssize_t __pyx_v_suboffset;
+  Py_ssize_t __pyx_v_itemsize;
+  char *__pyx_v_resultp;
+  char *__pyx_r;
+  __Pyx_RefNannyDeclarations
+  Py_ssize_t __pyx_t_1;
+  int __pyx_t_2;
+ 
