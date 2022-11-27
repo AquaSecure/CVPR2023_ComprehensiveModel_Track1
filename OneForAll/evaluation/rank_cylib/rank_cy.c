@@ -16429,4 +16429,80 @@ static int __pyx_memslice_transpose(__Pyx_memviewslice *__pyx_v_memslice) {
       /* "View.MemoryView":956
  *         shape[i], shape[j] = shape[j], shape[i]
  * 
- *         if memslice.suboffsets[i] >= 0 or memslice.suboffsets[j] >= 0:             # <<<<<<<<<<<<
+ *         if memslice.suboffsets[i] >= 0 or memslice.suboffsets[j] >= 0:             # <<<<<<<<<<<<<<
+ *             _err(ValueError, "Cannot transpose memoryview with indirect dimensions")
+ * 
+ */
+    }
+  }
+
+  /* "View.MemoryView":959
+ *             _err(ValueError, "Cannot transpose memoryview with indirect dimensions")
+ * 
+ *     return 1             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_r = 1;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":943
+ * 
+ * @cname('__pyx_memslice_transpose')
+ * cdef int transpose_memslice(__Pyx_memviewslice *memslice) nogil except 0:             # <<<<<<<<<<<<<<
+ *     cdef int ndim = memslice.memview.view.ndim
+ * 
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  {
+    #ifdef WITH_THREAD
+    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+    #endif
+    __Pyx_AddTraceback("View.MemoryView.transpose_memslice", __pyx_clineno, __pyx_lineno, __pyx_filename);
+    #ifdef WITH_THREAD
+    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+    #endif
+  }
+  __pyx_r = 0;
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":976
+ *     cdef int (*to_dtype_func)(char *, object) except 0
+ * 
+ *     def __dealloc__(self):             # <<<<<<<<<<<<<<
+ *         __PYX_XDEC_MEMVIEW(&self.from_slice, 1)
+ * 
+ */
+
+/* Python wrapper */
+static void __pyx_memoryviewslice___dealloc__(PyObject *__pyx_v_self); /*proto*/
+static void __pyx_memoryviewslice___dealloc__(PyObject *__pyx_v_self) {
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__dealloc__ (wrapper)", 0);
+  __pyx_memoryviewslice___pyx_pf_15View_dot_MemoryView_16_memoryviewslice___dealloc__(((struct __pyx_memoryviewslice_obj *)__pyx_v_self));
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+static void __pyx_memoryviewslice___pyx_pf_15View_dot_MemoryView_16_memoryviewslice___dealloc__(struct __pyx_memoryviewslice_obj *__pyx_v_self) {
+  __Pyx_RefNannyDeclarations
+  __Pyx_RefNannySetupContext("__dealloc__", 0);
+
+  /* "View.MemoryView":977
+ * 
+ *     def __dealloc__(self):
+ *         __PYX_XDEC_MEMVIEW(&self.from_slice, 1)             # <<<<<<<<<<<<<<
+ * 
+ *     cdef convert_item_to_object(self, char *itemp):
+ */
+  __PYX_XDEC_MEMVIEW((&__pyx_v_self->from_slice), 1);
+
+  /* "View.MemoryView":976
+ *     cdef int (*to_dtype_func)(char *, object) except 0
+ * 
+ *     def __dealloc__(self):       
