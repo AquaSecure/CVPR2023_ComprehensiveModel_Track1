@@ -16505,4 +16505,73 @@ static void __pyx_memoryviewslice___pyx_pf_15View_dot_MemoryView_16_memoryviewsl
   /* "View.MemoryView":976
  *     cdef int (*to_dtype_func)(char *, object) except 0
  * 
- *     def __dealloc__(self):       
+ *     def __dealloc__(self):             # <<<<<<<<<<<<<<
+ *         __PYX_XDEC_MEMVIEW(&self.from_slice, 1)
+ * 
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* "View.MemoryView":979
+ *         __PYX_XDEC_MEMVIEW(&self.from_slice, 1)
+ * 
+ *     cdef convert_item_to_object(self, char *itemp):             # <<<<<<<<<<<<<<
+ *         if self.to_object_func != NULL:
+ *             return self.to_object_func(itemp)
+ */
+
+static PyObject *__pyx_memoryviewslice_convert_item_to_object(struct __pyx_memoryviewslice_obj *__pyx_v_self, char *__pyx_v_itemp) {
+  PyObject *__pyx_r = NULL;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  PyObject *__pyx_t_2 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("convert_item_to_object", 0);
+
+  /* "View.MemoryView":980
+ * 
+ *     cdef convert_item_to_object(self, char *itemp):
+ *         if self.to_object_func != NULL:             # <<<<<<<<<<<<<<
+ *             return self.to_object_func(itemp)
+ *         else:
+ */
+  __pyx_t_1 = ((__pyx_v_self->to_object_func != NULL) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":981
+ *     cdef convert_item_to_object(self, char *itemp):
+ *         if self.to_object_func != NULL:
+ *             return self.to_object_func(itemp)             # <<<<<<<<<<<<<<
+ *         else:
+ *             return memoryview.convert_item_to_object(self, itemp)
+ */
+    __Pyx_XDECREF(__pyx_r);
+    __pyx_t_2 = __pyx_v_self->to_object_func(__pyx_v_itemp); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 981, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_r = __pyx_t_2;
+    __pyx_t_2 = 0;
+    goto __pyx_L0;
+
+    /* "View.MemoryView":980
+ * 
+ *     cdef convert_item_to_object(self, char *itemp):
+ *         if self.to_object_func != NULL:             # <<<<<<<<<<<<<<
+ *             return self.to_object_func(itemp)
+ *         else:
+ */
+  }
+
+  /* "View.MemoryView":983
+ *             return self.to_object_func(itemp)
+ *         else:
+ *             return memoryview.convert_item_to_object(self, itemp)             # <<<<<<<<<<<<<<
+ * 
+ *     cdef assign_item_from_object(self, char *itemp, object value):
+ */
+  /*else*/ {
+    __Pyx_XDECREF(__pyx_r);
+    __pyx_t_2 = __pyx_memoryview_convert_item_to_object(((struct __pyx_memor
