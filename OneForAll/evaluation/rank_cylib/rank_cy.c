@@ -17018,4 +17018,79 @@ static PyObject *__pyx_memoryview_fromslice(__Pyx_memviewslice __pyx_v_memviewsl
  *     (<__pyx_buffer *> &result.view).obj = Py_None
  *     Py_INCREF(Py_None)             # <<<<<<<<<<<<<<
  * 
- *     if (<memoryview>memviewslice.m
+ *     if (<memoryview>memviewslice.memview).flags & PyBUF_WRITABLE:
+ */
+  Py_INCREF(Py_None);
+
+  /* "View.MemoryView":1027
+ *     Py_INCREF(Py_None)
+ * 
+ *     if (<memoryview>memviewslice.memview).flags & PyBUF_WRITABLE:             # <<<<<<<<<<<<<<
+ *         result.flags = PyBUF_RECORDS
+ *     else:
+ */
+  __pyx_t_1 = ((((struct __pyx_memoryview_obj *)__pyx_v_memviewslice.memview)->flags & PyBUF_WRITABLE) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":1028
+ * 
+ *     if (<memoryview>memviewslice.memview).flags & PyBUF_WRITABLE:
+ *         result.flags = PyBUF_RECORDS             # <<<<<<<<<<<<<<
+ *     else:
+ *         result.flags = PyBUF_RECORDS_RO
+ */
+    __pyx_v_result->__pyx_base.flags = PyBUF_RECORDS;
+
+    /* "View.MemoryView":1027
+ *     Py_INCREF(Py_None)
+ * 
+ *     if (<memoryview>memviewslice.memview).flags & PyBUF_WRITABLE:             # <<<<<<<<<<<<<<
+ *         result.flags = PyBUF_RECORDS
+ *     else:
+ */
+    goto __pyx_L4;
+  }
+
+  /* "View.MemoryView":1030
+ *         result.flags = PyBUF_RECORDS
+ *     else:
+ *         result.flags = PyBUF_RECORDS_RO             # <<<<<<<<<<<<<<
+ * 
+ *     result.view.shape = <Py_ssize_t *> result.from_slice.shape
+ */
+  /*else*/ {
+    __pyx_v_result->__pyx_base.flags = PyBUF_RECORDS_RO;
+  }
+  __pyx_L4:;
+
+  /* "View.MemoryView":1032
+ *         result.flags = PyBUF_RECORDS_RO
+ * 
+ *     result.view.shape = <Py_ssize_t *> result.from_slice.shape             # <<<<<<<<<<<<<<
+ *     result.view.strides = <Py_ssize_t *> result.from_slice.strides
+ * 
+ */
+  __pyx_v_result->__pyx_base.view.shape = ((Py_ssize_t *)__pyx_v_result->from_slice.shape);
+
+  /* "View.MemoryView":1033
+ * 
+ *     result.view.shape = <Py_ssize_t *> result.from_slice.shape
+ *     result.view.strides = <Py_ssize_t *> result.from_slice.strides             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_v_result->__pyx_base.view.strides = ((Py_ssize_t *)__pyx_v_result->from_slice.strides);
+
+  /* "View.MemoryView":1036
+ * 
+ * 
+ *     result.view.suboffsets = NULL             # <<<<<<<<<<<<<<
+ *     for suboffset in result.from_slice.suboffsets[:ndim]:
+ *         if suboffset >= 0:
+ */
+  __pyx_v_result->__pyx_base.view.suboffsets = NULL;
+
+  /* "View.MemoryView":1037
+ * 
+ *     result.view.suboffsets = NULL
+ *     for suboffset in result.from_slice.suboffsets[:ndim]:             #
