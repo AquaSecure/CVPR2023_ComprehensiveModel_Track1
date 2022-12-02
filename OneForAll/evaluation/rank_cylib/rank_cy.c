@@ -16958,4 +16958,64 @@ static PyObject *__pyx_memoryview_fromslice(__Pyx_memviewslice __pyx_v_memviewsl
  *     result.typeinfo = memviewslice.memview.typeinfo
  * 
  */
-  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((
+  __pyx_t_2 = __Pyx_PyObject_GetAttrStr(((PyObject *)__pyx_v_memviewslice.memview), __pyx_n_s_base); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 1018, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_2);
+  __Pyx_GIVEREF(__pyx_t_2);
+  __Pyx_GOTREF(__pyx_v_result->from_object);
+  __Pyx_DECREF(__pyx_v_result->from_object);
+  __pyx_v_result->from_object = __pyx_t_2;
+  __pyx_t_2 = 0;
+
+  /* "View.MemoryView":1019
+ * 
+ *     result.from_object = (<memoryview> memviewslice.memview).base
+ *     result.typeinfo = memviewslice.memview.typeinfo             # <<<<<<<<<<<<<<
+ * 
+ *     result.view = memviewslice.memview.view
+ */
+  __pyx_t_4 = __pyx_v_memviewslice.memview->typeinfo;
+  __pyx_v_result->__pyx_base.typeinfo = __pyx_t_4;
+
+  /* "View.MemoryView":1021
+ *     result.typeinfo = memviewslice.memview.typeinfo
+ * 
+ *     result.view = memviewslice.memview.view             # <<<<<<<<<<<<<<
+ *     result.view.buf = <void *> memviewslice.data
+ *     result.view.ndim = ndim
+ */
+  __pyx_t_5 = __pyx_v_memviewslice.memview->view;
+  __pyx_v_result->__pyx_base.view = __pyx_t_5;
+
+  /* "View.MemoryView":1022
+ * 
+ *     result.view = memviewslice.memview.view
+ *     result.view.buf = <void *> memviewslice.data             # <<<<<<<<<<<<<<
+ *     result.view.ndim = ndim
+ *     (<__pyx_buffer *> &result.view).obj = Py_None
+ */
+  __pyx_v_result->__pyx_base.view.buf = ((void *)__pyx_v_memviewslice.data);
+
+  /* "View.MemoryView":1023
+ *     result.view = memviewslice.memview.view
+ *     result.view.buf = <void *> memviewslice.data
+ *     result.view.ndim = ndim             # <<<<<<<<<<<<<<
+ *     (<__pyx_buffer *> &result.view).obj = Py_None
+ *     Py_INCREF(Py_None)
+ */
+  __pyx_v_result->__pyx_base.view.ndim = __pyx_v_ndim;
+
+  /* "View.MemoryView":1024
+ *     result.view.buf = <void *> memviewslice.data
+ *     result.view.ndim = ndim
+ *     (<__pyx_buffer *> &result.view).obj = Py_None             # <<<<<<<<<<<<<<
+ *     Py_INCREF(Py_None)
+ * 
+ */
+  ((Py_buffer *)(&__pyx_v_result->__pyx_base.view))->obj = Py_None;
+
+  /* "View.MemoryView":1025
+ *     result.view.ndim = ndim
+ *     (<__pyx_buffer *> &result.view).obj = Py_None
+ *     Py_INCREF(Py_None)             # <<<<<<<<<<<<<<
+ * 
+ *     if (<memoryview>memviewslice.m
