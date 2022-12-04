@@ -17217,4 +17217,63 @@ static PyObject *__pyx_memoryview_fromslice(__Pyx_memviewslice __pyx_v_memviewsl
  * 
  * @cname('__pyx_memoryview_fromslice')
  * cdef memoryview_fromslice(__Pyx_memviewslice memviewslice,             # <<<<<<<<<<<<<<
- *         
+ *                           int ndim,
+ *                           object (*to_object_func)(char *),
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_2);
+  __Pyx_XDECREF(__pyx_t_3);
+  __Pyx_AddTraceback("View.MemoryView.memoryview_fromslice", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XDECREF((PyObject *)__pyx_v_result);
+  __Pyx_XDECREF(__pyx_v_length);
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1052
+ * 
+ * @cname('__pyx_memoryview_get_slice_from_memoryview')
+ * cdef __Pyx_memviewslice *get_slice_from_memview(memoryview memview,             # <<<<<<<<<<<<<<
+ *                                                    __Pyx_memviewslice *mslice) except NULL:
+ *     cdef _memoryviewslice obj
+ */
+
+static __Pyx_memviewslice *__pyx_memoryview_get_slice_from_memoryview(struct __pyx_memoryview_obj *__pyx_v_memview, __Pyx_memviewslice *__pyx_v_mslice) {
+  struct __pyx_memoryviewslice_obj *__pyx_v_obj = 0;
+  __Pyx_memviewslice *__pyx_r;
+  __Pyx_RefNannyDeclarations
+  int __pyx_t_1;
+  int __pyx_t_2;
+  PyObject *__pyx_t_3 = NULL;
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __pyx_clineno = 0;
+  __Pyx_RefNannySetupContext("get_slice_from_memview", 0);
+
+  /* "View.MemoryView":1055
+ *                                                    __Pyx_memviewslice *mslice) except NULL:
+ *     cdef _memoryviewslice obj
+ *     if isinstance(memview, _memoryviewslice):             # <<<<<<<<<<<<<<
+ *         obj = memview
+ *         return &obj.from_slice
+ */
+  __pyx_t_1 = __Pyx_TypeCheck(((PyObject *)__pyx_v_memview), __pyx_memoryviewslice_type); 
+  __pyx_t_2 = (__pyx_t_1 != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":1056
+ *     cdef _memoryviewslice obj
+ *     if isinstance(memview, _memoryviewslice):
+ *         obj = memview             # <<<<<<<<<<<<<<
+ *         return &obj.from_slice
+ *     else:
+ */
+    if (!(likely(((((PyObject *)__pyx_v_memview)) == Py_None) || likely(__Pyx_TypeTest(((PyObject *)__pyx_v_memview), __pyx_memoryviewslice_type))))) __PYX_ERR(2, 1056, __pyx_L1_error)
+    __pyx_t_3 = ((PyObject *)__pyx_v_memview);
+    __Pyx_INCREF(__pyx_t_3);
+    __pyx_v_obj = ((struct __pyx_m
