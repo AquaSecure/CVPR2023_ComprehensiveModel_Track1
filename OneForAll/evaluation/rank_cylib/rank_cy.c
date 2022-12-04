@@ -17158,4 +17158,63 @@ static PyObject *__pyx_memoryview_fromslice(__Pyx_memviewslice __pyx_v_memviewsl
  *         result.view.len *= length
  * 
  */
-  __
+  __pyx_t_7 = (__pyx_v_result->__pyx_base.view.shape + __pyx_v_ndim);
+  for (__pyx_t_8 = __pyx_v_result->__pyx_base.view.shape; __pyx_t_8 < __pyx_t_7; __pyx_t_8++) {
+    __pyx_t_6 = __pyx_t_8;
+    __pyx_t_2 = PyInt_FromSsize_t((__pyx_t_6[0])); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 1043, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __Pyx_XDECREF_SET(__pyx_v_length, __pyx_t_2);
+    __pyx_t_2 = 0;
+
+    /* "View.MemoryView":1044
+ *     result.view.len = result.view.itemsize
+ *     for length in result.view.shape[:ndim]:
+ *         result.view.len *= length             # <<<<<<<<<<<<<<
+ * 
+ *     result.to_object_func = to_object_func
+ */
+    __pyx_t_2 = PyInt_FromSsize_t(__pyx_v_result->__pyx_base.view.len); if (unlikely(!__pyx_t_2)) __PYX_ERR(2, 1044, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_2);
+    __pyx_t_3 = PyNumber_InPlaceMultiply(__pyx_t_2, __pyx_v_length); if (unlikely(!__pyx_t_3)) __PYX_ERR(2, 1044, __pyx_L1_error)
+    __Pyx_GOTREF(__pyx_t_3);
+    __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_t_3); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(2, 1044, __pyx_L1_error)
+    __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
+    __pyx_v_result->__pyx_base.view.len = __pyx_t_9;
+  }
+
+  /* "View.MemoryView":1046
+ *         result.view.len *= length
+ * 
+ *     result.to_object_func = to_object_func             # <<<<<<<<<<<<<<
+ *     result.to_dtype_func = to_dtype_func
+ * 
+ */
+  __pyx_v_result->to_object_func = __pyx_v_to_object_func;
+
+  /* "View.MemoryView":1047
+ * 
+ *     result.to_object_func = to_object_func
+ *     result.to_dtype_func = to_dtype_func             # <<<<<<<<<<<<<<
+ * 
+ *     return result
+ */
+  __pyx_v_result->to_dtype_func = __pyx_v_to_dtype_func;
+
+  /* "View.MemoryView":1049
+ *     result.to_dtype_func = to_dtype_func
+ * 
+ *     return result             # <<<<<<<<<<<<<<
+ * 
+ * @cname('__pyx_memoryview_get_slice_from_memoryview')
+ */
+  __Pyx_XDECREF(__pyx_r);
+  __Pyx_INCREF(((PyObject *)__pyx_v_result));
+  __pyx_r = ((PyObject *)__pyx_v_result);
+  goto __pyx_L0;
+
+  /* "View.MemoryView":999
+ * 
+ * @cname('__pyx_memoryview_fromslice')
+ * cdef memoryview_fromslice(__Pyx_memviewslice memviewslice,             # <<<<<<<<<<<<<<
+ *         
