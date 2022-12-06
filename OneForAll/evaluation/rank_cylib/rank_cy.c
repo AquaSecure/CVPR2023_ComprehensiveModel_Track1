@@ -17352,4 +17352,78 @@ static void __pyx_memoryview_slice_copy(struct __pyx_memoryview_obj *__pyx_v_mem
   Py_ssize_t *__pyx_v_strides;
   Py_ssize_t *__pyx_v_suboffsets;
   __Pyx_RefNannyDeclarations
-  Py
+  Py_ssize_t *__pyx_t_1;
+  int __pyx_t_2;
+  int __pyx_t_3;
+  int __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  __Pyx_RefNannySetupContext("slice_copy", 0);
+
+  /* "View.MemoryView":1067
+ *     cdef (Py_ssize_t*) shape, strides, suboffsets
+ * 
+ *     shape = memview.view.shape             # <<<<<<<<<<<<<<
+ *     strides = memview.view.strides
+ *     suboffsets = memview.view.suboffsets
+ */
+  __pyx_t_1 = __pyx_v_memview->view.shape;
+  __pyx_v_shape = __pyx_t_1;
+
+  /* "View.MemoryView":1068
+ * 
+ *     shape = memview.view.shape
+ *     strides = memview.view.strides             # <<<<<<<<<<<<<<
+ *     suboffsets = memview.view.suboffsets
+ * 
+ */
+  __pyx_t_1 = __pyx_v_memview->view.strides;
+  __pyx_v_strides = __pyx_t_1;
+
+  /* "View.MemoryView":1069
+ *     shape = memview.view.shape
+ *     strides = memview.view.strides
+ *     suboffsets = memview.view.suboffsets             # <<<<<<<<<<<<<<
+ * 
+ *     dst.memview = <__pyx_memoryview *> memview
+ */
+  __pyx_t_1 = __pyx_v_memview->view.suboffsets;
+  __pyx_v_suboffsets = __pyx_t_1;
+
+  /* "View.MemoryView":1071
+ *     suboffsets = memview.view.suboffsets
+ * 
+ *     dst.memview = <__pyx_memoryview *> memview             # <<<<<<<<<<<<<<
+ *     dst.data = <char *> memview.view.buf
+ * 
+ */
+  __pyx_v_dst->memview = ((struct __pyx_memoryview_obj *)__pyx_v_memview);
+
+  /* "View.MemoryView":1072
+ * 
+ *     dst.memview = <__pyx_memoryview *> memview
+ *     dst.data = <char *> memview.view.buf             # <<<<<<<<<<<<<<
+ * 
+ *     for dim in range(memview.view.ndim):
+ */
+  __pyx_v_dst->data = ((char *)__pyx_v_memview->view.buf);
+
+  /* "View.MemoryView":1074
+ *     dst.data = <char *> memview.view.buf
+ * 
+ *     for dim in range(memview.view.ndim):             # <<<<<<<<<<<<<<
+ *         dst.shape[dim] = shape[dim]
+ *         dst.strides[dim] = strides[dim]
+ */
+  __pyx_t_2 = __pyx_v_memview->view.ndim;
+  __pyx_t_3 = __pyx_t_2;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_dim = __pyx_t_4;
+
+    /* "View.MemoryView":1075
+ * 
+ *     for dim in range(memview.view.ndim):
+ *         dst.shape[dim] = shape[dim]             # <<<<<<<<<<<<<<
+ *         dst.strides[dim] = strides[dim]
+ *         dst.suboffsets[dim] = suboffsets[dim] if suboffsets else -1
+ */
+    (__pyx_v_dst->shape[__pyx_v_dim]) = (__pyx_v_shape[__pyx_v_dim])
