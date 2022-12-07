@@ -17805,3 +17805,97 @@ static char __pyx_get_best_slice_order(__Pyx_memviewslice *__pyx_v_mslice, int _
  *             break
  * 
  *     for i in range(ndim):             # <<<<<<<<<<<<<<
+ *         if mslice.shape[i] > 1:
+ *             f_stride = mslice.strides[i]
+ */
+  __pyx_t_1 = __pyx_v_ndim;
+  __pyx_t_3 = __pyx_t_1;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+
+    /* "View.MemoryView":1130
+ * 
+ *     for i in range(ndim):
+ *         if mslice.shape[i] > 1:             # <<<<<<<<<<<<<<
+ *             f_stride = mslice.strides[i]
+ *             break
+ */
+    __pyx_t_2 = (((__pyx_v_mslice->shape[__pyx_v_i]) > 1) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":1131
+ *     for i in range(ndim):
+ *         if mslice.shape[i] > 1:
+ *             f_stride = mslice.strides[i]             # <<<<<<<<<<<<<<
+ *             break
+ * 
+ */
+      __pyx_v_f_stride = (__pyx_v_mslice->strides[__pyx_v_i]);
+
+      /* "View.MemoryView":1132
+ *         if mslice.shape[i] > 1:
+ *             f_stride = mslice.strides[i]
+ *             break             # <<<<<<<<<<<<<<
+ * 
+ *     if abs_py_ssize_t(c_stride) <= abs_py_ssize_t(f_stride):
+ */
+      goto __pyx_L7_break;
+
+      /* "View.MemoryView":1130
+ * 
+ *     for i in range(ndim):
+ *         if mslice.shape[i] > 1:             # <<<<<<<<<<<<<<
+ *             f_stride = mslice.strides[i]
+ *             break
+ */
+    }
+  }
+  __pyx_L7_break:;
+
+  /* "View.MemoryView":1134
+ *             break
+ * 
+ *     if abs_py_ssize_t(c_stride) <= abs_py_ssize_t(f_stride):             # <<<<<<<<<<<<<<
+ *         return 'C'
+ *     else:
+ */
+  __pyx_t_2 = ((abs_py_ssize_t(__pyx_v_c_stride) <= abs_py_ssize_t(__pyx_v_f_stride)) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":1135
+ * 
+ *     if abs_py_ssize_t(c_stride) <= abs_py_ssize_t(f_stride):
+ *         return 'C'             # <<<<<<<<<<<<<<
+ *     else:
+ *         return 'F'
+ */
+    __pyx_r = 'C';
+    goto __pyx_L0;
+
+    /* "View.MemoryView":1134
+ *             break
+ * 
+ *     if abs_py_ssize_t(c_stride) <= abs_py_ssize_t(f_stride):             # <<<<<<<<<<<<<<
+ *         return 'C'
+ *     else:
+ */
+  }
+
+  /* "View.MemoryView":1137
+ *         return 'C'
+ *     else:
+ *         return 'F'             # <<<<<<<<<<<<<<
+ * 
+ * @cython.cdivision(True)
+ */
+  /*else*/ {
+    __pyx_r = 'F';
+    goto __pyx_L0;
+  }
+
+  /* "View.MemoryView":1116
+ * 
+ * @cname('__pyx_get_best_slice_order')
+ * cdef char get_best_order(__Pyx_memviewslice *mslice, int ndim) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Figure ou
