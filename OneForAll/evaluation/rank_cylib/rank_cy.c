@@ -17561,4 +17561,68 @@ static PyObject *__pyx_memoryview_copy_object_from_slice(struct __pyx_memoryview
     /* "View.MemoryView":1095
  * 
  *     if isinstance(memview, _memoryviewslice):
- *         to_object_func = (<_memoryviewslice> memview).to_object_func        
+ *         to_object_func = (<_memoryviewslice> memview).to_object_func             # <<<<<<<<<<<<<<
+ *         to_dtype_func = (<_memoryviewslice> memview).to_dtype_func
+ *     else:
+ */
+    __pyx_t_3 = ((struct __pyx_memoryviewslice_obj *)__pyx_v_memview)->to_object_func;
+    __pyx_v_to_object_func = __pyx_t_3;
+
+    /* "View.MemoryView":1096
+ *     if isinstance(memview, _memoryviewslice):
+ *         to_object_func = (<_memoryviewslice> memview).to_object_func
+ *         to_dtype_func = (<_memoryviewslice> memview).to_dtype_func             # <<<<<<<<<<<<<<
+ *     else:
+ *         to_object_func = NULL
+ */
+    __pyx_t_4 = ((struct __pyx_memoryviewslice_obj *)__pyx_v_memview)->to_dtype_func;
+    __pyx_v_to_dtype_func = __pyx_t_4;
+
+    /* "View.MemoryView":1094
+ *     cdef int (*to_dtype_func)(char *, object) except 0
+ * 
+ *     if isinstance(memview, _memoryviewslice):             # <<<<<<<<<<<<<<
+ *         to_object_func = (<_memoryviewslice> memview).to_object_func
+ *         to_dtype_func = (<_memoryviewslice> memview).to_dtype_func
+ */
+    goto __pyx_L3;
+  }
+
+  /* "View.MemoryView":1098
+ *         to_dtype_func = (<_memoryviewslice> memview).to_dtype_func
+ *     else:
+ *         to_object_func = NULL             # <<<<<<<<<<<<<<
+ *         to_dtype_func = NULL
+ * 
+ */
+  /*else*/ {
+    __pyx_v_to_object_func = NULL;
+
+    /* "View.MemoryView":1099
+ *     else:
+ *         to_object_func = NULL
+ *         to_dtype_func = NULL             # <<<<<<<<<<<<<<
+ * 
+ *     return memoryview_fromslice(memviewslice[0], memview.view.ndim,
+ */
+    __pyx_v_to_dtype_func = NULL;
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":1101
+ *         to_dtype_func = NULL
+ * 
+ *     return memoryview_fromslice(memviewslice[0], memview.view.ndim,             # <<<<<<<<<<<<<<
+ *                                 to_object_func, to_dtype_func,
+ *                                 memview.dtype_is_object)
+ */
+  __Pyx_XDECREF(__pyx_r);
+
+  /* "View.MemoryView":1103
+ *     return memoryview_fromslice(memviewslice[0], memview.view.ndim,
+ *                                 to_object_func, to_dtype_func,
+ *                                 memview.dtype_is_object)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_t_5 = __pyx_memoryview_fromslice((__pyx_v_memviewslice[0]), __pyx_v_memview->view.ndim, __pyx_v_to_object_func, __pyx_v_to_dtype_func, __pyx_v_memview->dtype_is_object); if (unlikely(
