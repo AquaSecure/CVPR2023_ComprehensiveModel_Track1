@@ -17898,4 +17898,70 @@ static char __pyx_get_best_slice_order(__Pyx_memviewslice *__pyx_v_mslice, int _
  * @cname('__pyx_get_best_slice_order')
  * cdef char get_best_order(__Pyx_memviewslice *mslice, int ndim) nogil:             # <<<<<<<<<<<<<<
  *     """
- *     Figure ou
+ *     Figure out the best memory access order for a given slice.
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1140
+ * 
+ * @cython.cdivision(True)
+ * cdef void _copy_strided_to_strided(char *src_data, Py_ssize_t *src_strides,             # <<<<<<<<<<<<<<
+ *                                    char *dst_data, Py_ssize_t *dst_strides,
+ *                                    Py_ssize_t *src_shape, Py_ssize_t *dst_shape,
+ */
+
+static void _copy_strided_to_strided(char *__pyx_v_src_data, Py_ssize_t *__pyx_v_src_strides, char *__pyx_v_dst_data, Py_ssize_t *__pyx_v_dst_strides, Py_ssize_t *__pyx_v_src_shape, Py_ssize_t *__pyx_v_dst_shape, int __pyx_v_ndim, size_t __pyx_v_itemsize) {
+  CYTHON_UNUSED Py_ssize_t __pyx_v_i;
+  CYTHON_UNUSED Py_ssize_t __pyx_v_src_extent;
+  Py_ssize_t __pyx_v_dst_extent;
+  Py_ssize_t __pyx_v_src_stride;
+  Py_ssize_t __pyx_v_dst_stride;
+  int __pyx_t_1;
+  int __pyx_t_2;
+  int __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+  Py_ssize_t __pyx_t_5;
+  Py_ssize_t __pyx_t_6;
+
+  /* "View.MemoryView":1147
+ * 
+ *     cdef Py_ssize_t i
+ *     cdef Py_ssize_t src_extent = src_shape[0]             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t dst_extent = dst_shape[0]
+ *     cdef Py_ssize_t src_stride = src_strides[0]
+ */
+  __pyx_v_src_extent = (__pyx_v_src_shape[0]);
+
+  /* "View.MemoryView":1148
+ *     cdef Py_ssize_t i
+ *     cdef Py_ssize_t src_extent = src_shape[0]
+ *     cdef Py_ssize_t dst_extent = dst_shape[0]             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t src_stride = src_strides[0]
+ *     cdef Py_ssize_t dst_stride = dst_strides[0]
+ */
+  __pyx_v_dst_extent = (__pyx_v_dst_shape[0]);
+
+  /* "View.MemoryView":1149
+ *     cdef Py_ssize_t src_extent = src_shape[0]
+ *     cdef Py_ssize_t dst_extent = dst_shape[0]
+ *     cdef Py_ssize_t src_stride = src_strides[0]             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t dst_stride = dst_strides[0]
+ * 
+ */
+  __pyx_v_src_stride = (__pyx_v_src_strides[0]);
+
+  /* "View.MemoryView":1150
+ *     cdef Py_ssize_t dst_extent = dst_shape[0]
+ *     cdef Py_ssize_t src_stride = src_strides[0]
+ *     cdef Py_ssize_t dst_stride = dst_strides[0]             # <<<<<<<<<<<<<<
+ * 
+ *     if ndim == 1:
+ */
+  __pyx_v_dst_stride = (__pyx_v_dst_strides[0]);
+
+  /* "View.MemoryView":1152
+ *     c
