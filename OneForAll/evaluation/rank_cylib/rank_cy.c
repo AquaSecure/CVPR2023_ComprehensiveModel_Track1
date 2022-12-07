@@ -17625,4 +17625,100 @@ static PyObject *__pyx_memoryview_copy_object_from_slice(struct __pyx_memoryview
  * 
  * 
  */
-  __pyx_t_5 = __pyx_memoryview_fromslice((__pyx_v_memviewslice[0]), __pyx_v_memview->view.ndim, __pyx_v_to_object_func, __pyx_v_to_dtype_func, __pyx_v_memview->dtype_is_object); if (unlikely(
+  __pyx_t_5 = __pyx_memoryview_fromslice((__pyx_v_memviewslice[0]), __pyx_v_memview->view.ndim, __pyx_v_to_object_func, __pyx_v_to_dtype_func, __pyx_v_memview->dtype_is_object); if (unlikely(!__pyx_t_5)) __PYX_ERR(2, 1101, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_5);
+  __pyx_r = __pyx_t_5;
+  __pyx_t_5 = 0;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":1087
+ * 
+ * @cname('__pyx_memoryview_copy_object_from_slice')
+ * cdef memoryview_copy_from_slice(memoryview memview, __Pyx_memviewslice *memviewslice):             # <<<<<<<<<<<<<<
+ *     """
+ *     Create a new memoryview object from a given memoryview object and slice.
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_5);
+  __Pyx_AddTraceback("View.MemoryView.memoryview_copy_from_slice", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __pyx_r = 0;
+  __pyx_L0:;
+  __Pyx_XGIVEREF(__pyx_r);
+  __Pyx_RefNannyFinishContext();
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1109
+ * 
+ * 
+ * cdef Py_ssize_t abs_py_ssize_t(Py_ssize_t arg) nogil:             # <<<<<<<<<<<<<<
+ *     if arg < 0:
+ *         return -arg
+ */
+
+static Py_ssize_t abs_py_ssize_t(Py_ssize_t __pyx_v_arg) {
+  Py_ssize_t __pyx_r;
+  int __pyx_t_1;
+
+  /* "View.MemoryView":1110
+ * 
+ * cdef Py_ssize_t abs_py_ssize_t(Py_ssize_t arg) nogil:
+ *     if arg < 0:             # <<<<<<<<<<<<<<
+ *         return -arg
+ *     else:
+ */
+  __pyx_t_1 = ((__pyx_v_arg < 0) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":1111
+ * cdef Py_ssize_t abs_py_ssize_t(Py_ssize_t arg) nogil:
+ *     if arg < 0:
+ *         return -arg             # <<<<<<<<<<<<<<
+ *     else:
+ *         return arg
+ */
+    __pyx_r = (-__pyx_v_arg);
+    goto __pyx_L0;
+
+    /* "View.MemoryView":1110
+ * 
+ * cdef Py_ssize_t abs_py_ssize_t(Py_ssize_t arg) nogil:
+ *     if arg < 0:             # <<<<<<<<<<<<<<
+ *         return -arg
+ *     else:
+ */
+  }
+
+  /* "View.MemoryView":1113
+ *         return -arg
+ *     else:
+ *         return arg             # <<<<<<<<<<<<<<
+ * 
+ * @cname('__pyx_get_best_slice_order')
+ */
+  /*else*/ {
+    __pyx_r = __pyx_v_arg;
+    goto __pyx_L0;
+  }
+
+  /* "View.MemoryView":1109
+ * 
+ * 
+ * cdef Py_ssize_t abs_py_ssize_t(Py_ssize_t arg) nogil:             # <<<<<<<<<<<<<<
+ *     if arg < 0:
+ *         return -arg
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1116
+ * 
+ * @cname('__pyx_get_best_slice_order')
+ * cdef char get_best_order(__Pyx_memviewslice *mslice, int ndim) nogil:             # <<<<<<<<<<<<<<
+ *     """
+ *     Figure out the bes
