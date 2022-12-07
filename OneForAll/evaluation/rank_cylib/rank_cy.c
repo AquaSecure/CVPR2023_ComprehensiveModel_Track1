@@ -17964,4 +17964,70 @@ static void _copy_strided_to_strided(char *__pyx_v_src_data, Py_ssize_t *__pyx_v
   __pyx_v_dst_stride = (__pyx_v_dst_strides[0]);
 
   /* "View.MemoryView":1152
- *     c
+ *     cdef Py_ssize_t dst_stride = dst_strides[0]
+ * 
+ *     if ndim == 1:             # <<<<<<<<<<<<<<
+ *        if (src_stride > 0 and dst_stride > 0 and
+ *            <size_t> src_stride == itemsize == <size_t> dst_stride):
+ */
+  __pyx_t_1 = ((__pyx_v_ndim == 1) != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":1153
+ * 
+ *     if ndim == 1:
+ *        if (src_stride > 0 and dst_stride > 0 and             # <<<<<<<<<<<<<<
+ *            <size_t> src_stride == itemsize == <size_t> dst_stride):
+ *            memcpy(dst_data, src_data, itemsize * dst_extent)
+ */
+    __pyx_t_2 = ((__pyx_v_src_stride > 0) != 0);
+    if (__pyx_t_2) {
+    } else {
+      __pyx_t_1 = __pyx_t_2;
+      goto __pyx_L5_bool_binop_done;
+    }
+    __pyx_t_2 = ((__pyx_v_dst_stride > 0) != 0);
+    if (__pyx_t_2) {
+    } else {
+      __pyx_t_1 = __pyx_t_2;
+      goto __pyx_L5_bool_binop_done;
+    }
+
+    /* "View.MemoryView":1154
+ *     if ndim == 1:
+ *        if (src_stride > 0 and dst_stride > 0 and
+ *            <size_t> src_stride == itemsize == <size_t> dst_stride):             # <<<<<<<<<<<<<<
+ *            memcpy(dst_data, src_data, itemsize * dst_extent)
+ *        else:
+ */
+    __pyx_t_2 = (((size_t)__pyx_v_src_stride) == __pyx_v_itemsize);
+    if (__pyx_t_2) {
+      __pyx_t_2 = (__pyx_v_itemsize == ((size_t)__pyx_v_dst_stride));
+    }
+    __pyx_t_3 = (__pyx_t_2 != 0);
+    __pyx_t_1 = __pyx_t_3;
+    __pyx_L5_bool_binop_done:;
+
+    /* "View.MemoryView":1153
+ * 
+ *     if ndim == 1:
+ *        if (src_stride > 0 and dst_stride > 0 and             # <<<<<<<<<<<<<<
+ *            <size_t> src_stride == itemsize == <size_t> dst_stride):
+ *            memcpy(dst_data, src_data, itemsize * dst_extent)
+ */
+    if (__pyx_t_1) {
+
+      /* "View.MemoryView":1155
+ *        if (src_stride > 0 and dst_stride > 0 and
+ *            <size_t> src_stride == itemsize == <size_t> dst_stride):
+ *            memcpy(dst_data, src_data, itemsize * dst_extent)             # <<<<<<<<<<<<<<
+ *        else:
+ *            for i in range(dst_extent):
+ */
+      (void)(memcpy(__pyx_v_dst_data, __pyx_v_src_data, (__pyx_v_itemsize * __pyx_v_dst_extent)));
+
+      /* "View.MemoryView":1153
+ * 
+ *     if ndim == 1:
+ *        if (src_stride > 0 and dst_stride > 0 and             # <<<<<<<<<<<<<<
+ *            <size_t> src_stride == i
