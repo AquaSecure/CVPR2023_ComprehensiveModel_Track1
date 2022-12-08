@@ -18097,4 +18097,61 @@ static void _copy_strided_to_strided(char *__pyx_v_src_data, Py_ssize_t *__pyx_v
  *                                      dst_data, dst_strides + 1,
  */
   /*else*/ {
-    __pyx_t_4 = __pyx_v_dst_ex
+    __pyx_t_4 = __pyx_v_dst_extent;
+    __pyx_t_5 = __pyx_t_4;
+    for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
+      __pyx_v_i = __pyx_t_6;
+
+      /* "View.MemoryView":1163
+ *     else:
+ *         for i in range(dst_extent):
+ *             _copy_strided_to_strided(src_data, src_strides + 1,             # <<<<<<<<<<<<<<
+ *                                      dst_data, dst_strides + 1,
+ *                                      src_shape + 1, dst_shape + 1,
+ */
+      _copy_strided_to_strided(__pyx_v_src_data, (__pyx_v_src_strides + 1), __pyx_v_dst_data, (__pyx_v_dst_strides + 1), (__pyx_v_src_shape + 1), (__pyx_v_dst_shape + 1), (__pyx_v_ndim - 1), __pyx_v_itemsize);
+
+      /* "View.MemoryView":1167
+ *                                      src_shape + 1, dst_shape + 1,
+ *                                      ndim - 1, itemsize)
+ *             src_data += src_stride             # <<<<<<<<<<<<<<
+ *             dst_data += dst_stride
+ * 
+ */
+      __pyx_v_src_data = (__pyx_v_src_data + __pyx_v_src_stride);
+
+      /* "View.MemoryView":1168
+ *                                      ndim - 1, itemsize)
+ *             src_data += src_stride
+ *             dst_data += dst_stride             # <<<<<<<<<<<<<<
+ * 
+ * cdef void copy_strided_to_strided(__Pyx_memviewslice *src,
+ */
+      __pyx_v_dst_data = (__pyx_v_dst_data + __pyx_v_dst_stride);
+    }
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":1140
+ * 
+ * @cython.cdivision(True)
+ * cdef void _copy_strided_to_strided(char *src_data, Py_ssize_t *src_strides,             # <<<<<<<<<<<<<<
+ *                                    char *dst_data, Py_ssize_t *dst_strides,
+ *                                    Py_ssize_t *src_shape, Py_ssize_t *dst_shape,
+ */
+
+  /* function exit code */
+}
+
+/* "View.MemoryView":1170
+ *             dst_data += dst_stride
+ * 
+ * cdef void copy_strided_to_strided(__Pyx_memviewslice *src,             # <<<<<<<<<<<<<<
+ *                                   __Pyx_memviewslice *dst,
+ *                                   int ndim, size_t itemsize) nogil:
+ */
+
+static void copy_strided_to_strided(__Pyx_memviewslice *__pyx_v_src, __Pyx_memviewslice *__pyx_v_dst, int __pyx_v_ndim, size_t __pyx_v_itemsize) {
+
+  /* "View.MemoryView":1173
+ *                                   __Pyx_memviewsl
