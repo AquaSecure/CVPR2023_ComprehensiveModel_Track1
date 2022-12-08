@@ -18294,4 +18294,81 @@ static Py_ssize_t __pyx_fill_contig_strides_array(Py_ssize_t *__pyx_v_shape, Py_
 
       /* "View.MemoryView":1199
  *         for idx in range(ndim):
- *         
+ *             strides[idx] = stride
+ *             stride *= shape[idx]             # <<<<<<<<<<<<<<
+ *     else:
+ *         for idx in range(ndim - 1, -1, -1):
+ */
+      __pyx_v_stride = (__pyx_v_stride * (__pyx_v_shape[__pyx_v_idx]));
+    }
+
+    /* "View.MemoryView":1196
+ *     cdef int idx
+ * 
+ *     if order == 'F':             # <<<<<<<<<<<<<<
+ *         for idx in range(ndim):
+ *             strides[idx] = stride
+ */
+    goto __pyx_L3;
+  }
+
+  /* "View.MemoryView":1201
+ *             stride *= shape[idx]
+ *     else:
+ *         for idx in range(ndim - 1, -1, -1):             # <<<<<<<<<<<<<<
+ *             strides[idx] = stride
+ *             stride *= shape[idx]
+ */
+  /*else*/ {
+    for (__pyx_t_2 = (__pyx_v_ndim - 1); __pyx_t_2 > -1; __pyx_t_2-=1) {
+      __pyx_v_idx = __pyx_t_2;
+
+      /* "View.MemoryView":1202
+ *     else:
+ *         for idx in range(ndim - 1, -1, -1):
+ *             strides[idx] = stride             # <<<<<<<<<<<<<<
+ *             stride *= shape[idx]
+ * 
+ */
+      (__pyx_v_strides[__pyx_v_idx]) = __pyx_v_stride;
+
+      /* "View.MemoryView":1203
+ *         for idx in range(ndim - 1, -1, -1):
+ *             strides[idx] = stride
+ *             stride *= shape[idx]             # <<<<<<<<<<<<<<
+ * 
+ *     return stride
+ */
+      __pyx_v_stride = (__pyx_v_stride * (__pyx_v_shape[__pyx_v_idx]));
+    }
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":1205
+ *             stride *= shape[idx]
+ * 
+ *     return stride             # <<<<<<<<<<<<<<
+ * 
+ * @cname('__pyx_memoryview_copy_data_to_temp')
+ */
+  __pyx_r = __pyx_v_stride;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":1187
+ * 
+ * @cname('__pyx_fill_contig_strides_array')
+ * cdef Py_ssize_t fill_contig_strides_array(             # <<<<<<<<<<<<<<
+ *                 Py_ssize_t *shape, Py_ssize_t *strides, Py_ssize_t stride,
+ *                 int ndim, char order) nogil:
+ */
+
+  /* function exit code */
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1208
+ * 
+ * @cname('__pyx_memoryview_copy_data_to_temp')
+ * cdef void *copy_data_to_temp(__Pyx_memviewslice *src,             # <<<<<<<<<<<<<<
+ *                             
