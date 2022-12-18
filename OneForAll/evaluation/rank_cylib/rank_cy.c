@@ -19000,4 +19000,77 @@ static int __pyx_memoryview_copy_contents(__Pyx_memviewslice __pyx_v_src, __Pyx_
     __pyx_memoryview_broadcast_leading((&__pyx_v_src), __pyx_v_src_ndim, __pyx_v_dst_ndim);
 
     /* "View.MemoryView":1284
- *     cdef __Pyx_memviewsli
+ *     cdef __Pyx_memviewslice tmp
+ * 
+ *     if src_ndim < dst_ndim:             # <<<<<<<<<<<<<<
+ *         broadcast_leading(&src, src_ndim, dst_ndim)
+ *     elif dst_ndim < src_ndim:
+ */
+    goto __pyx_L3;
+  }
+
+  /* "View.MemoryView":1286
+ *     if src_ndim < dst_ndim:
+ *         broadcast_leading(&src, src_ndim, dst_ndim)
+ *     elif dst_ndim < src_ndim:             # <<<<<<<<<<<<<<
+ *         broadcast_leading(&dst, dst_ndim, src_ndim)
+ * 
+ */
+  __pyx_t_2 = ((__pyx_v_dst_ndim < __pyx_v_src_ndim) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":1287
+ *         broadcast_leading(&src, src_ndim, dst_ndim)
+ *     elif dst_ndim < src_ndim:
+ *         broadcast_leading(&dst, dst_ndim, src_ndim)             # <<<<<<<<<<<<<<
+ * 
+ *     cdef int ndim = max(src_ndim, dst_ndim)
+ */
+    __pyx_memoryview_broadcast_leading((&__pyx_v_dst), __pyx_v_dst_ndim, __pyx_v_src_ndim);
+
+    /* "View.MemoryView":1286
+ *     if src_ndim < dst_ndim:
+ *         broadcast_leading(&src, src_ndim, dst_ndim)
+ *     elif dst_ndim < src_ndim:             # <<<<<<<<<<<<<<
+ *         broadcast_leading(&dst, dst_ndim, src_ndim)
+ * 
+ */
+  }
+  __pyx_L3:;
+
+  /* "View.MemoryView":1289
+ *         broadcast_leading(&dst, dst_ndim, src_ndim)
+ * 
+ *     cdef int ndim = max(src_ndim, dst_ndim)             # <<<<<<<<<<<<<<
+ * 
+ *     for i in range(ndim):
+ */
+  __pyx_t_3 = __pyx_v_dst_ndim;
+  __pyx_t_4 = __pyx_v_src_ndim;
+  if (((__pyx_t_3 > __pyx_t_4) != 0)) {
+    __pyx_t_5 = __pyx_t_3;
+  } else {
+    __pyx_t_5 = __pyx_t_4;
+  }
+  __pyx_v_ndim = __pyx_t_5;
+
+  /* "View.MemoryView":1291
+ *     cdef int ndim = max(src_ndim, dst_ndim)
+ * 
+ *     for i in range(ndim):             # <<<<<<<<<<<<<<
+ *         if src.shape[i] != dst.shape[i]:
+ *             if src.shape[i] == 1:
+ */
+  __pyx_t_5 = __pyx_v_ndim;
+  __pyx_t_3 = __pyx_t_5;
+  for (__pyx_t_4 = 0; __pyx_t_4 < __pyx_t_3; __pyx_t_4+=1) {
+    __pyx_v_i = __pyx_t_4;
+
+    /* "View.MemoryView":1292
+ * 
+ *     for i in range(ndim):
+ *         if src.shape[i] != dst.shape[i]:             # <<<<<<<<<<<<<<
+ *             if src.shape[i] == 1:
+ *                 broadcasting = True
+ */
+    __pyx_t_2 = (((__pyx_v_src.shape[__pyx_v_i]) != (__pyx_v_dst.shape[__pyx_v_i])) != 0)
