@@ -19147,4 +19147,66 @@ static int __pyx_memoryview_copy_contents(__Pyx_memviewslice __pyx_v_src, __Pyx_
 
       /* "View.MemoryView":1300
  * 
- *         
+ *         if src.suboffsets[i] >= 0:
+ *             _err_dim(ValueError, "Dimension %d is not direct", i)             # <<<<<<<<<<<<<<
+ * 
+ *     if slices_overlap(&src, &dst, ndim, itemsize):
+ */
+      __pyx_t_6 = __pyx_memoryview_err_dim(__pyx_builtin_ValueError, ((char *)"Dimension %d is not direct"), __pyx_v_i); if (unlikely(__pyx_t_6 == ((int)-1))) __PYX_ERR(2, 1300, __pyx_L1_error)
+
+      /* "View.MemoryView":1299
+ *                 _err_extents(i, dst.shape[i], src.shape[i])
+ * 
+ *         if src.suboffsets[i] >= 0:             # <<<<<<<<<<<<<<
+ *             _err_dim(ValueError, "Dimension %d is not direct", i)
+ * 
+ */
+    }
+  }
+
+  /* "View.MemoryView":1302
+ *             _err_dim(ValueError, "Dimension %d is not direct", i)
+ * 
+ *     if slices_overlap(&src, &dst, ndim, itemsize):             # <<<<<<<<<<<<<<
+ * 
+ *         if not slice_is_contig(src, order, ndim):
+ */
+  __pyx_t_2 = (__pyx_slices_overlap((&__pyx_v_src), (&__pyx_v_dst), __pyx_v_ndim, __pyx_v_itemsize) != 0);
+  if (__pyx_t_2) {
+
+    /* "View.MemoryView":1304
+ *     if slices_overlap(&src, &dst, ndim, itemsize):
+ * 
+ *         if not slice_is_contig(src, order, ndim):             # <<<<<<<<<<<<<<
+ *             order = get_best_order(&dst, ndim)
+ * 
+ */
+    __pyx_t_2 = ((!(__pyx_memviewslice_is_contig(__pyx_v_src, __pyx_v_order, __pyx_v_ndim) != 0)) != 0);
+    if (__pyx_t_2) {
+
+      /* "View.MemoryView":1305
+ * 
+ *         if not slice_is_contig(src, order, ndim):
+ *             order = get_best_order(&dst, ndim)             # <<<<<<<<<<<<<<
+ * 
+ *         tmpdata = copy_data_to_temp(&src, &tmp, order, ndim)
+ */
+      __pyx_v_order = __pyx_get_best_slice_order((&__pyx_v_dst), __pyx_v_ndim);
+
+      /* "View.MemoryView":1304
+ *     if slices_overlap(&src, &dst, ndim, itemsize):
+ * 
+ *         if not slice_is_contig(src, order, ndim):             # <<<<<<<<<<<<<<
+ *             order = get_best_order(&dst, ndim)
+ * 
+ */
+    }
+
+    /* "View.MemoryView":1307
+ *             order = get_best_order(&dst, ndim)
+ * 
+ *         tmpdata = copy_data_to_temp(&src, &tmp, order, ndim)             # <<<<<<<<<<<<<<
+ *         src = tmp
+ * 
+ */
+    __pyx_t_7 = __pyx_memoryview_copy_data_to_temp((&__pyx_v_src), (&__pyx_v_tmp), __pyx_v_order, __pyx_v_ndim); if (un
