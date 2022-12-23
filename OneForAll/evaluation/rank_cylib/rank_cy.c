@@ -19763,4 +19763,72 @@ static void __pyx_memoryview_refcount_objects_in_slice(char *__pyx_v_data, Py_ss
       /*else*/ {
         Py_DECREF((((PyObject **)__pyx_v_data)[0]));
       }
-      __py
+      __pyx_L6:;
+
+      /* "View.MemoryView":1382
+ * 
+ *     for i in range(shape[0]):
+ *         if ndim == 1:             # <<<<<<<<<<<<<<
+ *             if inc:
+ *                 Py_INCREF((<PyObject **> data)[0])
+ */
+      goto __pyx_L5;
+    }
+
+    /* "View.MemoryView":1388
+ *                 Py_DECREF((<PyObject **> data)[0])
+ *         else:
+ *             refcount_objects_in_slice(data, shape + 1, strides + 1,             # <<<<<<<<<<<<<<
+ *                                       ndim - 1, inc)
+ * 
+ */
+    /*else*/ {
+
+      /* "View.MemoryView":1389
+ *         else:
+ *             refcount_objects_in_slice(data, shape + 1, strides + 1,
+ *                                       ndim - 1, inc)             # <<<<<<<<<<<<<<
+ * 
+ *         data += strides[0]
+ */
+      __pyx_memoryview_refcount_objects_in_slice(__pyx_v_data, (__pyx_v_shape + 1), (__pyx_v_strides + 1), (__pyx_v_ndim - 1), __pyx_v_inc);
+    }
+    __pyx_L5:;
+
+    /* "View.MemoryView":1391
+ *                                       ndim - 1, inc)
+ * 
+ *         data += strides[0]             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    __pyx_v_data = (__pyx_v_data + (__pyx_v_strides[0]));
+  }
+
+  /* "View.MemoryView":1377
+ * 
+ * @cname('__pyx_memoryview_refcount_objects_in_slice')
+ * cdef void refcount_objects_in_slice(char *data, Py_ssize_t *shape,             # <<<<<<<<<<<<<<
+ *                                     Py_ssize_t *strides, int ndim, bint inc):
+ *     cdef Py_ssize_t i
+ */
+
+  /* function exit code */
+  __Pyx_RefNannyFinishContext();
+}
+
+/* "View.MemoryView":1397
+ * 
+ * @cname('__pyx_memoryview_slice_assign_scalar')
+ * cdef void slice_assign_scalar(__Pyx_memviewslice *dst, int ndim,             # <<<<<<<<<<<<<<
+ *                               size_t itemsize, void *item,
+ *                               bint dtype_is_object) nogil:
+ */
+
+static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *__pyx_v_dst, int __pyx_v_ndim, size_t __pyx_v_itemsize, void *__pyx_v_item, int __pyx_v_dtype_is_object) {
+
+  /* "View.MemoryView":1400
+ *                               size_t itemsize, void *item,
+ *                               bint dtype_is_object) nogil:
+ *     refcount_copying(dst, dtype_is_object, ndim, False)             # <<<<<<<<<<<<<<
+ *     _slice_assign_scalar(dst.data, dst.shape, dst.s
