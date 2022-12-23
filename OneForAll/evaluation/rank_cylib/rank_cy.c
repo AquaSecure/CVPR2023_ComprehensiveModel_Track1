@@ -19559,3 +19559,76 @@ static void __pyx_memoryview_broadcast_leading(__Pyx_memviewslice *__pyx_v_mslic
 
     /* "View.MemoryView":1352
  * 
+ *     for i in range(offset):
+ *         mslice.shape[i] = 1             # <<<<<<<<<<<<<<
+ *         mslice.strides[i] = mslice.strides[0]
+ *         mslice.suboffsets[i] = -1
+ */
+    (__pyx_v_mslice->shape[__pyx_v_i]) = 1;
+
+    /* "View.MemoryView":1353
+ *     for i in range(offset):
+ *         mslice.shape[i] = 1
+ *         mslice.strides[i] = mslice.strides[0]             # <<<<<<<<<<<<<<
+ *         mslice.suboffsets[i] = -1
+ * 
+ */
+    (__pyx_v_mslice->strides[__pyx_v_i]) = (__pyx_v_mslice->strides[0]);
+
+    /* "View.MemoryView":1354
+ *         mslice.shape[i] = 1
+ *         mslice.strides[i] = mslice.strides[0]
+ *         mslice.suboffsets[i] = -1             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+    (__pyx_v_mslice->suboffsets[__pyx_v_i]) = -1L;
+  }
+
+  /* "View.MemoryView":1340
+ * 
+ * @cname('__pyx_memoryview_broadcast_leading')
+ * cdef void broadcast_leading(__Pyx_memviewslice *mslice,             # <<<<<<<<<<<<<<
+ *                             int ndim,
+ *                             int ndim_other) nogil:
+ */
+
+  /* function exit code */
+}
+
+/* "View.MemoryView":1362
+ * 
+ * @cname('__pyx_memoryview_refcount_copying')
+ * cdef void refcount_copying(__Pyx_memviewslice *dst, bint dtype_is_object,             # <<<<<<<<<<<<<<
+ *                            int ndim, bint inc) nogil:
+ * 
+ */
+
+static void __pyx_memoryview_refcount_copying(__Pyx_memviewslice *__pyx_v_dst, int __pyx_v_dtype_is_object, int __pyx_v_ndim, int __pyx_v_inc) {
+  int __pyx_t_1;
+
+  /* "View.MemoryView":1366
+ * 
+ * 
+ *     if dtype_is_object:             # <<<<<<<<<<<<<<
+ *         refcount_objects_in_slice_with_gil(dst.data, dst.shape,
+ *                                            dst.strides, ndim, inc)
+ */
+  __pyx_t_1 = (__pyx_v_dtype_is_object != 0);
+  if (__pyx_t_1) {
+
+    /* "View.MemoryView":1367
+ * 
+ *     if dtype_is_object:
+ *         refcount_objects_in_slice_with_gil(dst.data, dst.shape,             # <<<<<<<<<<<<<<
+ *                                            dst.strides, ndim, inc)
+ * 
+ */
+    __pyx_memoryview_refcount_objects_in_slice_with_gil(__pyx_v_dst->data, __pyx_v_dst->shape, __pyx_v_dst->strides, __pyx_v_ndim, __pyx_v_inc);
+
+    /* "View.MemoryView":1366
+ * 
+ * 
+ *     if dtype_is_object:             # <<<<<<<<<<<<<<
+ *         refcount_objects_in_slice_with_gil(dst.data, dst.shape,
+ *                                    
