@@ -19420,4 +19420,79 @@ static int __pyx_memoryview_copy_contents(__Pyx_memviewslice __pyx_v_src, __Pyx_
  *     copy_strided_to_strided(&src, &dst, ndim, itemsize)
  *     refcount_copying(&dst, dtype_is_object, ndim, True)
  */
-  __pyx_memor
+  __pyx_memoryview_refcount_copying((&__pyx_v_dst), __pyx_v_dtype_is_object, __pyx_v_ndim, 0);
+
+  /* "View.MemoryView":1333
+ * 
+ *     refcount_copying(&dst, dtype_is_object, ndim, False)
+ *     copy_strided_to_strided(&src, &dst, ndim, itemsize)             # <<<<<<<<<<<<<<
+ *     refcount_copying(&dst, dtype_is_object, ndim, True)
+ * 
+ */
+  copy_strided_to_strided((&__pyx_v_src), (&__pyx_v_dst), __pyx_v_ndim, __pyx_v_itemsize);
+
+  /* "View.MemoryView":1334
+ *     refcount_copying(&dst, dtype_is_object, ndim, False)
+ *     copy_strided_to_strided(&src, &dst, ndim, itemsize)
+ *     refcount_copying(&dst, dtype_is_object, ndim, True)             # <<<<<<<<<<<<<<
+ * 
+ *     free(tmpdata)
+ */
+  __pyx_memoryview_refcount_copying((&__pyx_v_dst), __pyx_v_dtype_is_object, __pyx_v_ndim, 1);
+
+  /* "View.MemoryView":1336
+ *     refcount_copying(&dst, dtype_is_object, ndim, True)
+ * 
+ *     free(tmpdata)             # <<<<<<<<<<<<<<
+ *     return 0
+ * 
+ */
+  free(__pyx_v_tmpdata);
+
+  /* "View.MemoryView":1337
+ * 
+ *     free(tmpdata)
+ *     return 0             # <<<<<<<<<<<<<<
+ * 
+ * @cname('__pyx_memoryview_broadcast_leading')
+ */
+  __pyx_r = 0;
+  goto __pyx_L0;
+
+  /* "View.MemoryView":1268
+ * 
+ * @cname('__pyx_memoryview_copy_contents')
+ * cdef int memoryview_copy_contents(__Pyx_memviewslice src,             # <<<<<<<<<<<<<<
+ *                                   __Pyx_memviewslice dst,
+ *                                   int src_ndim, int dst_ndim,
+ */
+
+  /* function exit code */
+  __pyx_L1_error:;
+  {
+    #ifdef WITH_THREAD
+    PyGILState_STATE __pyx_gilstate_save = __Pyx_PyGILState_Ensure();
+    #endif
+    __Pyx_AddTraceback("View.MemoryView.memoryview_copy_contents", __pyx_clineno, __pyx_lineno, __pyx_filename);
+    #ifdef WITH_THREAD
+    __Pyx_PyGILState_Release(__pyx_gilstate_save);
+    #endif
+  }
+  __pyx_r = -1;
+  __pyx_L0:;
+  return __pyx_r;
+}
+
+/* "View.MemoryView":1340
+ * 
+ * @cname('__pyx_memoryview_broadcast_leading')
+ * cdef void broadcast_leading(__Pyx_memviewslice *mslice,             # <<<<<<<<<<<<<<
+ *                             int ndim,
+ *                             int ndim_other) nogil:
+ */
+
+static void __pyx_memoryview_broadcast_leading(__Pyx_memviewslice *__pyx_v_mslice, int __pyx_v_ndim, int __pyx_v_ndim_other) {
+  int __pyx_v_i;
+  int __pyx_v_offset;
+  int __pyx_t_1;
+  int __pyx_t
