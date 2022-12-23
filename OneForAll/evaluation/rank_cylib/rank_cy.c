@@ -19831,4 +19831,62 @@ static void __pyx_memoryview_slice_assign_scalar(__Pyx_memviewslice *__pyx_v_dst
  *                               size_t itemsize, void *item,
  *                               bint dtype_is_object) nogil:
  *     refcount_copying(dst, dtype_is_object, ndim, False)             # <<<<<<<<<<<<<<
- *     _slice_assign_scalar(dst.data, dst.shape, dst.s
+ *     _slice_assign_scalar(dst.data, dst.shape, dst.strides, ndim,
+ *                          itemsize, item)
+ */
+  __pyx_memoryview_refcount_copying(__pyx_v_dst, __pyx_v_dtype_is_object, __pyx_v_ndim, 0);
+
+  /* "View.MemoryView":1401
+ *                               bint dtype_is_object) nogil:
+ *     refcount_copying(dst, dtype_is_object, ndim, False)
+ *     _slice_assign_scalar(dst.data, dst.shape, dst.strides, ndim,             # <<<<<<<<<<<<<<
+ *                          itemsize, item)
+ *     refcount_copying(dst, dtype_is_object, ndim, True)
+ */
+  __pyx_memoryview__slice_assign_scalar(__pyx_v_dst->data, __pyx_v_dst->shape, __pyx_v_dst->strides, __pyx_v_ndim, __pyx_v_itemsize, __pyx_v_item);
+
+  /* "View.MemoryView":1403
+ *     _slice_assign_scalar(dst.data, dst.shape, dst.strides, ndim,
+ *                          itemsize, item)
+ *     refcount_copying(dst, dtype_is_object, ndim, True)             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_memoryview_refcount_copying(__pyx_v_dst, __pyx_v_dtype_is_object, __pyx_v_ndim, 1);
+
+  /* "View.MemoryView":1397
+ * 
+ * @cname('__pyx_memoryview_slice_assign_scalar')
+ * cdef void slice_assign_scalar(__Pyx_memviewslice *dst, int ndim,             # <<<<<<<<<<<<<<
+ *                               size_t itemsize, void *item,
+ *                               bint dtype_is_object) nogil:
+ */
+
+  /* function exit code */
+}
+
+/* "View.MemoryView":1407
+ * 
+ * @cname('__pyx_memoryview__slice_assign_scalar')
+ * cdef void _slice_assign_scalar(char *data, Py_ssize_t *shape,             # <<<<<<<<<<<<<<
+ *                               Py_ssize_t *strides, int ndim,
+ *                               size_t itemsize, void *item) nogil:
+ */
+
+static void __pyx_memoryview__slice_assign_scalar(char *__pyx_v_data, Py_ssize_t *__pyx_v_shape, Py_ssize_t *__pyx_v_strides, int __pyx_v_ndim, size_t __pyx_v_itemsize, void *__pyx_v_item) {
+  CYTHON_UNUSED Py_ssize_t __pyx_v_i;
+  Py_ssize_t __pyx_v_stride;
+  Py_ssize_t __pyx_v_extent;
+  int __pyx_t_1;
+  Py_ssize_t __pyx_t_2;
+  Py_ssize_t __pyx_t_3;
+  Py_ssize_t __pyx_t_4;
+
+  /* "View.MemoryView":1411
+ *                               size_t itemsize, void *item) nogil:
+ *     cdef Py_ssize_t i
+ *     cdef Py_ssize_t stride = strides[0]             # <<<<<<<<<<<<<<
+ *     cdef Py_ssize_t extent = shape[0]
+ * 
+ */
+  __pyx_
