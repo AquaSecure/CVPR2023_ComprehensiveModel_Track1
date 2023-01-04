@@ -20599,4 +20599,74 @@ static PyObject *__pyx_tp_new_Enum(PyTypeObject *t, CYTHON_UNUSED PyObject *a, C
   return o;
 }
 
-static void _
+static void __pyx_tp_dealloc_Enum(PyObject *o) {
+  struct __pyx_MemviewEnum_obj *p = (struct __pyx_MemviewEnum_obj *)o;
+  #if CYTHON_USE_TP_FINALIZE
+  if (unlikely(PyType_HasFeature(Py_TYPE(o), Py_TPFLAGS_HAVE_FINALIZE) && Py_TYPE(o)->tp_finalize) && !_PyGC_FINALIZED(o)) {
+    if (PyObject_CallFinalizerFromDealloc(o)) return;
+  }
+  #endif
+  PyObject_GC_UnTrack(o);
+  Py_CLEAR(p->name);
+  (*Py_TYPE(o)->tp_free)(o);
+}
+
+static int __pyx_tp_traverse_Enum(PyObject *o, visitproc v, void *a) {
+  int e;
+  struct __pyx_MemviewEnum_obj *p = (struct __pyx_MemviewEnum_obj *)o;
+  if (p->name) {
+    e = (*v)(p->name, a); if (e) return e;
+  }
+  return 0;
+}
+
+static int __pyx_tp_clear_Enum(PyObject *o) {
+  PyObject* tmp;
+  struct __pyx_MemviewEnum_obj *p = (struct __pyx_MemviewEnum_obj *)o;
+  tmp = ((PyObject*)p->name);
+  p->name = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  return 0;
+}
+
+static PyMethodDef __pyx_methods_Enum[] = {
+  {"__reduce_cython__", (PyCFunction)__pyx_pw___pyx_MemviewEnum_1__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw___pyx_MemviewEnum_3__setstate_cython__, METH_O, 0},
+  {0, 0, 0, 0}
+};
+
+static PyTypeObject __pyx_type___pyx_MemviewEnum = {
+  PyVarObject_HEAD_INIT(0, 0)
+  "rank_cy.Enum", /*tp_name*/
+  sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
+  0, /*tp_itemsize*/
+  __pyx_tp_dealloc_Enum, /*tp_dealloc*/
+  #if PY_VERSION_HEX < 0x030800b4
+  0, /*tp_print*/
+  #endif
+  #if PY_VERSION_HEX >= 0x030800b4
+  0, /*tp_vectorcall_offset*/
+  #endif
+  0, /*tp_getattr*/
+  0, /*tp_setattr*/
+  #if PY_MAJOR_VERSION < 3
+  0, /*tp_compare*/
+  #endif
+  #if PY_MAJOR_VERSION >= 3
+  0, /*tp_as_async*/
+  #endif
+  __pyx_MemviewEnum___repr__, /*tp_repr*/
+  0, /*tp_as_number*/
+  0, /*tp_as_sequence*/
+  0, /*tp_as_mapping*/
+  0, /*tp_hash*/
+  0, /*tp_call*/
+  0, /*tp_str*/
+  0, /*tp_getattro*/
+  0, /*tp_setattro*/
+  0, /*tp_as_buffer*/
+  Py_TPFLAGS_DEFAULT|Py_TPFLAGS_HAVE_VERSION_TAG|Py_TPFLAGS_CHECKTYPES|Py_TPFLAGS_HAVE_NEWBUFFER|Py_TPFLAGS_BASETYPE|Py_TPFLAGS_HAVE_GC, /*tp_flags*/
+  0, /*tp_doc*/
+  __pyx_tp_traverse_Enum, /*tp_traverse*/
+  __pyx_tp_clear_Enum, /*tp_clear*/
+  0, /*tp_
