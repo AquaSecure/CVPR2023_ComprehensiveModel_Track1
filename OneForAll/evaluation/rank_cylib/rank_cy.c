@@ -20747,4 +20747,77 @@ static void __pyx_tp_dealloc_memoryview(PyObject *o) {
     PyErr_Restore(etype, eval, etb);
   }
   Py_CLEAR(p->obj);
-  Py_C
+  Py_CLEAR(p->_size);
+  Py_CLEAR(p->_array_interface);
+  (*Py_TYPE(o)->tp_free)(o);
+}
+
+static int __pyx_tp_traverse_memoryview(PyObject *o, visitproc v, void *a) {
+  int e;
+  struct __pyx_memoryview_obj *p = (struct __pyx_memoryview_obj *)o;
+  if (p->obj) {
+    e = (*v)(p->obj, a); if (e) return e;
+  }
+  if (p->_size) {
+    e = (*v)(p->_size, a); if (e) return e;
+  }
+  if (p->_array_interface) {
+    e = (*v)(p->_array_interface, a); if (e) return e;
+  }
+  if (p->view.obj) {
+    e = (*v)(p->view.obj, a); if (e) return e;
+  }
+  return 0;
+}
+
+static int __pyx_tp_clear_memoryview(PyObject *o) {
+  PyObject* tmp;
+  struct __pyx_memoryview_obj *p = (struct __pyx_memoryview_obj *)o;
+  tmp = ((PyObject*)p->obj);
+  p->obj = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  tmp = ((PyObject*)p->_size);
+  p->_size = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  tmp = ((PyObject*)p->_array_interface);
+  p->_array_interface = Py_None; Py_INCREF(Py_None);
+  Py_XDECREF(tmp);
+  Py_CLEAR(p->view.obj);
+  return 0;
+}
+static PyObject *__pyx_sq_item_memoryview(PyObject *o, Py_ssize_t i) {
+  PyObject *r;
+  PyObject *x = PyInt_FromSsize_t(i); if(!x) return 0;
+  r = Py_TYPE(o)->tp_as_mapping->mp_subscript(o, x);
+  Py_DECREF(x);
+  return r;
+}
+
+static int __pyx_mp_ass_subscript_memoryview(PyObject *o, PyObject *i, PyObject *v) {
+  if (v) {
+    return __pyx_memoryview___setitem__(o, i, v);
+  }
+  else {
+    PyErr_Format(PyExc_NotImplementedError,
+      "Subscript deletion not supported by %.200s", Py_TYPE(o)->tp_name);
+    return -1;
+  }
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_T(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_1T_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_base(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_4base_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_shape(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_5shape_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_strides(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_7strides_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_suboffsets(PyObject 
