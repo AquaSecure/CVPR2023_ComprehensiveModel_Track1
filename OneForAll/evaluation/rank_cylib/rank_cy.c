@@ -20820,4 +20820,52 @@ static PyObject *__pyx_getprop___pyx_memoryview_strides(PyObject *o, CYTHON_UNUS
   return __pyx_pw_15View_dot_MemoryView_10memoryview_7strides_1__get__(o);
 }
 
-static PyObject *__pyx_getprop___pyx_memoryview_suboffsets(PyObject 
+static PyObject *__pyx_getprop___pyx_memoryview_suboffsets(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_10suboffsets_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_ndim(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_4ndim_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_itemsize(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_8itemsize_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_nbytes(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_6nbytes_1__get__(o);
+}
+
+static PyObject *__pyx_getprop___pyx_memoryview_size(PyObject *o, CYTHON_UNUSED void *x) {
+  return __pyx_pw_15View_dot_MemoryView_10memoryview_4size_1__get__(o);
+}
+
+static PyMethodDef __pyx_methods_memoryview[] = {
+  {"is_c_contig", (PyCFunction)__pyx_memoryview_is_c_contig, METH_NOARGS, 0},
+  {"is_f_contig", (PyCFunction)__pyx_memoryview_is_f_contig, METH_NOARGS, 0},
+  {"copy", (PyCFunction)__pyx_memoryview_copy, METH_NOARGS, 0},
+  {"copy_fortran", (PyCFunction)__pyx_memoryview_copy_fortran, METH_NOARGS, 0},
+  {"__reduce_cython__", (PyCFunction)__pyx_pw___pyx_memoryview_1__reduce_cython__, METH_NOARGS, 0},
+  {"__setstate_cython__", (PyCFunction)__pyx_pw___pyx_memoryview_3__setstate_cython__, METH_O, 0},
+  {0, 0, 0, 0}
+};
+
+static struct PyGetSetDef __pyx_getsets_memoryview[] = {
+  {(char *)"T", __pyx_getprop___pyx_memoryview_T, 0, (char *)0, 0},
+  {(char *)"base", __pyx_getprop___pyx_memoryview_base, 0, (char *)0, 0},
+  {(char *)"shape", __pyx_getprop___pyx_memoryview_shape, 0, (char *)0, 0},
+  {(char *)"strides", __pyx_getprop___pyx_memoryview_strides, 0, (char *)0, 0},
+  {(char *)"suboffsets", __pyx_getprop___pyx_memoryview_suboffsets, 0, (char *)0, 0},
+  {(char *)"ndim", __pyx_getprop___pyx_memoryview_ndim, 0, (char *)0, 0},
+  {(char *)"itemsize", __pyx_getprop___pyx_memoryview_itemsize, 0, (char *)0, 0},
+  {(char *)"nbytes", __pyx_getprop___pyx_memoryview_nbytes, 0, (char *)0, 0},
+  {(char *)"size", __pyx_getprop___pyx_memoryview_size, 0, (char *)0, 0},
+  {0, 0, 0, 0, 0}
+};
+
+static PySequenceMethods __pyx_tp_as_sequence_memoryview = {
+  __pyx_memoryview___len__, /*sq_length*/
+  0, /*sq_concat*/
+  0, /*sq_repeat*/
+  __pyx_sq_item_memoryview, /*sq_item*/
+  0, /*sq_sli
