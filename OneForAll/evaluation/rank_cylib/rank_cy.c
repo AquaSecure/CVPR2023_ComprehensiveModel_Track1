@@ -21525,4 +21525,61 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "View.MemoryView":286
  *         return self.name
  * 
- * cdef generic = Enum("<strided and dire
+ * cdef generic = Enum("<strided and direct or indirect>")             # <<<<<<<<<<<<<<
+ * cdef strided = Enum("<strided and direct>") # default
+ * cdef indirect = Enum("<strided and indirect>")
+ */
+  __pyx_tuple__21 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct_or_indirect); if (unlikely(!__pyx_tuple__21)) __PYX_ERR(2, 286, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__21);
+  __Pyx_GIVEREF(__pyx_tuple__21);
+
+  /* "View.MemoryView":287
+ * 
+ * cdef generic = Enum("<strided and direct or indirect>")
+ * cdef strided = Enum("<strided and direct>") # default             # <<<<<<<<<<<<<<
+ * cdef indirect = Enum("<strided and indirect>")
+ * 
+ */
+  __pyx_tuple__22 = PyTuple_Pack(1, __pyx_kp_s_strided_and_direct); if (unlikely(!__pyx_tuple__22)) __PYX_ERR(2, 287, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__22);
+  __Pyx_GIVEREF(__pyx_tuple__22);
+
+  /* "View.MemoryView":288
+ * cdef generic = Enum("<strided and direct or indirect>")
+ * cdef strided = Enum("<strided and direct>") # default
+ * cdef indirect = Enum("<strided and indirect>")             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_tuple__23 = PyTuple_Pack(1, __pyx_kp_s_strided_and_indirect); if (unlikely(!__pyx_tuple__23)) __PYX_ERR(2, 288, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__23);
+  __Pyx_GIVEREF(__pyx_tuple__23);
+
+  /* "View.MemoryView":291
+ * 
+ * 
+ * cdef contiguous = Enum("<contiguous and direct>")             # <<<<<<<<<<<<<<
+ * cdef indirect_contiguous = Enum("<contiguous and indirect>")
+ * 
+ */
+  __pyx_tuple__24 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_direct); if (unlikely(!__pyx_tuple__24)) __PYX_ERR(2, 291, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__24);
+  __Pyx_GIVEREF(__pyx_tuple__24);
+
+  /* "View.MemoryView":292
+ * 
+ * cdef contiguous = Enum("<contiguous and direct>")
+ * cdef indirect_contiguous = Enum("<contiguous and indirect>")             # <<<<<<<<<<<<<<
+ * 
+ * 
+ */
+  __pyx_tuple__25 = PyTuple_Pack(1, __pyx_kp_s_contiguous_and_indirect); if (unlikely(!__pyx_tuple__25)) __PYX_ERR(2, 292, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_tuple__25);
+  __Pyx_GIVEREF(__pyx_tuple__25);
+
+  /* "(tree fragment)":1
+ * def __pyx_unpickle_Enum(__pyx_type, long __pyx_checksum, __pyx_state):             # <<<<<<<<<<<<<<
+ *     cdef object __pyx_PickleError
+ *     cdef object __pyx_result
+ */
+  __pyx_tupl
