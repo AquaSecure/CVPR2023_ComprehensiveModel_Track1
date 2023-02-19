@@ -21800,4 +21800,65 @@ static CYTHON_SMALL_CODE int __Pyx_check_single_interpreter(void) {
     } else if (unlikely(main_interpreter_id != current_id))
     #else
     static PyInterpreterState *main_interpreter = NULL;
-    PyInterpr
+    PyInterpreterState *current_interpreter = PyThreadState_Get()->interp;
+    if (!main_interpreter) {
+        main_interpreter = current_interpreter;
+    } else if (unlikely(main_interpreter != current_interpreter))
+    #endif
+    {
+        PyErr_SetString(
+            PyExc_ImportError,
+            "Interpreter change detected - this module can only be loaded into one interpreter per process.");
+        return -1;
+    }
+    return 0;
+}
+static CYTHON_SMALL_CODE int __Pyx_copy_spec_to_module(PyObject *spec, PyObject *moddict, const char* from_name, const char* to_name, int allow_none) {
+    PyObject *value = PyObject_GetAttrString(spec, from_name);
+    int result = 0;
+    if (likely(value)) {
+        if (allow_none || value != Py_None) {
+            result = PyDict_SetItemString(moddict, to_name, value);
+        }
+        Py_DECREF(value);
+    } else if (PyErr_ExceptionMatches(PyExc_AttributeError)) {
+        PyErr_Clear();
+    } else {
+        result = -1;
+    }
+    return result;
+}
+static CYTHON_SMALL_CODE PyObject* __pyx_pymod_create(PyObject *spec, CYTHON_UNUSED PyModuleDef *def) {
+    PyObject *module = NULL, *moddict, *modname;
+    if (__Pyx_check_single_interpreter())
+        return NULL;
+    if (__pyx_m)
+        return __Pyx_NewRef(__pyx_m);
+    modname = PyObject_GetAttrString(spec, "name");
+    if (unlikely(!modname)) goto bad;
+    module = PyModule_NewObject(modname);
+    Py_DECREF(modname);
+    if (unlikely(!module)) goto bad;
+    moddict = PyModule_GetDict(module);
+    if (unlikely(!moddict)) goto bad;
+    if (unlikely(__Pyx_copy_spec_to_module(spec, moddict, "loader", "__loader__", 1) < 0)) goto bad;
+    if (unlikely(__Pyx_copy_spec_to_module(spec, moddict, "origin", "__file__", 1) < 0)) goto bad;
+    if (unlikely(__Pyx_copy_spec_to_module(spec, moddict, "parent", "__package__", 1) < 0)) goto bad;
+    if (unlikely(__Pyx_copy_spec_to_module(spec, moddict, "submodule_search_locations", "__path__", 0) < 0)) goto bad;
+    return module;
+bad:
+    Py_XDECREF(module);
+    return NULL;
+}
+
+
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_rank_cy(PyObject *__pyx_pyinit_module)
+#endif
+#endif
+{
+  PyObject *__pyx_t_1 = NULL;
+  PyObject *__pyx_t_2 = NULL;
+  static PyThread_type_lock __pyx_t_3[8];
+  int __pyx_lineno = 0;
+  const char *__pyx_filename = NULL;
+  int __p
