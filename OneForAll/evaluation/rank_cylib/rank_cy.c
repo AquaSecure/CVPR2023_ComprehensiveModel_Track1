@@ -21861,4 +21861,59 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_rank_cy(PyObject *__pyx_pyinit_mod
   static PyThread_type_lock __pyx_t_3[8];
   int __pyx_lineno = 0;
   const char *__pyx_filename = NULL;
-  int __p
+  int __pyx_clineno = 0;
+  __Pyx_RefNannyDeclarations
+  #if CYTHON_PEP489_MULTI_PHASE_INIT
+  if (__pyx_m) {
+    if (__pyx_m == __pyx_pyinit_module) return 0;
+    PyErr_SetString(PyExc_RuntimeError, "Module 'rank_cy' has already been imported. Re-initialisation is not supported.");
+    return -1;
+  }
+  #elif PY_MAJOR_VERSION >= 3
+  if (__pyx_m) return __Pyx_NewRef(__pyx_m);
+  #endif
+  #if CYTHON_REFNANNY
+__Pyx_RefNanny = __Pyx_RefNannyImportAPI("refnanny");
+if (!__Pyx_RefNanny) {
+  PyErr_Clear();
+  __Pyx_RefNanny = __Pyx_RefNannyImportAPI("Cython.Runtime.refnanny");
+  if (!__Pyx_RefNanny)
+      Py_FatalError("failed to import 'refnanny' module");
+}
+#endif
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_rank_cy(void)", 0);
+  if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #ifdef __Pxy_PyFrame_Initialize_Offsets
+  __Pxy_PyFrame_Initialize_Offsets();
+  #endif
+  __pyx_empty_tuple = PyTuple_New(0); if (unlikely(!__pyx_empty_tuple)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_empty_bytes = PyBytes_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_bytes)) __PYX_ERR(0, 1, __pyx_L1_error)
+  __pyx_empty_unicode = PyUnicode_FromStringAndSize("", 0); if (unlikely(!__pyx_empty_unicode)) __PYX_ERR(0, 1, __pyx_L1_error)
+  #ifdef __Pyx_CyFunction_USED
+  if (__pyx_CyFunction_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_FusedFunction_USED
+  if (__pyx_FusedFunction_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_Coroutine_USED
+  if (__pyx_Coroutine_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_Generator_USED
+  if (__pyx_Generator_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_AsyncGen_USED
+  if (__pyx_AsyncGen_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  #ifdef __Pyx_StopAsyncIteration_USED
+  if (__pyx_StopAsyncIteration_init() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
+  #endif
+  /*--- Library function declarations ---*/
+  /*--- Threads initialization code ---*/
+  #if defined(WITH_THREAD) && PY_VERSION_HEX < 0x030700F0 && defined(__PYX_FORCE_INIT_THREADS) && __PYX_FORCE_INIT_THREADS
+  PyEval_InitThreads();
+  #endif
+  /*--- Module creation code ---*/
+  #if CYTHON_PEP489_MULTI_PHASE_INIT
+  __pyx_m = __pyx_pyinit_module;
+  Py_INCREF(__pyx_m);
+  #
