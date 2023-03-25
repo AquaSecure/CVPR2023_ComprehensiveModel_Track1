@@ -24513,4 +24513,79 @@ static void __Pyx_AddTraceback(const char *funcname, int c_line,
                                int py_line, const char *filename) {
     PyCodeObject *py_code = 0;
     PyFrameObject *py_frame = 0;
-    PyThreadState *tstate = 
+    PyThreadState *tstate = __Pyx_PyThreadState_Current;
+    if (c_line) {
+        c_line = __Pyx_CLineForTraceback(tstate, c_line);
+    }
+    py_code = __pyx_find_code_object(c_line ? -c_line : py_line);
+    if (!py_code) {
+        py_code = __Pyx_CreateCodeObjectForTraceback(
+            funcname, c_line, py_line, filename);
+        if (!py_code) goto bad;
+        __pyx_insert_code_object(c_line ? -c_line : py_line, py_code);
+    }
+    py_frame = PyFrame_New(
+        tstate,            /*PyThreadState *tstate,*/
+        py_code,           /*PyCodeObject *code,*/
+        __pyx_d,    /*PyObject *globals,*/
+        0                  /*PyObject *locals*/
+    );
+    if (!py_frame) goto bad;
+    __Pyx_PyFrame_SetLineNumber(py_frame, py_line);
+    PyTraceBack_Here(py_frame);
+bad:
+    Py_XDECREF(py_code);
+    Py_XDECREF(py_frame);
+}
+
+#if PY_MAJOR_VERSION < 3
+static int __Pyx_GetBuffer(PyObject *obj, Py_buffer *view, int flags) {
+    if (PyObject_CheckBuffer(obj)) return PyObject_GetBuffer(obj, view, flags);
+        if (__Pyx_TypeCheck(obj, __pyx_array_type)) return __pyx_array_getbuffer(obj, view, flags);
+        if (__Pyx_TypeCheck(obj, __pyx_memoryview_type)) return __pyx_memoryview_getbuffer(obj, view, flags);
+    PyErr_Format(PyExc_TypeError, "'%.200s' does not have the buffer interface", Py_TYPE(obj)->tp_name);
+    return -1;
+}
+static void __Pyx_ReleaseBuffer(Py_buffer *view) {
+    PyObject *obj = view->obj;
+    if (!obj) return;
+    if (PyObject_CheckBuffer(obj)) {
+        PyBuffer_Release(view);
+        return;
+    }
+    if ((0)) {}
+    view->obj = NULL;
+    Py_DECREF(obj);
+}
+#endif
+
+
+/* MemviewSliceIsContig */
+static int
+__pyx_memviewslice_is_contig(const __Pyx_memviewslice mvs, char order, int ndim)
+{
+    int i, index, step, start;
+    Py_ssize_t itemsize = mvs.memview->view.itemsize;
+    if (order == 'F') {
+        step = 1;
+        start = 0;
+    } else {
+        step = -1;
+        start = ndim - 1;
+    }
+    for (i = 0; i < ndim; i++) {
+        index = start + step * i;
+        if (mvs.suboffsets[index] >= 0 || mvs.strides[index] != itemsize)
+            return 0;
+        itemsize *= mvs.shape[index];
+    }
+    return 1;
+}
+
+/* OverlappingSlices */
+static void
+__pyx_get_array_memory_extents(__Pyx_memviewslice *slice,
+                               void **out_start, void **out_end,
+                               int ndim, size_t itemsize)
+{
+    cha
