@@ -24855,4 +24855,55 @@ static void __Pyx_BufFmt_RaiseExpected(__Pyx_BufFmt_Context* ctx) {
                  quote, expected, quote,
                  __Pyx_BufFmt_DescribeTypeChar(ctx->enc_type, ctx->is_complex));
   } else {
-    __Pyx_StructFie
+    __Pyx_StructField* field = ctx->head->field;
+    __Pyx_StructField* parent = (ctx->head - 1)->field;
+    PyErr_Format(PyExc_ValueError,
+                 "Buffer dtype mismatch, expected '%s' but got %s in '%s.%s'",
+                 field->type->name, __Pyx_BufFmt_DescribeTypeChar(ctx->enc_type, ctx->is_complex),
+                 parent->type->name, field->name);
+  }
+}
+static int __Pyx_BufFmt_ProcessTypeChunk(__Pyx_BufFmt_Context* ctx) {
+  char group;
+  size_t size, offset, arraysize = 1;
+  if (ctx->enc_type == 0) return 0;
+  if (ctx->head->field->type->arraysize[0]) {
+    int i, ndim = 0;
+    if (ctx->enc_type == 's' || ctx->enc_type == 'p') {
+        ctx->is_valid_array = ctx->head->field->type->ndim == 1;
+        ndim = 1;
+        if (ctx->enc_count != ctx->head->field->type->arraysize[0]) {
+            PyErr_Format(PyExc_ValueError,
+                         "Expected a dimension of size %zu, got %zu",
+                         ctx->head->field->type->arraysize[0], ctx->enc_count);
+            return -1;
+        }
+    }
+    if (!ctx->is_valid_array) {
+      PyErr_Format(PyExc_ValueError, "Expected %d dimensions, got %d",
+                   ctx->head->field->type->ndim, ndim);
+      return -1;
+    }
+    for (i = 0; i < ctx->head->field->type->ndim; i++) {
+      arraysize *= ctx->head->field->type->arraysize[i];
+    }
+    ctx->is_valid_array = 0;
+    ctx->enc_count = 1;
+  }
+  group = __Pyx_BufFmt_TypeCharToGroup(ctx->enc_type, ctx->is_complex);
+  do {
+    __Pyx_StructField* field = ctx->head->field;
+    __Pyx_TypeInfo* type = field->type;
+    if (ctx->enc_packmode == '@' || ctx->enc_packmode == '^') {
+      size = __Pyx_BufFmt_TypeCharToNativeSize(ctx->enc_type, ctx->is_complex);
+    } else {
+      size = __Pyx_BufFmt_TypeCharToStandardSize(ctx->enc_type, ctx->is_complex);
+    }
+    if (ctx->enc_packmode == '@') {
+      size_t align_at = __Pyx_BufFmt_TypeCharToAlignment(ctx->enc_type, ctx->is_complex);
+      size_t align_mod_offset;
+      if (align_at == 0) return -1;
+      align_mod_offset = ctx->fmt_offset % align_at;
+      if (align_mod_offset > 0) ctx->fmt_offset += align_at - align_mod_offset;
+      if (ctx->struct_alignment == 0)
+          ctx->struct_
