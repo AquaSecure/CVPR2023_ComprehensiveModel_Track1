@@ -25109,4 +25109,87 @@ static const char* __Pyx_BufFmt_CheckString(__Pyx_BufFmt_Context* ctx, const cha
       case 'O': case 'p':
         if ((ctx->enc_type == *ts) && (got_Z == ctx->is_complex) &&
             (ctx->enc_packmode == ctx->new_packmode) && (!ctx->is_valid_array)) {
-          ctx->enc_count += 
+          ctx->enc_count += ctx->new_count;
+          ctx->new_count = 1;
+          got_Z = 0;
+          ++ts;
+          break;
+        }
+        CYTHON_FALLTHROUGH;
+      case 's':
+        if (__Pyx_BufFmt_ProcessTypeChunk(ctx) == -1) return NULL;
+        ctx->enc_count = ctx->new_count;
+        ctx->enc_packmode = ctx->new_packmode;
+        ctx->enc_type = *ts;
+        ctx->is_complex = got_Z;
+        ++ts;
+        ctx->new_count = 1;
+        got_Z = 0;
+        break;
+      case ':':
+        ++ts;
+        while(*ts != ':') ++ts;
+        ++ts;
+        break;
+      case '(':
+        if (!__pyx_buffmt_parse_array(ctx, &ts)) return NULL;
+        break;
+      default:
+        {
+          int number = __Pyx_BufFmt_ExpectNumber(&ts);
+          if (number == -1) return NULL;
+          ctx->new_count = (size_t)number;
+        }
+    }
+  }
+}
+
+/* TypeInfoCompare */
+  static int
+__pyx_typeinfo_cmp(__Pyx_TypeInfo *a, __Pyx_TypeInfo *b)
+{
+    int i;
+    if (!a || !b)
+        return 0;
+    if (a == b)
+        return 1;
+    if (a->size != b->size || a->typegroup != b->typegroup ||
+            a->is_unsigned != b->is_unsigned || a->ndim != b->ndim) {
+        if (a->typegroup == 'H' || b->typegroup == 'H') {
+            return a->size == b->size;
+        } else {
+            return 0;
+        }
+    }
+    if (a->ndim) {
+        for (i = 0; i < a->ndim; i++)
+            if (a->arraysize[i] != b->arraysize[i])
+                return 0;
+    }
+    if (a->typegroup == 'S') {
+        if (a->flags != b->flags)
+            return 0;
+        if (a->fields || b->fields) {
+            if (!(a->fields && b->fields))
+                return 0;
+            for (i = 0; a->fields[i].type && b->fields[i].type; i++) {
+                __Pyx_StructField *field_a = a->fields + i;
+                __Pyx_StructField *field_b = b->fields + i;
+                if (field_a->offset != field_b->offset ||
+                    !__pyx_typeinfo_cmp(field_a->type, field_b->type))
+                    return 0;
+            }
+            return !a->fields[i].type && !b->fields[i].type;
+        }
+    }
+    return 1;
+}
+
+/* MemviewSliceValidateAndInit */
+  static int
+__pyx_check_strides(Py_buffer *buf, int dim, int ndim, int spec)
+{
+    if (buf->shape[dim] <= 1)
+        return 1;
+    if (buf->strides) {
+        if (spec & __
