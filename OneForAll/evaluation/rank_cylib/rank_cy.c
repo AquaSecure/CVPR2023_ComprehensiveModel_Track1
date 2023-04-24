@@ -26776,4 +26776,71 @@ static CYTHON_INLINE const char* __Pyx_PyUnicode_AsStringAndSize(PyObject* o, Py
         return NULL;
     }
 #else
-    return P
+    return PyUnicode_AsUTF8AndSize(o, length);
+#endif
+}
+#endif
+#endif
+static CYTHON_INLINE const char* __Pyx_PyObject_AsStringAndSize(PyObject* o, Py_ssize_t *length) {
+#if __PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT
+    if (
+#if PY_MAJOR_VERSION < 3 && __PYX_DEFAULT_STRING_ENCODING_IS_ASCII
+            __Pyx_sys_getdefaultencoding_not_ascii &&
+#endif
+            PyUnicode_Check(o)) {
+        return __Pyx_PyUnicode_AsStringAndSize(o, length);
+    } else
+#endif
+#if (!CYTHON_COMPILING_IN_PYPY) || (defined(PyByteArray_AS_STRING) && defined(PyByteArray_GET_SIZE))
+    if (PyByteArray_Check(o)) {
+        *length = PyByteArray_GET_SIZE(o);
+        return PyByteArray_AS_STRING(o);
+    } else
+#endif
+    {
+        char* result;
+        int r = PyBytes_AsStringAndSize(o, &result, length);
+        if (unlikely(r < 0)) {
+            return NULL;
+        } else {
+            return result;
+        }
+    }
+}
+static CYTHON_INLINE int __Pyx_PyObject_IsTrue(PyObject* x) {
+   int is_true = x == Py_True;
+   if (is_true | (x == Py_False) | (x == Py_None)) return is_true;
+   else return PyObject_IsTrue(x);
+}
+static CYTHON_INLINE int __Pyx_PyObject_IsTrueAndDecref(PyObject* x) {
+    int retval;
+    if (unlikely(!x)) return -1;
+    retval = __Pyx_PyObject_IsTrue(x);
+    Py_DECREF(x);
+    return retval;
+}
+static PyObject* __Pyx_PyNumber_IntOrLongWrongResultType(PyObject* result, const char* type_name) {
+#if PY_MAJOR_VERSION >= 3
+    if (PyLong_Check(result)) {
+        if (PyErr_WarnFormat(PyExc_DeprecationWarning, 1,
+                "__int__ returned non-int (type %.200s).  "
+                "The ability to return an instance of a strict subclass of int "
+                "is deprecated, and may be removed in a future version of Python.",
+                Py_TYPE(result)->tp_name)) {
+            Py_DECREF(result);
+            return NULL;
+        }
+        return result;
+    }
+#endif
+    PyErr_Format(PyExc_TypeError,
+                 "__%.4s__ returned non-%.4s (type %.200s)",
+                 type_name, type_name, Py_TYPE(result)->tp_name);
+    Py_DECREF(result);
+    return NULL;
+}
+static CYTHON_INLINE PyObject* __Pyx_PyNumber_IntOrLong(PyObject* x) {
+#if CYTHON_USE_TYPE_SLOTS
+  PyNumberMethods *m;
+#endif
+  co
