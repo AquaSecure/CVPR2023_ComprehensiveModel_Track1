@@ -26843,4 +26843,85 @@ static CYTHON_INLINE PyObject* __Pyx_PyNumber_IntOrLong(PyObject* x) {
 #if CYTHON_USE_TYPE_SLOTS
   PyNumberMethods *m;
 #endif
-  co
+  const char *name = NULL;
+  PyObject *res = NULL;
+#if PY_MAJOR_VERSION < 3
+  if (likely(PyInt_Check(x) || PyLong_Check(x)))
+#else
+  if (likely(PyLong_Check(x)))
+#endif
+    return __Pyx_NewRef(x);
+#if CYTHON_USE_TYPE_SLOTS
+  m = Py_TYPE(x)->tp_as_number;
+  #if PY_MAJOR_VERSION < 3
+  if (m && m->nb_int) {
+    name = "int";
+    res = m->nb_int(x);
+  }
+  else if (m && m->nb_long) {
+    name = "long";
+    res = m->nb_long(x);
+  }
+  #else
+  if (likely(m && m->nb_int)) {
+    name = "int";
+    res = m->nb_int(x);
+  }
+  #endif
+#else
+  if (!PyBytes_CheckExact(x) && !PyUnicode_CheckExact(x)) {
+    res = PyNumber_Int(x);
+  }
+#endif
+  if (likely(res)) {
+#if PY_MAJOR_VERSION < 3
+    if (unlikely(!PyInt_Check(res) && !PyLong_Check(res))) {
+#else
+    if (unlikely(!PyLong_CheckExact(res))) {
+#endif
+        return __Pyx_PyNumber_IntOrLongWrongResultType(res, name);
+    }
+  }
+  else if (!PyErr_Occurred()) {
+    PyErr_SetString(PyExc_TypeError,
+                    "an integer is required");
+  }
+  return res;
+}
+static CYTHON_INLINE Py_ssize_t __Pyx_PyIndex_AsSsize_t(PyObject* b) {
+  Py_ssize_t ival;
+  PyObject *x;
+#if PY_MAJOR_VERSION < 3
+  if (likely(PyInt_CheckExact(b))) {
+    if (sizeof(Py_ssize_t) >= sizeof(long))
+        return PyInt_AS_LONG(b);
+    else
+        return PyInt_AsSsize_t(b);
+  }
+#endif
+  if (likely(PyLong_CheckExact(b))) {
+    #if CYTHON_USE_PYLONG_INTERNALS
+    const digit* digits = ((PyLongObject*)b)->ob_digit;
+    const Py_ssize_t size = Py_SIZE(b);
+    if (likely(__Pyx_sst_abs(size) <= 1)) {
+        ival = likely(size) ? digits[0] : 0;
+        if (size == -1) ival = -ival;
+        return ival;
+    } else {
+      switch (size) {
+         case 2:
+           if (8 * sizeof(Py_ssize_t) > 2 * PyLong_SHIFT) {
+             return (Py_ssize_t) (((((size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
+           }
+           break;
+         case -2:
+           if (8 * sizeof(Py_ssize_t) > 2 * PyLong_SHIFT) {
+             return -(Py_ssize_t) (((((size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
+           }
+           break;
+         case 3:
+           if (8 * sizeof(Py_ssize_t) > 3 * PyLong_SHIFT) {
+             return (Py_ssize_t) (((((((size_t)digits[2]) << PyLong_SHIFT) | (size_t)digits[1]) << PyLong_SHIFT) | (size_t)digits[0]));
+           }
+           break;
+         case
