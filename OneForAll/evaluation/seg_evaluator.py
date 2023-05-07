@@ -444,4 +444,68 @@ def slide_inference(model, im, crop_size, stride):
             logit = logits[0].numpy()
             if final_logit is None:
                 final_logit = np.zeros([1, logit.shape[1], h_im, w_im])
-            final_logit[:, :, h
+            final_logit[:, :, h1:h2, w1:w2] += logit[:, :, :h2 - h1, :w2 - w1]
+            count[:, :, h1:h2, w1:w2] += 1
+    if np.sum(count == 0) != 0:
+        raise RuntimeError(
+            'There are pixel not predicted. It is possible that stride is greater than crop_size'
+        )
+    final_logit = final_logit / count
+    final_logit = paddle.to_tensor(final_logit)
+    return final_logit
+
+
+def reverse_transform(pred, trans_info, mode='nearest'):
+    """recover pred to origin shape"""
+    intTypeList = [paddle.int8, paddle.int16, paddle.int32, paddle.int64]
+    dtype = pred.dtype
+    for item in trans_info[::-1]:
+        if isinstance(item[0], list):
+            trans_mode = item[0][0]
+        else:
+            trans_mode = item[0]
+        if trans_mode == 'resize':
+            h, w = item[1][0], item[1][1]
+            if paddle.get_device() == 'cpu' and dtype in intTypeList:
+                pred = paddle.cast(pred, 'float32')
+                pred = F.interpolate(pred, [h, w], mode=mode)
+                pred = paddle.cast(pred, dtype)
+            else:
+                pred = F.interpolate(pred, [h, w], mode=mode)
+        elif trans_mode == 'padding':
+            h, w = item[1][0], item[1][1]
+            pred = pred[:, :, 0:h, 0:w]
+        else:
+            raise Exception("Unexpected info '{}' in im_info".format(item[0]))
+    return pred
+
+
+def flip_combination(flip_horizontal=False, flip_vertical=False):
+    """
+    Get flip combination.
+
+    Args:
+        flip_horizontal (bool): Whether to flip horizontally. Default: False.
+        flip_vertical (bool): Whether to flip vertically. Default: False.
+
+    Returns:
+        list: List of tuple. The first element of tuple is whether to flip horizontally,
+            and the second is whether to flip vertically.
+    """
+
+    flip_comb = [(False, False)]
+    if flip_horizontal:
+        flip_comb.append((True, False))
+    if flip_vertical:
+        flip_comb.append((False, True))
+        if flip_horizontal:
+            flip_comb.append((True, True))
+    return flip_comb
+
+def tensor_flip(x, flip):
+    """Flip tensor according directions"""
+    if flip[0]:
+        x = x[:, :, :, ::-1]
+    if flip[1]:
+        x = x[:, :, ::-1, :]
+    return x
