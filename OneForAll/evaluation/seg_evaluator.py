@@ -272,3 +272,61 @@ def seg_inference_on_test_dataset(model,
                     crop_size=crop_size)
             else:
                 pred, _ = inference(
+                    model,
+                    data,
+                    trans_info=trans_info,
+                    is_slide=is_slide,
+                    stride=stride,
+                    crop_size=crop_size)
+
+            results = []
+            results_id = []
+            paddle.distributed.all_gather(results, pred)
+            paddle.distributed.all_gather(results_id, im_id)
+            if not comm.is_main_process():
+                continue
+            for k, result in enumerate(results):                               
+            # pred_img = pred.numpy().squeeze(0).transpose(1,2,0).astype(np.uint8)
+            # cv2.imwrite(save_path + '/' + imgname, pred_img) 
+                res = mask2polygon(result.numpy().squeeze(0).squeeze(0).astype(np.uint8))
+                tmp = dict()
+                id = results_id[k].numpy()[0]
+                imgname = os.path.splitext(os.path.basename(id2path[0][id][0]))[0] + '.png'
+                tmp[imgname] = res
+                pred_res.append(tmp)
+    if not comm.is_main_process():
+        return {}
+    return {'seg': pred_res}
+
+
+def inference(model,
+              im,
+              trans_info=None,
+              is_slide=False,
+              stride=None,
+              crop_size=None):
+    """
+    Inference for image.
+
+    Args:
+        model (paddle.nn.Layer): model to get logits of image.
+        im (Tensor): the input image.
+        trans_info (list): Image shape informating changed process. Default: None.
+        is_slide (bool): Whether to infer by sliding window. Default: False.
+        crop_size (tuple|list). The size of sliding window, (w, h). It should be probided if is_slide is True.
+        stride (tuple|list). The size of stride, (w, h). It should be probided if is_slide is True.
+
+    Returns:
+        Tensor: If ori_shape is not None, a prediction with shape (1, 1, h, w) is returned.
+            If ori_shape is None, a logit with shape (1, num_classes, h, w) is returned.
+    """
+    if hasattr(model, 'data_format') and model.data_format == 'NHWC':
+        im = im.transpose((0, 2, 3, 1))
+    if not is_slide:
+        logits = model(im)
+        logits = list(logits.values())[0]
+        if not isinstance(logits, collections.abc.Sequence):
+            raise TypeError(
+                "The type of logits must be one of collections.abc.Sequence, e.g. list, tuple. But received {}"
+                .format(type(logits)))
+      
