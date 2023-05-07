@@ -386,3 +386,62 @@ def aug_inference(model,
             logit = inference(
                 model,
                 im_flip,
+                is_slide=is_slide,
+                crop_size=crop_size,
+                stride=stride)
+            logit = tensor_flip(logit, flip)
+            logit = F.interpolate(logit, [h_input, w_input], mode='bilinear')
+
+            logit = F.softmax(logit, axis=1)
+            final_logit = final_logit + logit
+
+    final_logit = reverse_transform(final_logit, trans_info, mode='bilinear')
+    pred = paddle.argmax(final_logit, axis=1, keepdim=True, dtype='int32')
+
+    return pred, final_logit
+
+
+def slide_inference(model, im, crop_size, stride):
+    """
+    Infer by sliding window.
+
+    Args:
+        model (paddle.nn.Layer): model to get logits of image.
+        im (Tensor): the input image.
+        crop_size (tuple|list). The size of sliding window, (w, h).
+        stride (tuple|list). The size of stride, (w, h).
+
+    Return:
+        Tensor: The logit of input image.
+    """
+    h_im, w_im = im.shape[-2:]
+    w_crop, h_crop = crop_size
+    w_stride, h_stride = stride
+    # calculate the crop nums
+    rows = np.int(np.ceil(1.0 * (h_im - h_crop) / h_stride)) + 1
+    cols = np.int(np.ceil(1.0 * (w_im - w_crop) / w_stride)) + 1
+    # prevent negative sliding rounds when imgs after scaling << crop_size
+    rows = 1 if h_im <= h_crop else rows
+    cols = 1 if w_im <= w_crop else cols
+    # TODO 'Tensor' object does not support item assignment. If support, use tensor to calculation.
+    final_logit = None
+    count = np.zeros([1, 1, h_im, w_im])
+    for r in range(rows):
+        for c in range(cols):
+            h1 = r * h_stride
+            w1 = c * w_stride
+            h2 = min(h1 + h_crop, h_im)
+            w2 = min(w1 + w_crop, w_im)
+            h1 = max(h2 - h_crop, 0)
+            w1 = max(w2 - w_crop, 0)
+            im_crop = im[:, :, h1:h2, w1:w2]
+            logits = model(im_crop)
+            logits = list(logits.values())[0]
+            if not isinstance(logits, collections.abc.Sequence):
+                raise TypeError(
+                    "The type of logits must be one of collections.abc.Sequence, e.g. list, tuple. But received {}"
+                    .format(type(logits)))
+            logit = logits[0].numpy()
+            if final_logit is None:
+                final_logit = np.zeros([1, logit.shape[1], h_im, w_im])
+            final_logit[:, :, h
