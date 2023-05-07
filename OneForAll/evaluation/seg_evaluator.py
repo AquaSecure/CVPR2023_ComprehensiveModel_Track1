@@ -124,4 +124,52 @@ def seg_inference_on_dataset(model,
                                               intersect_area)
                 paddle.distributed.all_gather(pred_area_list, pred_area)
                 paddle.distributed.all_gather(label_area_list, label_area)
-                # Some image has been evaluated and should be eliminated
+                # Some image has been evaluated and should be eliminated in last iter
+                if (iter + 1) * nranks > len(list(data_loader.task_loaders.values())[0].dataset):
+                    valid = len(list(data_loader.task_loaders.values())[0].dataset) - iter * nranks
+                    intersect_area_list = intersect_area_list[:valid]
+                    pred_area_list = pred_area_list[:valid]
+                    label_area_list = label_area_list[:valid]
+
+                for i in range(len(intersect_area_list)):
+                    intersect_area_all = intersect_area_all + intersect_area_list[
+                        i]
+                    pred_area_all = pred_area_all + pred_area_list[i]
+                    label_area_all = label_area_all + label_area_list[i]
+            else:
+                intersect_area_all = intersect_area_all + intersect_area
+                pred_area_all = pred_area_all + pred_area
+                label_area_all = label_area_all + label_area
+
+            if auc_roc:
+                logits = F.softmax(logits, axis=1)
+                if logits_all is None:
+                    logits_all = logits.numpy()
+                    label_all = label.numpy()
+                else:
+                    logits_all = np.concatenate(
+                        [logits_all, logits.numpy()])  # (KN, C, H, W)
+                    label_all = np.concatenate([label_all, label.numpy()])
+            
+            if comm.get_world_size() > 1:
+                comm.synchronize()
+            time.sleep(0.01)
+
+    metrics_input = (intersect_area_all, pred_area_all, label_area_all)
+    class_iou, miou = metrics.mean_iou(*metrics_input)
+    acc, class_precision, class_recall = metrics.class_measurement(
+        *metrics_input)
+    kappa = metrics.kappa(*metrics_input)
+    class_dice, mdice = metrics.dice(*metrics_input)
+    
+    model.train()
+    
+    if auc_roc:
+        auc_roc = metrics.auc_roc(
+            logits_all, label_all, num_classes=19)
+        auc_infor = ' Auc_roc: {:.4f}'.format(auc_roc)
+
+    if print_detail:
+        infor = "[EVAL] #Images: {} mIoU: {:.4f} Acc: {:.4f} Kappa: {:.4f} Dice: {:.4f}".format(
+            len(list(data_loader.task_loaders.values())[0].dataset), miou, acc, kappa, mdice)
+        infor = infor + auc_infor 
