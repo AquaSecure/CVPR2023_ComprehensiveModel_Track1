@@ -232,4 +232,43 @@ def seg_inference_on_test_dataset(model,
         is_slide (bool, optional): Whether to evaluate by sliding window. Default: False.
         stride (tuple|list, optional): The stride of sliding window, the first is width and the second is height.
             It should be provided when `is_slide` is True.
-        crop
+        crop_size (tuple|list, optional):  The crop size of sliding window, the first is width and the second is height.
+            It should be provided when `is_slide` is True.
+        precision (str, optional): Use AMP if precision='fp16'. If precision='fp32', the evaluation is normal.
+        amp_level (str, optional): Auto mixed precision level. Accepted values are “O1” and “O2”: O1 represent mixed precision, the input data type of each operator will be casted by white_list and black_list; O2 represent Pure fp16, all operators parameters and input data will be casted to fp16, except operators in black_list, don’t support fp16 kernel and batchnorm. Default is O1(amp)
+        num_workers (int, optional): Num workers for data loader. Default: 0.
+        print_detail (bool, optional): Whether to print detailed information about the evaluation process. Default: True.
+        auc_roc(bool, optional): whether add auc_roc metric
+
+    Returns:
+        float: The mIoU of validation datasets.
+        float: The accuracy of validation datasets.
+    """
+    
+    if print_detail: #and hasattr(data_loader, 'dataset'):
+        logger.info("Start evaluating (total_samples: {}, total_iters: {})...".
+                    format(len(list(data_loader.task_loaders.values())[0].dataset), len(data_loader)))
+
+    model.eval()
+
+    pred_res = []
+    with paddle.no_grad():
+        for iter, data in enumerate(tqdm(data_loader, mininterval=10)):
+            trans_info = data['segmentation']['trans_info']
+            img_path = data['segmentation']['im_path'][0]
+            im_id = data['segmentation']['im_id'][0]
+            id2path = data['segmentation']['id2path']
+            # imgname = os.path.splitext(os.path.basename(img_path))[0] + '.png'
+            if aug_eval:
+                pred, _ = aug_inference(
+                    model,
+                    data,
+                    trans_info=trans_info,
+                    scales=scales,
+                    flip_horizontal=flip_horizontal,
+                    flip_vertical=flip_vertical,
+                    is_slide=is_slide,
+                    stride=stride,
+                    crop_size=crop_size)
+            else:
+                pred, _ = inference(
