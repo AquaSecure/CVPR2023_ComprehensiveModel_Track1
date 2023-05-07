@@ -172,4 +172,64 @@ def seg_inference_on_dataset(model,
     if print_detail:
         infor = "[EVAL] #Images: {} mIoU: {:.4f} Acc: {:.4f} Kappa: {:.4f} Dice: {:.4f}".format(
             len(list(data_loader.task_loaders.values())[0].dataset), miou, acc, kappa, mdice)
-        infor = infor + auc_infor 
+        infor = infor + auc_infor if auc_roc else infor
+        logger.info(infor)
+        logger.info("[EVAL] Class IoU: \n" + str(np.round(class_iou, 4)))
+        logger.info("[EVAL] Class Precision: \n" + str(
+            np.round(class_precision, 4)))
+        logger.info("[EVAL] Class Recall: \n" + str(np.round(class_recall, 4)))
+    
+    result = {}
+    result['miou'] = miou
+
+    return result
+
+import copy
+def mask2polygon(mask_image):
+
+    """
+    :param mask_image: 输入mask图片地址, 默认为gray, 且像素值为0或255
+    :return: list, 每个item为一个labelme的points
+    """
+    cls_2_polygon = {}
+    for i in range(19):
+        mask = copy.deepcopy(mask_image)
+        mask[mask != i] = 0
+        mask[mask == i] = 1
+        mask.astype('uint8')
+ 
+        contours, hierarchy = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+        results = [item.squeeze().tolist() for item in contours]
+        cls_2_polygon[i] = results
+
+    return cls_2_polygon  #results
+
+
+def seg_inference_on_test_dataset(model,
+             data_loader,
+             evaluate,
+             aug_eval=False,
+             scales=1.0,
+             flip_horizontal=False,
+             flip_vertical=False,
+             is_slide=False,
+             stride=None,
+             crop_size=None,
+             precision='fp32',
+             amp_level='O1',
+             print_detail=True,
+             auc_roc=False):
+    """
+    Launch evalution.
+
+    Args:
+        model（nn.Layer): A semantic segmentation model.
+        eval_dataset (paddle.io.Dataset): Used to read and process validation datasets.
+        aug_eval (bool, optional): Whether to use mulit-scales and flip augment for evaluation. Default: False.
+        scales (list|float, optional): Scales for augment. It is valid when `aug_eval` is True. Default: 1.0.
+        flip_horizontal (bool, optional): Whether to use flip horizontally augment. It is valid when `aug_eval` is True. Default: True.
+        flip_vertical (bool, optional): Whether to use flip vertically augment. It is valid when `aug_eval` is True. Default: False.
+        is_slide (bool, optional): Whether to evaluate by sliding window. Default: False.
+        stride (tuple|list, optional): The stride of sliding window, the first is width and the second is height.
+            It should be provided when `is_slide` is True.
+        crop
