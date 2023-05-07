@@ -70,4 +70,58 @@ def seg_inference_on_dataset(model,
         float: The accuracy of validation datasets.
     """
     
-    if print_detail: #and hasattr(data_loader, 'dat
+    if print_detail: #and hasattr(data_loader, 'dataset'):
+        logger.info("Start evaluating (total_samples: {}, total_iters: {})...".
+                    format(len(list(data_loader.task_loaders.values())[0].dataset), len(data_loader)))
+
+    model.eval()
+    nranks = paddle.distributed.ParallelEnv().nranks
+    local_rank = paddle.distributed.ParallelEnv().local_rank
+
+    intersect_area_all = paddle.zeros([1], dtype='int64')
+    pred_area_all = paddle.zeros([1], dtype='int64')
+    label_area_all = paddle.zeros([1], dtype='int64')
+    logits_all = None
+    label_all = None
+
+
+    with paddle.no_grad():
+        for iter, data in enumerate(data_loader):
+            label = data['segmentation']['label'].astype('int64')
+            trans_info = data['segmentation']['trans_info']
+            if aug_eval:
+                pred, logits = aug_inference(
+                    model,
+                    data,
+                    trans_info=trans_info,
+                    scales=scales,
+                    flip_horizontal=flip_horizontal,
+                    flip_vertical=flip_vertical,
+                    is_slide=is_slide,
+                    stride=stride,
+                    crop_size=crop_size)
+            else:
+                pred, logits = inference(
+                    model,
+                    data,
+                    trans_info=trans_info,
+                    is_slide=is_slide,
+                    stride=stride,
+                    crop_size=crop_size)
+            
+            intersect_area, pred_area, label_area = metrics.calculate_area(
+                pred,
+                label,
+                19,
+                ignore_index=list(data_loader.task_loaders.values())[0].dataset.ignore_index)
+
+            # Gather from all ranks
+            if nranks > 1:
+                intersect_area_list = []
+                pred_area_list = []
+                label_area_list = []
+                paddle.distributed.all_gather(intersect_area_list,
+                                              intersect_area)
+                paddle.distributed.all_gather(pred_area_list, pred_area)
+                paddle.distributed.all_gather(label_area_list, label_area)
+                # Some image has been evaluated and should be eliminated
