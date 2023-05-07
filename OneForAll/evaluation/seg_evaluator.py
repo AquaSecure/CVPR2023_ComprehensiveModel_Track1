@@ -329,4 +329,60 @@ def inference(model,
             raise TypeError(
                 "The type of logits must be one of collections.abc.Sequence, e.g. list, tuple. But received {}"
                 .format(type(logits)))
-      
+        logit = logits[0]
+    else:
+        logit = slide_inference(model, im, crop_size=crop_size, stride=stride)
+    if hasattr(model, 'data_format') and model.data_format == 'NHWC':
+        logit = logit.transpose((0, 3, 1, 2))
+    if trans_info is not None:
+        logit = reverse_transform(logit, trans_info, mode='bilinear')
+        pred = paddle.argmax(logit, axis=1, keepdim=True, dtype='int32')
+        return pred, logit
+    else:
+        return logit
+
+
+def aug_inference(model,
+                  im,
+                  trans_info,
+                  scales=1.0,
+                  flip_horizontal=False,
+                  flip_vertical=False,
+                  is_slide=False,
+                  stride=None,
+                  crop_size=None):
+    """
+    Infer with augmentation.
+
+    Args:
+        model (paddle.nn.Layer): model to get logits of image.
+        im (Tensor): the input image.
+        trans_info (list): Transforms for image.
+        scales (float|tuple|list):  Scales for resize. Default: 1.
+        flip_horizontal (bool): Whether to flip horizontally. Default: False.
+        flip_vertical (bool): Whether to flip vertically. Default: False.
+        is_slide (bool): Whether to infer by sliding wimdow. Default: False.
+        crop_size (tuple|list). The size of sliding window, (w, h). It should be probided if is_slide is True.
+        stride (tuple|list). The size of stride, (w, h). It should be probided if is_slide is True.
+
+    Returns:
+        Tensor: Prediction of image with shape (1, 1, h, w) is returned.
+    """
+    if isinstance(scales, float):
+        scales = [scales]
+    elif not isinstance(scales, (tuple, list)):
+        raise TypeError(
+            '`scales` expects float/tuple/list type, but received {}'.format(
+                type(scales)))
+    final_logit = 0
+    h_input, w_input = im.shape[-2], im.shape[-1]
+    flip_comb = flip_combination(flip_horizontal, flip_vertical)
+    for scale in scales:
+        h = int(h_input * scale + 0.5)
+        w = int(w_input * scale + 0.5)
+        im = F.interpolate(im, [h, w], mode='bilinear')
+        for flip in flip_comb:
+            im_flip = tensor_flip(im, flip)
+            logit = inference(
+                model,
+                im_flip,
