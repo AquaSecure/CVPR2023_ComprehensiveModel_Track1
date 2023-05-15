@@ -155,4 +155,70 @@ class ImageDataset(Dataset):
     ``__getitem__`` returns an image given index.
     It will return ``img``, ``pid``, ``camid`` and ``img_path``
     where ``img`` has shape (channel, height, width). As a result,
-    data in each batc
+    data in each batch has shape (batch_size, channel, height, width).
+    """
+
+    def show_train(self):
+        """show_train
+        """
+        num_train_pids, num_train_cams = self.parse_data(self.train)
+
+        headers = ['subset', '# ids', '# images', '# cameras']
+        csv_results = [['train', num_train_pids, len(self.train), num_train_cams]]
+
+        # tabulate it
+        table = tabulate(
+            csv_results,
+            tablefmt="pipe",
+            headers=headers,
+            numalign="left",
+        )
+        logger.info("=> Loaded {} in csv format: \n".format(self.__class__.__name__) + colored(table, "cyan"))
+
+    def show_test(self):
+        """show_test
+        """
+        num_query_pids, num_query_cams = self.parse_data(self.query)
+        num_gallery_pids, num_gallery_cams = self.parse_data(self.gallery)
+
+        headers = ['subset', '# ids', '# images', '# cameras']
+        csv_results = [
+            ['query', num_query_pids, len(self.query), num_query_cams],
+            ['gallery', num_gallery_pids, len(self.gallery), num_gallery_cams],
+        ]
+
+        # tabulate it
+        table = tabulate(
+            csv_results,
+            tablefmt="pipe",
+            headers=headers,
+            numalign="left",
+        )
+        logger.info("=> Loaded {} in csv format: \n".format(self.__class__.__name__) + colored(table, "cyan"))
+
+
+class DetDataset(paddle.io.Dataset):
+    """
+    Load detection dataset.
+
+    Args:
+        dataset_dir (str): root directory for dataset.
+        image_dir (str): directory for images.
+        anno_path (str): annotation file path.
+        data_fields (list): key name of data dictionary, at least have 'image'.
+        sample_num (int): number of samples to load, -1 means all.
+        use_default_label (bool): whether to load default label list.
+    """
+
+    def __init__(self,
+                 dataset_dir=None,
+                 image_dir=None,
+                 anno_path=None,
+                 data_fields=['image'],
+                 sample_num=-1,
+                 use_default_label=None,
+                 **kwargs):
+        super(DetDataset, self).__init__()
+        self.dataset_dir = dataset_dir if dataset_dir is not None else ''
+        self.anno_path = anno_path
+        self.image_dir = image_dir if image_dir is not No
