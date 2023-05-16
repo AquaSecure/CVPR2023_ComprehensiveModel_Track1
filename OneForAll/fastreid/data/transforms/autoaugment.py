@@ -286,4 +286,71 @@ def _solarize_level_to_arg(level, _hparams):
 def _solarize_increasing_level_to_arg(level, _hparams):
     # range [0, 256]
     # intensity/severity of augmentation increases with level
-  
+    return 256 - _solarize_level_to_arg(level, _hparams)[0],
+
+
+def _solarize_add_level_to_arg(level, _hparams):
+    # range [0, 110]
+    return int((level / _MAX_LEVEL) * 110),
+
+
+LEVEL_TO_ARG = {
+    'AutoContrast': None,
+    'Equalize': None,
+    'Invert': None,
+    'Rotate': _rotate_level_to_arg,
+    # There are several variations of the posterize level scaling in various Tensorflow/Google repositories/papers
+    'Posterize': _posterize_level_to_arg,
+    'PosterizeIncreasing': _posterize_increasing_level_to_arg,
+    'PosterizeOriginal': _posterize_original_level_to_arg,
+    'Solarize': _solarize_level_to_arg,
+    'SolarizeIncreasing': _solarize_increasing_level_to_arg,
+    'SolarizeAdd': _solarize_add_level_to_arg,
+    'Color': _enhance_level_to_arg,
+    'ColorIncreasing': _enhance_increasing_level_to_arg,
+    'Contrast': _enhance_level_to_arg,
+    'ContrastIncreasing': _enhance_increasing_level_to_arg,
+    'Brightness': _enhance_level_to_arg,
+    'BrightnessIncreasing': _enhance_increasing_level_to_arg,
+    'Sharpness': _enhance_level_to_arg,
+    'SharpnessIncreasing': _enhance_increasing_level_to_arg,
+    'ShearX': _shear_level_to_arg,
+    'ShearY': _shear_level_to_arg,
+    'TranslateX': _translate_abs_level_to_arg,
+    'TranslateY': _translate_abs_level_to_arg,
+    'TranslateXRel': _translate_rel_level_to_arg,
+    'TranslateYRel': _translate_rel_level_to_arg,
+}
+
+NAME_TO_OP = {
+    'AutoContrast': auto_contrast,
+    'Equalize': equalize,
+    'Invert': invert,
+    'Rotate': rotate,
+    'Posterize': posterize,
+    'PosterizeIncreasing': posterize,
+    'PosterizeOriginal': posterize,
+    'Solarize': solarize,
+    'SolarizeIncreasing': solarize,
+    'SolarizeAdd': solarize_add,
+    'Color': color,
+    'ColorIncreasing': color,
+    'Contrast': contrast,
+    'ContrastIncreasing': contrast,
+    'Brightness': brightness,
+    'BrightnessIncreasing': brightness,
+    'Sharpness': sharpness,
+    'SharpnessIncreasing': sharpness,
+    'ShearX': shear_x,
+    'ShearY': shear_y,
+    'TranslateX': translate_x_abs,
+    'TranslateY': translate_y_abs,
+    'TranslateXRel': translate_x_rel,
+    'TranslateYRel': translate_y_rel,
+}
+
+
+class AugmentOp(object):
+    """AugmentOp
+    """
+    def __init__(self, name, pro
