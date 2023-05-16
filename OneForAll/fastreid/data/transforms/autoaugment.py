@@ -110,4 +110,104 @@ def rotate(img, degrees, **kwargs):
         w, h = img.size
         post_trans = (0, 0)
         rotn_center = (w / 2.0, h / 2.0)
-        angle = 
+        angle = -math.radians(degrees)
+        matrix = [
+            round(math.cos(angle), 15),
+            round(math.sin(angle), 15),
+            0.0,
+            round(-math.sin(angle), 15),
+            round(math.cos(angle), 15),
+            0.0,
+        ]
+
+        def transform(x, y, matrix):
+            """transform
+            """
+            (a, b, c, d, e, f) = matrix
+            return a * x + b * y + c, d * x + e * y + f
+
+        matrix[2], matrix[5] = transform(
+            -rotn_center[0] - post_trans[0], -rotn_center[1] - post_trans[1], matrix
+        )
+        matrix[2] += rotn_center[0]
+        matrix[5] += rotn_center[1]
+        return img.transform(img.size, Image.AFFINE, matrix, **kwargs)
+    else:
+        return img.rotate(degrees, resample=kwargs['resample'])
+
+
+def auto_contrast(img, **kwargs):
+    """auto_contrast
+    """
+    return ImageOps.autocontrast(img)
+
+
+def invert(img, **kwargs):
+    """invert
+    """
+    return ImageOps.invert(img)
+
+
+def equalize(img, **kwargs):
+    """equalize
+    """
+    return ImageOps.equalize(img)
+
+
+def solarize(img, thresh, **kwargs):
+    """solarize
+    """
+    return ImageOps.solarize(img, thresh)
+
+
+def solarize_add(img, add, thresh=128, **kwargs):
+    """solarize_add
+    """
+    lut = []
+    for i in range(256):
+        if i < thresh:
+            lut.append(min(255, i + add))
+        else:
+            lut.append(i)
+    if img.mode in ("L", "RGB"):
+        if img.mode == "RGB" and len(lut) == 256:
+            lut = lut + lut + lut
+        return img.point(lut)
+    else:
+        return img
+
+
+def posterize(img, bits_to_keep, **kwargs):
+    """posterize
+    """
+    if bits_to_keep >= 8:
+        return img
+    return ImageOps.posterize(img, bits_to_keep)
+
+
+def contrast(img, factor, **kwargs):
+    """contrast
+    """
+    return ImageEnhance.Contrast(img).enhance(factor)
+
+
+def color(img, factor, **kwargs):
+    """color
+    """
+    return ImageEnhance.Color(img).enhance(factor)
+
+
+def brightness(img, factor, **kwargs):
+    """brightness
+    """
+    return ImageEnhance.Brightness(img).enhance(factor)
+
+
+def sharpness(img, factor, **kwargs):
+    """sharpness
+    """
+    return ImageEnhance.Sharpness(img).enhance(factor)
+
+
+def _randomly_negate(v):
+    """With 
