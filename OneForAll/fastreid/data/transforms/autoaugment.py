@@ -353,4 +353,52 @@ NAME_TO_OP = {
 class AugmentOp(object):
     """AugmentOp
     """
-    def __init__(self, name, pro
+    def __init__(self, name, prob=0.5, magnitude=10, hparams=None):
+        hparams = hparams or _HPARAMS_DEFAULT
+        self.aug_fn = NAME_TO_OP[name]
+        self.level_fn = LEVEL_TO_ARG[name]
+        self.prob = prob
+        self.magnitude = magnitude
+        self.hparams = hparams.copy()
+        self.kwargs = dict(
+            fillcolor=hparams['img_mean'] if 'img_mean' in hparams else _FILL,
+            resample=hparams['interpolation'] if 'interpolation' in hparams else _RANDOM_INTERPOLATION,
+        )
+
+        # If magnitude_std is > 0, we introduce some randomness
+        # in the usually fixed policy and sample magnitude from a normal distribution
+        # with mean `magnitude` and std-dev of `magnitude_std`.
+        # NOTE This is my own hack, being tested, not in papers or reference impls.
+        self.magnitude_std = self.hparams.get('magnitude_std', 0)
+
+    def __call__(self, img):
+        if self.prob < 1.0 and random.random() > self.prob:
+            return img
+        magnitude = self.magnitude
+        if self.magnitude_std and self.magnitude_std > 0:
+            magnitude = random.gauss(magnitude, self.magnitude_std)
+        magnitude = min(_MAX_LEVEL, max(0, magnitude))  # clip to valid range
+        level_args = self.level_fn(magnitude, self.hparams) if self.level_fn is not None else tuple()
+        return self.aug_fn(img, *level_args, **self.kwargs)
+
+
+def auto_augment_policy_v0(hparams):
+    """auto_augment_policy_v0
+    """
+    # ImageNet v0 policy from TPU EfficientNet impl, cannot find a paper reference.
+    policy = [
+        [('Equalize', 0.8, 1), ('ShearY', 0.8, 4)],
+        [('Color', 0.4, 9), ('Equalize', 0.6, 3)],
+        [('Color', 0.4, 1), ('Rotate', 0.6, 8)],
+        [('Solarize', 0.8, 3), ('Equalize', 0.4, 7)],
+        [('Solarize', 0.4, 2), ('Solarize', 0.6, 2)],
+        [('Color', 0.2, 0), ('Equalize', 0.8, 8)],
+        [('Equalize', 0.4, 8), ('SolarizeAdd', 0.8, 3)],
+        [('ShearX', 0.2, 9), ('Rotate', 0.6, 8)],
+        [('Color', 0.6, 1), ('Equalize', 1.0, 2)],
+        [('Invert', 0.4, 9), ('Rotate', 0.6, 0)],
+        [('Equalize', 1.0, 9), ('ShearY', 0.6, 3)],
+        [('Color', 0.4, 7), ('Equalize', 0.6, 0)],
+        [('Posterize', 0.4, 6), ('AutoContrast', 0.4, 7)],
+        [('Solarize', 0.6, 8), ('Color', 0.6, 9)],
+        [('Solarize', 0.2, 4), ('Rotate
