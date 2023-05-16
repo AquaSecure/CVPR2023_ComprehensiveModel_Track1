@@ -221,4 +221,61 @@ class DetDataset(paddle.io.Dataset):
         super(DetDataset, self).__init__()
         self.dataset_dir = dataset_dir if dataset_dir is not None else ''
         self.anno_path = anno_path
-        self.image_dir = image_dir if image_dir is not No
+        self.image_dir = image_dir if image_dir is not None else ''
+        self.data_fields = data_fields
+        self.sample_num = sample_num
+        self.use_default_label = use_default_label
+        self._epoch = 0
+        self._curr_iter = 0
+
+    def __len__(self, ):
+        return len(self.roidbs)
+
+    def __call__(self, *args, **kwargs):
+        return self
+
+    def __getitem__(self, idx):
+        # data batch
+        roidb = copy.deepcopy(self.roidbs[idx])
+        if self.mixup_epoch == 0 or self._epoch < self.mixup_epoch:
+            n = len(self.roidbs)
+            idx = np.random.randint(n)
+            roidb = [roidb, copy.deepcopy(self.roidbs[idx])]
+        elif self.cutmix_epoch == 0 or self._epoch < self.cutmix_epoch:
+            n = len(self.roidbs)
+            idx = np.random.randint(n)
+            roidb = [roidb, copy.deepcopy(self.roidbs[idx])]
+        elif self.mosaic_epoch == 0 or self._epoch < self.mosaic_epoch:
+            n = len(self.roidbs)
+            roidb = [roidb, ] + [
+                copy.deepcopy(self.roidbs[np.random.randint(n)])
+                for _ in range(4)
+            ]
+        if isinstance(roidb, Sequence):
+            for r in roidb:
+                r['curr_iter'] = self._curr_iter
+        else:
+            roidb['curr_iter'] = self._curr_iter
+        self._curr_iter += 1
+
+        return self.transform(roidb)
+
+    def set_kwargs(self, **kwargs):
+        self.mixup_epoch = kwargs.get('mixup_epoch', -1)
+        self.cutmix_epoch = kwargs.get('cutmix_epoch', -1)
+        self.mosaic_epoch = kwargs.get('mosaic_epoch', -1)
+
+    def set_transform(self, transform):
+        self.transform = transform
+
+    def set_epoch(self, epoch_id):
+        self._epoch = epoch_id
+
+    def parse_dataset(self, ):
+        raise NotImplementedError(
+            "Need to implement parse_dataset method of Dataset")
+
+    def get_anno(self):
+        if self.anno_path is None:
+            return
+        return os.path.join(self.dataset_dir, self.anno_path)
