@@ -210,4 +210,80 @@ def sharpness(img, factor, **kwargs):
 
 
 def _randomly_negate(v):
-    """With 
+    """With 50% prob, negate the value"""
+    return -v if random.random() > 0.5 else v
+
+
+def _rotate_level_to_arg(level, _hparams):
+    # range [-30, 30]
+    level = (level / _MAX_LEVEL) * 30.
+    level = _randomly_negate(level)
+    return level,
+
+
+def _enhance_level_to_arg(level, _hparams):
+    # range [0.1, 1.9]
+    return (level / _MAX_LEVEL) * 1.8 + 0.1,
+
+
+def _enhance_increasing_level_to_arg(level, _hparams):
+    # the 'no change' level is 1.0, moving away from that towards 0. or 2.0 increases the enhancement blend
+    # range [0.1, 1.9]
+    level = (level / _MAX_LEVEL) * .9
+    level = 1.0 + _randomly_negate(level)
+    return level,
+
+
+def _shear_level_to_arg(level, _hparams):
+    # range [-0.3, 0.3]
+    level = (level / _MAX_LEVEL) * 0.3
+    level = _randomly_negate(level)
+    return level,
+
+
+def _translate_abs_level_to_arg(level, hparams):
+    translate_const = hparams['translate_const']
+    level = (level / _MAX_LEVEL) * float(translate_const)
+    level = _randomly_negate(level)
+    return level,
+
+
+def _translate_rel_level_to_arg(level, hparams):
+    # default range [-0.45, 0.45]
+    translate_pct = hparams.get('translate_pct', 0.45)
+    level = (level / _MAX_LEVEL) * translate_pct
+    level = _randomly_negate(level)
+    return level,
+
+
+def _posterize_level_to_arg(level, _hparams):
+    # As per Tensorflow TPU EfficientNet impl
+    # range [0, 4], 'keep 0 up to 4 MSB of original image'
+    # intensity/severity of augmentation decreases with level
+    return int((level / _MAX_LEVEL) * 4),
+
+
+def _posterize_increasing_level_to_arg(level, hparams):
+    # As per Tensorflow models research and UDA impl
+    # range [4, 0], 'keep 4 down to 0 MSB of original image',
+    # intensity/severity of augmentation increases with level
+    return 4 - _posterize_level_to_arg(level, hparams)[0],
+
+
+def _posterize_original_level_to_arg(level, _hparams):
+    # As per original AutoAugment paper description
+    # range [4, 8], 'keep 4 up to 8 MSB of image'
+    # intensity/severity of augmentation decreases with level
+    return int((level / _MAX_LEVEL) * 4) + 4,
+
+
+def _solarize_level_to_arg(level, _hparams):
+    # range [0, 256]
+    # intensity/severity of augmentation decreases with level
+    return int((level / _MAX_LEVEL) * 256),
+
+
+def _solarize_increasing_level_to_arg(level, _hparams):
+    # range [0, 256]
+    # intensity/severity of augmentation increases with level
+  
