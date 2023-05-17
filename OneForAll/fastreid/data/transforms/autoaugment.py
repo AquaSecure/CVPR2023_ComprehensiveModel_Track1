@@ -498,4 +498,63 @@ def auto_augment_policy_originalr(hparams):
         [('Equalize', 0.8, 8), ('Equalize', 0.6, 3)],
         [('PosterizeIncreasing', 0.6, 7), ('PosterizeIncreasing', 0.6, 6)],
         [('Equalize', 0.4, 7), ('Solarize', 0.2, 4)],
-        [('Equalize', 0.4, 4), ('Rota
+        [('Equalize', 0.4, 4), ('Rotate', 0.8, 8)],
+        [('Solarize', 0.6, 3), ('Equalize', 0.6, 7)],
+        [('PosterizeIncreasing', 0.8, 5), ('Equalize', 1.0, 2)],
+        [('Rotate', 0.2, 3), ('Solarize', 0.6, 8)],
+        [('Equalize', 0.6, 8), ('PosterizeIncreasing', 0.4, 6)],
+        [('Rotate', 0.8, 8), ('Color', 0.4, 0)],
+        [('Rotate', 0.4, 9), ('Equalize', 0.6, 2)],
+        [('Equalize', 0.0, 7), ('Equalize', 0.8, 8)],
+        [('Invert', 0.6, 4), ('Equalize', 1.0, 8)],
+        [('Color', 0.6, 4), ('Contrast', 1.0, 8)],
+        [('Rotate', 0.8, 8), ('Color', 1.0, 2)],
+        [('Color', 0.8, 8), ('Solarize', 0.8, 7)],
+        [('Sharpness', 0.4, 7), ('Invert', 0.6, 8)],
+        [('ShearX', 0.6, 5), ('Equalize', 1.0, 9)],
+        [('Color', 0.4, 0), ('Equalize', 0.6, 3)],
+        [('Equalize', 0.4, 7), ('Solarize', 0.2, 4)],
+        [('Solarize', 0.6, 5), ('AutoContrast', 0.6, 5)],
+        [('Invert', 0.6, 4), ('Equalize', 1.0, 8)],
+        [('Color', 0.6, 4), ('Contrast', 1.0, 8)],
+        [('Equalize', 0.8, 8), ('Equalize', 0.6, 3)],
+    ]
+    pc = [[AugmentOp(*a, hparams=hparams) for a in sp] for sp in policy]
+    return pc
+
+
+def auto_augment_policy(name="original"):
+    """auto_augment_policy
+    """
+    hparams = _HPARAMS_DEFAULT
+    if name == 'original':
+        return auto_augment_policy_original(hparams)
+    elif name == 'originalr':
+        return auto_augment_policy_originalr(hparams)
+    elif name == 'v0':
+        return auto_augment_policy_v0(hparams)
+    elif name == 'v0r':
+        return auto_augment_policy_v0r(hparams)
+    else:
+        assert False, 'Unknown AA policy (%s)' % name
+
+
+class AutoAugment:
+    """AutoAugment
+    """
+    def __init__(self, auto_augment_policy=auto_augment_policy):
+        self.policy = auto_augment_policy()
+
+    def __call__(self, img):
+        sub_policy = random.choice(self.policy)
+        for op in sub_policy:
+            img = op(img)
+        return img
+
+
+def auto_augment_transform(config_str, hparams):
+    """
+    Create a AutoAugment transform
+    :param config_str: String defining configuration of auto augmentation. Consists of multiple sections separated by
+    dashes ('-'). The first section defines the AutoAugment policy (one of 'v0', 'v0r', 'original', 'originalr').
+    The remaining sections, not order sepecific determin
