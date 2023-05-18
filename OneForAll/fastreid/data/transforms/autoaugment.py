@@ -557,4 +557,86 @@ def auto_augment_transform(config_str, hparams):
     Create a AutoAugment transform
     :param config_str: String defining configuration of auto augmentation. Consists of multiple sections separated by
     dashes ('-'). The first section defines the AutoAugment policy (one of 'v0', 'v0r', 'original', 'originalr').
-    The remaining sections, not order sepecific determin
+    The remaining sections, not order sepecific determine
+        'mstd' -  float std deviation of magnitude noise applied
+    Ex 'original-mstd0.5' results in AutoAugment with original policy, magnitude_std 0.5
+    :param hparams: Other hparams (kwargs) for the AutoAugmentation scheme
+    :return: A PyTorch compatible Transform
+    """
+    config = config_str.split('-')
+    policy_name = config[0]
+    config = config[1:]
+    for c in config:
+        cs = re.split(r'(\d.*)', c)
+        if len(cs) < 2:
+            continue
+        key, val = cs[:2]
+        if key == 'mstd':
+            # noise param injected via hparams for now
+            hparams.setdefault('magnitude_std', float(val))
+        else:
+            assert False, 'Unknown AutoAugment config section'
+    aa_policy = auto_augment_policy(policy_name)
+    return AutoAugment(aa_policy)
+
+
+_RAND_TRANSFORMS = [
+    'AutoContrast',
+    'Equalize',
+    'Invert',
+    'Rotate',
+    'Posterize',
+    'Solarize',
+    'SolarizeAdd',
+    'Color',
+    'Contrast',
+    'Brightness',
+    'Sharpness',
+    'ShearX',
+    'ShearY',
+    'TranslateXRel',
+    'TranslateYRel',
+    # 'Cutout'  # NOTE I've implement this as random erasing separately
+]
+
+_RAND_INCREASING_TRANSFORMS = [
+    'AutoContrast',
+    'Equalize',
+    'Invert',
+    'Rotate',
+    'PosterizeIncreasing',
+    'SolarizeIncreasing',
+    'SolarizeAdd',
+    'ColorIncreasing',
+    'ContrastIncreasing',
+    'BrightnessIncreasing',
+    'SharpnessIncreasing',
+    'ShearX',
+    'ShearY',
+    'TranslateXRel',
+    'TranslateYRel',
+    # 'Cutout'  # NOTE I've implement this as random erasing separately
+]
+
+# These experimental weights are based loosely on the relative improvements mentioned in paper.
+# They may not result in increased performance, but could likely be tuned to so.
+_RAND_CHOICE_WEIGHTS_0 = {
+    'Rotate': 0.3,
+    'ShearX': 0.2,
+    'ShearY': 0.2,
+    'TranslateXRel': 0.1,
+    'TranslateYRel': 0.1,
+    'Color': .025,
+    'Sharpness': 0.025,
+    'AutoContrast': 0.025,
+    'Solarize': .005,
+    'SolarizeAdd': .005,
+    'Contrast': .005,
+    'Brightness': .005,
+    'Equalize': .005,
+    'Posterize': 0,
+    'Invert': 0,
+}
+
+
+def _select_rand_weights(weight_idx=0, transf
