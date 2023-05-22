@@ -691,4 +691,72 @@ def rand_augment_transform(config_str, hparams):
     """
     magnitude = _MAX_LEVEL  # default to _MAX_LEVEL for magnitude (currently 10)
     num_layers = 2  # default to 2 ops per image
-    weight_id
+    weight_idx = None  # default to no probability weights for op choice
+    transforms = _RAND_TRANSFORMS
+    config = config_str.split('-')
+    assert config[0] == 'rand'
+    config = config[1:]
+    for c in config:
+        cs = re.split(r'(\d.*)', c)
+        if len(cs) < 2:
+            continue
+        key, val = cs[:2]
+        if key == 'mstd':
+            # noise param injected via hparams for now
+            hparams.setdefault('magnitude_std', float(val))
+        elif key == 'inc':
+            if bool(val):
+                transforms = _RAND_INCREASING_TRANSFORMS
+        elif key == 'm':
+            magnitude = int(val)
+        elif key == 'n':
+            num_layers = int(val)
+        elif key == 'w':
+            weight_idx = int(val)
+        else:
+            assert False, 'Unknown RandAugment config section'
+    ra_ops = rand_augment_ops(magnitude=magnitude, hparams=hparams, transforms=transforms)
+    choice_weights = None if weight_idx is None else _select_rand_weights(weight_idx)
+    return RandAugment(ra_ops, num_layers, choice_weights=choice_weights)
+
+
+_AUGMIX_TRANSFORMS = [
+    'AutoContrast',
+    'ColorIncreasing',  # not in paper
+    'ContrastIncreasing',  # not in paper
+    'BrightnessIncreasing',  # not in paper
+    'SharpnessIncreasing',  # not in paper
+    'Equalize',
+    'Rotate',
+    'PosterizeIncreasing',
+    'SolarizeIncreasing',
+    'ShearX',
+    'ShearY',
+    'TranslateXRel',
+    'TranslateYRel',
+]
+
+
+def augmix_ops(magnitude=10, hparams=None, transforms=None):
+    """augmix_ops
+    """
+    hparams = hparams or _HPARAMS_DEFAULT
+    transforms = transforms or _AUGMIX_TRANSFORMS
+    return [AugmentOp(name, prob=1.0, magnitude=magnitude, hparams=hparams) for name in transforms]
+
+
+class AugMixAugment(object):
+    """ AugMix Transform
+    Adapted and improved from impl here: https://github.com/google-research/augmix/blob/master/imagenet.py
+    From paper: 'AugMix: A Simple Data Processing Method to Improve Robustness and Uncertainty -
+    https://arxiv.org/abs/1912.02781
+    """
+
+    def __init__(self, ops, alpha=1., width=3, depth=-1, blended=False):
+        self.ops = ops
+        self.alpha = alpha
+        self.width = width
+        self.depth = depth
+        self.blended = blended  # blended mode is faster but not well tested
+
+   
