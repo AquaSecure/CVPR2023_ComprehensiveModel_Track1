@@ -759,4 +759,48 @@ class AugMixAugment(object):
         self.depth = depth
         self.blended = blended  # blended mode is faster but not well tested
 
-   
+    def _calc_blended_weights(self, ws, m):
+        ws = ws * m
+        cump = 1.
+        rws = []
+        for w in ws[::-1]:
+            alpha = w / cump
+            cump *= (1 - alpha)
+            rws.append(alpha)
+        return np.array(rws[::-1], dtype=np.float32)
+
+    def _apply_blended(self, img, mixing_weights, m):
+        # This is my first crack and implementing a slightly faster mixed augmentation. Instead
+        # of accumulating the mix for each chain in a Numpy array and then blending with original,
+        # it recomputes the blending coefficients and applies one PIL image blend per chain.
+        # TODO the results appear in the right ballpark but they differ by more than rounding.
+        img_orig = img.copy()
+        ws = self._calc_blended_weights(mixing_weights, m)
+        for w in ws:
+            depth = self.depth if self.depth > 0 else np.random.randint(1, 4)
+            ops = np.random.choice(self.ops, depth, replace=True)
+            img_aug = img_orig  # no ops are in-place, deep copy not necessary
+            for op in ops:
+                img_aug = op(img_aug)
+            img = Image.blend(img, img_aug, w)
+        return img
+
+    def _apply_basic(self, img, mixing_weights, m):
+        # This is a literal adaptation of the paper/official implementation without normalizations and
+        # PIL <-> Numpy conversions between every op. It is still quite CPU compute heavy compared to the
+        # typical augmentation transforms, could use a GPU / Kornia implementation.
+        img_shape = img.size[0], img.size[1], len(img.getbands())
+        mixed = np.zeros(img_shape, dtype=np.float32)
+        for mw in mixing_weights:
+            depth = self.depth if self.depth > 0 else np.random.randint(1, 4)
+            ops = np.random.choice(self.ops, depth, replace=True)
+            img_aug = img  # no ops are in-place, deep copy not necessary
+            for op in ops:
+                img_aug = op(img_aug)
+            mixed += mw * np.asarray(img_aug, dtype=np.float32)
+        np.clip(mixed, 0, 255., out=mixed)
+        mixed = Image.fromarray(mixed.astype(np.uint8))
+        return Image.blend(img, mixed, m)
+
+    def __call__(self, img):
+        mixing_weights
