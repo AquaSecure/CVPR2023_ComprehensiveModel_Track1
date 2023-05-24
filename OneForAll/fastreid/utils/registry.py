@@ -41,4 +41,29 @@ class Registry(object):
     def register(self, obj=None):
         """
         Register the given object under the the name `obj.__name__`.
-        Can be used as either a decorator or 
+        Can be used as either a decorator or not. See docstring of this class for usage.
+        """
+        if obj is None:
+            # used as a decorator
+            def deco(func_or_class):
+                name = func_or_class.__name__  # pyre-ignore
+                self._do_register(name, func_or_class)
+                return func_or_class
+
+            return deco
+
+        # used as a function call
+        name = obj.__name__  # pyre-ignore
+        self._do_register(name, obj)
+
+    def get(self, name):
+        """get
+        """
+        ret = self._obj_map.get(name)
+        if ret is None:
+            raise KeyError(
+                "No object named '{}' found in '{}' registry!".format(
+                    name, self._name
+                )
+            )
+        return ret
