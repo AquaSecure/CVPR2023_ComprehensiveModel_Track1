@@ -77,4 +77,22 @@ class LinearSuper(nn.Linear):
         """get_complexity
         """
         total_flops = 0
-        total_flops += sequence_length * np.prod(self.samples['
+        total_flops += sequence_length * np.prod(self.samples['weight'].size())
+        return total_flops
+
+
+def sample_weight(weight, sample_in_dim, sample_out_dim):
+    """sample_weight
+    """
+    sample_weight = weight[:sample_in_dim, :]
+    sample_weight = sample_weight[:, :sample_out_dim]
+
+    return sample_weight
+
+
+def sample_bias(bias, sample_out_dim):
+    """sample_bias
+    """
+    sample_bias = bias[:sample_out_dim]
+
+    return sample_bias
