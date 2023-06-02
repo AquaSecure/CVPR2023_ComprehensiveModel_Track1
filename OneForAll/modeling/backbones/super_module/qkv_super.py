@@ -48,4 +48,58 @@ class QkvSuper(nn.Linear):
         """
         self.samples['weight'] = sample_weight(self.weight, self.sample_in_dim, self.sample_out_dim)
         self.samples['bias'] = self.bias
-        self.sample_scale = self.super_out_dim / self.
+        self.sample_scale = self.super_out_dim / self.sample_out_dim
+        if self.bias is not None:
+            self.samples['bias'] = sample_bias(self.bias, self.sample_out_dim)
+        return self.samples
+
+    def forward(self, x):
+        """forward
+        """
+        self._sample_parameters()
+        return F.linear(x, self.samples['weight'], self.samples['bias']) * (self.sample_scale if self.scale else 1)
+
+    def calc_sampled_param_num(self):
+        """"
+        """
+
+        assert 'weight' in self.samples.keys()
+        weight_numel = self.samples['weight'].numel()
+
+        if self.samples['bias'] is not None:
+            bias_numel = self.samples['bias'].numel()
+        else:
+            bias_numel = 0
+
+        return weight_numel + bias_numel
+    
+    def get_complexity(self, sequence_length):
+        """get_complexity
+        """
+        total_flops = 0
+        total_flops += sequence_length * np.prod(self.samples['weight'].size())
+        return total_flops
+
+
+def sample_weight(weight, sample_in_dim, sample_out_dim):
+    """sample_weight
+    """
+    _, super_out_dim = weight.shape
+    sample_weight = weight[:sample_in_dim, :]
+    sample_weight = paddle.concat(
+        [sample_weight[:, i * super_out_dim // 3: i * super_out_dim // 3 + sample_out_dim // 3] for i in range(3)], 
+        axis=1)
+
+    return sample_weight
+
+
+def sample_bias(bias, sample_out_dim):
+    """sample_weight
+    """
+    super_out_dim  = len(bias)
+    sample_bias = paddle.concat(
+        [bias[i * super_out_dim // 3: i * super_out_dim // 3 + sample_out_dim // 3] for i in range(3)], 
+        axis=0
+        )
+
+    return sample_bias
