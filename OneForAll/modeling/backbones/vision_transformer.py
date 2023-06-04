@@ -297,4 +297,65 @@ class VisionTransformer(nn.Layer):
         """
         super().__init__()
         self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
-        if hybrid_backbone is
+        if hybrid_backbone is not None:
+            self.patch_embed = HybridEmbed(
+                hybrid_backbone, img_size=img_size, in_chans=in_chans, embed_dim=embed_dim)
+        else:
+            self.patch_embed = PatchEmbedOverlap(
+                img_size=img_size, patch_size=patch_size, stride_size=stride_size, in_chans=in_chans,
+                embed_dim=embed_dim)
+
+        num_patches = self.patch_embed.num_patches
+
+        self.cls_token = self.create_parameter(
+            shape=(1, 1, embed_dim), default_initializer=zeros_)
+        self.pos_embed = self.create_parameter(
+            shape=(1, num_patches + 1, embed_dim), default_initializer=zeros_)
+        self.cam_num = camera
+        self.sie_xishu = sie_xishu
+        # Initialize SIE Embedding
+        if camera > 1:
+            self.sie_embed = self.create_parameter(
+                shape=(camera, 1, embed_dim), default_initializer=zeros_)
+            trunc_normal_(self.sie_embed, std=.02)
+
+        self.pos_drop = nn.Dropout(p=drop_rate)
+        dpr = [x.item() for x in np.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
+
+        self.share_last = share_last
+        if not self.share_last:
+            depth -= 1
+        self.blocks = nn.LayerList([
+            Block(
+                dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, use_checkpointing=False)
+            for i in range(depth)])
+
+        if self.share_last:
+            self.norm = norm_layer(embed_dim)
+
+        trunc_normal_(self.cls_token)
+        trunc_normal_(self.pos_embed)
+
+        self.apply(self._init_weights)
+
+        self.use_checkpointing = use_checkpointing
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            trunc_normal_(m.weight)
+            if m.bias is not None:
+                zeros_(m.bias)
+        elif isinstance(m, nn.LayerNorm):
+            zeros_(m.bias)
+            ones_(m.weight)
+
+    def no_weight_decay(self):
+        """Parameters of using no weight decay
+        """
+        return {'pos_embed', 'cls_token'}
+
+    def forward(self, x, camera_id=None):
+        """Foward
+        """
+   
