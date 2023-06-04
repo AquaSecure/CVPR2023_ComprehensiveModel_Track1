@@ -241,4 +241,60 @@ class HybridEmbed(nn.Layer):
     def forward(self, x):
         """Forward
         """
-        x = self.backbone(
+        x = self.backbone(x)
+        if isinstance(x, (list, tuple)):
+            x = x[-1]  # last feature if backbone outputs list/tuple of features
+        x = self.proj(x).flatten(2).transpose((0, 2, 1))
+        return x
+
+
+class PatchEmbedOverlap(nn.Layer):
+    """ Image to Patch Embedding with overlapping patches
+    """
+    def __init__(self, img_size=224, patch_size=16, stride_size=20, in_chans=3, embed_dim=768):
+        """Init
+        """
+        super().__init__()
+        # img_size = to_2tuple(img_size)
+        patch_size = to_2tuple(patch_size)
+        stride_size = to_2tuple(stride_size)
+        self.num_x = (img_size[1] - patch_size[1]) // stride_size[1] + 1
+        self.num_y = (img_size[0] - patch_size[0]) // stride_size[0] + 1
+        num_patches = self.num_x * self.num_y
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.num_patches = num_patches
+
+        self.proj = nn.Conv2D(in_chans, embed_dim, kernel_size=patch_size, stride=stride_size, 
+            bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
+        n = embed_dim * patch_size[0] * patch_size[1]
+        TruncatedNormal(self.proj.weight, math.sqrt(2. / n))
+
+    def forward(self, x):
+        """Forward
+        """
+        B, C, H, W = x.shape
+
+        # FIXME look at relaxing size constraints
+        assert H == self.img_size[0] and W == self.img_size[1], \
+            "Input image size ({}*{}) doesn't match model ({}*{}).".format(H, W, self.img_size[0], self.img_size[1])
+        x = self.proj(x)
+
+        x = x.flatten(2).transpose((0, 2, 1))  # [64, 8, 768]
+        return x
+
+
+class VisionTransformer(nn.Layer):
+    """ Vision Transformer
+    """
+
+    def __init__(self, img_size=224, patch_size=16, stride_size=16, in_chans=3, embed_dim=768,
+                 depth=12, num_heads=12, mlp_ratio=4., qkv_bias=False, qk_scale=None,
+                 drop_rate=0., attn_drop_rate=0., camera=0, drop_path_rate=0., hybrid_backbone=None,
+                 norm_layer=partial(nn.LayerNorm, epsilon=1e-6), sie_xishu=1.0,
+                 use_checkpointing=False, share_last=True):
+        """Init
+        """
+        super().__init__()
+        self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
+        if hybrid_backbone is
