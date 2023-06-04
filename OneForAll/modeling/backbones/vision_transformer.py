@@ -409,4 +409,74 @@ def resize_pos_embed(posemb, posemb_new, hight, width):
 def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False, patch_size=16, 
                             input_size=[256, 128], depth='base', sie_xishu=3.0, stride_size=[16, 16],
                             drop_ratio=0.0, drop_path_ratio=0.1, attn_drop_rate=0.0,
-         
+                            use_checkpointing=False, share_last=True):
+    """
+    Create a Vision Transformer instance from config.
+    Returns:
+        Vision Transformer: a :class:`VisionTransformer` instance.
+    """
+
+    embed_dim = {
+        'small': 768,
+        'base': 768,
+        'large': 1024,
+        'huge': 1280,
+    }[depth]
+
+    num_depth = {
+        'small': 8,
+        'base': 12,
+        'large': 24,
+        'huge': 32,
+    }[depth]
+
+    num_heads = {
+        'small': 8,
+        'base': 12,
+        'large': 16,
+        'huge': 16,
+    }[depth]
+
+    mlp_ratio = {
+        'small': 3.,
+        'base': 4.,
+        'large': 4.,
+        'huge': 4.,
+    }[depth]
+
+    qkv_bias = {
+        'small': False,
+        'base': True,
+        'large': True,
+        'huge': True,
+    }[depth]
+
+    qk_scale = {
+        'small': 768 ** -0.5,
+        'base': None,
+        'large': None,
+        'huge': None,
+    }[depth]
+    model = VisionTransformer(img_size=input_size, sie_xishu=sie_xishu, patch_size=patch_size, stride_size=stride_size, depth=num_depth,
+                              num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                              drop_path_rate=drop_path_ratio, drop_rate=drop_ratio, attn_drop_rate=attn_drop_rate,
+                              embed_dim=embed_dim, use_checkpointing=use_checkpointing, share_last=share_last)
+
+    if pretrain:
+        if not os.path.exists(pretrain_path):
+            logger.info('{} is not found! Please check this path.'.format(pretrain_path))
+            assert os.path.exists(pretrain_path)
+
+        state_dict = paddle.load(pretrain_path)
+        logger.info("Loading pretrained model from {}".format(pretrain_path))
+
+        if 'model' in state_dict:
+            state_dict = state_dict.pop('model')
+        if 'state_dict' in state_dict:
+            state_dict = state_dict.pop('state_dict')
+        state_dict_new = OrderedDict()
+        for k, v in state_dict.items():
+            if 'head' in k or 'dist' in k:
+                continue
+            if 'patch_embed.proj.weight' in k and len(v.shape) < 4:
+                # For old models that I trained
