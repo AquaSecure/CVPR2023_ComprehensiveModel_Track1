@@ -358,4 +358,55 @@ class VisionTransformer(nn.Layer):
     def forward(self, x, camera_id=None):
         """Foward
         """
-   
+        B = x.shape[0]
+        x = self.patch_embed(x)
+
+        cls_tokens = self.cls_token.expand((B, -1, -1))  # stole cls_tokens impl from Phil Wang, thanks
+        x = paddle.concat((cls_tokens, x), axis=1)
+
+        if self.cam_num > 0:
+            x = x + self.pos_embed + self.sie_xishu * self.sie_embed[camera_id]
+        else:
+            x = x + self.pos_embed
+
+        x = self.pos_drop(x)
+
+        for blk in self.blocks:
+            if self.use_checkpointing:
+                x = recompute(blk, x)
+            else:
+                x = blk(x)
+
+        if self.share_last:
+            x = self.norm(x)
+            return x[:, 0].reshape((x.shape[0], -1, 1, 1))
+        else:
+            return x
+
+
+def resize_pos_embed(posemb, posemb_new, hight, width):
+    """
+    Rescale the grid of position embeddings when loading from state_dict. Adapted from
+    # https://github.com/google-research/vision_transformer/blob/00883dd691c63a6830751563748663526e811cee/vit_jax/checkpoint.py#L224
+    """
+    ntok_new = posemb_new.shape[1]
+
+    posemb_token, posemb_grid = posemb[:, :1], posemb[0, 1:]
+    ntok_new -= 1
+
+    gs_old = int(math.sqrt(len(posemb_grid)))
+    logger.info('Resized position embedding from size:{} to size: {} with height:{} width: {}'.format(posemb.shape,
+                                                                                                      posemb_new.shape,
+                                                                                                      hight,
+                                                                                                      width))
+    posemb_grid = posemb_grid.reshape((1, gs_old, gs_old, -1)).transpose((0, 3, 1, 2))
+    posemb_grid = F.interpolate(posemb_grid, size=(hight, width), mode='bilinear')
+    posemb_grid = posemb_grid.transpose((0, 2, 3, 1)).reshape((1, hight * width, -1))
+    posemb = paddle.concat([posemb_token, posemb_grid], axis=1)
+    return posemb
+
+
+def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False, patch_size=16, 
+                            input_size=[256, 128], depth='base', sie_xishu=3.0, stride_size=[16, 16],
+                            drop_ratio=0.0, drop_path_ratio=0.1, attn_drop_rate=0.0,
+         
