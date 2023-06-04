@@ -129,4 +129,64 @@ class Attention(nn.Layer):
         # B= paddle.shape(x)[0]
         N, C = x.shape[1:]
         qkv = self.qkv(x).reshape((-1, N, 3, self.num_heads, C //
-                                   self.num_heads)).transpose((2, 0, 3, 1
+                                   self.num_heads)).transpose((2, 0, 3, 1, 4))
+        q, k, v = qkv[0], qkv[1], qkv[2]
+
+        attn = (q.matmul(k.transpose((0, 1, 3, 2)))) * self.scale
+        attn = nn.functional.softmax(attn, axis=-1)
+        attn = self.attn_drop(attn)
+
+        x = (attn.matmul(v)).transpose((0, 2, 1, 3)).reshape((-1, N, C))
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+
+
+class Block(nn.Layer):
+    """Block Layer
+    """
+    def __init__(self, dim, num_heads, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop=0., attn_drop=0.,
+                 drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, use_checkpointing=False):
+        """Init
+        """
+        super().__init__()
+        self.norm1 = norm_layer(dim)
+        self.attn = Attention(
+            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=drop)
+        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        self.norm2 = norm_layer(dim)
+        mlp_hidden_dim = int(dim * mlp_ratio)
+        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
+        self.feature = None
+        self.use_checkpointing = use_checkpointing
+
+    def forward(self, x):
+        """Forward
+        """
+        if self.use_checkpointing:
+            x = x + self.drop_path(recompute(self.attn, self.norm1(x)))
+            x = x + self.drop_path(recompute(self.mlp, self.norm2(x)))            
+        else:
+            x = x + self.drop_path(self.attn(self.norm1(x)))
+            x = x + self.drop_path(self.mlp(self.norm2(x)))
+        # self.feature = x
+        return x
+
+
+class PatchEmbed(nn.Layer):
+    """ Image to Patch Embedding
+    """
+
+    def __init__(self, img_size=224, patch_size=16, in_chans=3, embed_dim=768):
+        """Init
+        """        
+        super().__init__()
+        img_size = to_2tuple(img_size)
+        patch_size = to_2tuple(patch_size)
+        num_patches = (img_size[1] // patch_size[1]) * (img_size[0] // patch_size[0])
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.num_patches = num_patches
+
+        self.proj = nn.Conv2D(in_cha
