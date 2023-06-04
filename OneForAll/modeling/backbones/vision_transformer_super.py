@@ -1,3 +1,4 @@
+
 """Build Vision Transformer
 """
 # Copyright (c) 2022  PaddlePaddle Authors. All Rights Reserved.
@@ -30,6 +31,9 @@ from paddle.nn.initializer import TruncatedNormal
 from paddle.nn.initializer import Constant
 from paddle.nn.initializer import Normal
 import numpy as np
+
+from .super_module.Linear_super import LinearSuper
+from .super_module.multihead_super import AttentionSuper
 
 logger = logging.getLogger(__name__)
 
@@ -89,9 +93,9 @@ class Mlp(nn.Layer):
         super().__init__()
         out_features = out_features or in_features
         hidden_features = hidden_features or in_features
-        self.fc1 = nn.Linear(in_features, hidden_features, bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
+        self.fc1 = LinearSuper(in_features, hidden_features, bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
         self.act = act_layer()
-        self.fc2 = nn.Linear(hidden_features, out_features, bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
+        self.fc2 = LinearSuper(hidden_features, out_features, bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
         self.drop = nn.Dropout(drop)
 
     def forward(self, x):
@@ -104,74 +108,72 @@ class Mlp(nn.Layer):
         x = self.drop(x)
         return x
 
-
-class Attention(nn.Layer):
-    """Attention Layer
-    """
-    def __init__(self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0., proj_drop=0.):
-        """Init
+    def set_sample_config(self, sample_in_dim=None, sample_ffn_dim=None, sample_out_dim=None):
+        """set_sample_config
         """
-        super().__init__()
-        self.num_heads = num_heads
-        head_dim = dim // num_heads
-        # NOTE scale factor was wrong in my original version, can set manually to be compat with prev weights
-        self.scale = qk_scale or head_dim ** -0.5
-
-        self.qkv = nn.Linear(dim, dim * 3, 
-                    bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR) if qkv_bias else False)
-        self.attn_drop = nn.Dropout(attn_drop)
-        self.proj = nn.Linear(dim, dim, bias_attr=ParamAttr(learning_rate=BIAS_LR_FACTOR))
-        self.proj_drop = nn.Dropout(proj_drop)
-
-    def forward(self, x):
-        """Forward
-        """
-        # B= paddle.shape(x)[0]
-        N, C = x.shape[1:]
-        qkv = self.qkv(x).reshape((-1, N, 3, self.num_heads, C //
-                                   self.num_heads)).transpose((2, 0, 3, 1, 4))
-        q, k, v = qkv[0], qkv[1], qkv[2]
-
-        attn = (q.matmul(k.transpose((0, 1, 3, 2)))) * self.scale
-        attn = nn.functional.softmax(attn, axis=-1)
-        attn = self.attn_drop(attn)
-
-        x = (attn.matmul(v)).transpose((0, 2, 1, 3)).reshape((-1, N, C))
-        x = self.proj(x)
-        x = self.proj_drop(x)
-        return x
-
+        self.fc1.set_sample_config(sample_in_dim=sample_in_dim, sample_out_dim=sample_ffn_dim)
+        self.fc2.set_sample_config(sample_in_dim=sample_ffn_dim, sample_out_dim=sample_out_dim)
 
 class Block(nn.Layer):
     """Block Layer
     """
     def __init__(self, dim, num_heads, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop=0., attn_drop=0.,
-                 drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, use_checkpointing=False):
+                 drop_path=0., act_layer=nn.GELU, norm_layer=nn.LayerNorm, change_qkv=True, predefined_head_dim=64,
+                 use_checkpointing=False):
         """Init
         """
         super().__init__()
         self.norm1 = norm_layer(dim)
-        self.attn = Attention(
-            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale, attn_drop=attn_drop, proj_drop=drop)
+        self.attn = AttentionSuper(
+            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale, 
+            attn_drop=attn_drop, proj_drop=drop, change_qkv=change_qkv, predefined_head_dim=predefined_head_dim
+            )
         # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
         self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
         self.norm2 = norm_layer(dim)
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop)
         self.feature = None
-        self.use_checkpointing = use_checkpointing
+        self.super_mlp_ratio = mlp_ratio
+        self.predefined_head_dim = predefined_head_dim
+        self.use_checkpointing=use_checkpointing
 
     def forward(self, x):
         """Forward
         """
+        if self.is_identity_layer == True:
+            return x
         if self.use_checkpointing:
             x = x + self.drop_path(recompute(self.attn, self.norm1(x)))
-            x = x + self.drop_path(recompute(self.mlp, self.norm2(x)))            
+            x = x + self.drop_path(recompute(self.mlp, self.norm2(x)))
         else:
             x = x + self.drop_path(self.attn(self.norm1(x)))
             x = x + self.drop_path(self.mlp(self.norm2(x)))
-        # self.feature = x
+        self.feature = x
         return x
+    
+    def set_sample_config(self, is_identity_layer, 
+        sample_embed_dim=None, sample_mlp_ratio=None, sample_num_heads=None, 
+        sample_dropout=None, sample_attn_dropout=None, sample_out_dim=None):
+        """set_sample_config
+        """
+        if is_identity_layer:
+            self.is_identity_layer = True
+            return
+
+        self.is_identity_layer = False
+
+        self.sample_embed_dim = sample_embed_dim
+        self.sample_out_dim = sample_out_dim
+        self.sample_mlp_ratio = sample_mlp_ratio
+        self.sample_ffn_embed_dim_this_layer = int(sample_embed_dim * sample_mlp_ratio)
+        self.sample_num_heads_this_layer = sample_num_heads
+
+        self.sample_dropout = sample_dropout
+        self.sample_attn_dropout = sample_attn_dropout
+
+        self.attn.set_sample_config(sample_q_embed_dim=self.sample_num_heads_this_layer * self.predefined_head_dim, sample_num_heads=self.sample_num_heads_this_layer, sample_in_embed_dim=self.sample_embed_dim)
+        self.mlp.set_sample_config(sample_in_dim=self.sample_embed_dim, sample_ffn_dim=self.sample_ffn_embed_dim_this_layer, sample_out_dim=self.sample_out_dim)
 
 
 class PatchEmbed(nn.Layer):
@@ -283,7 +285,11 @@ class PatchEmbedOverlap(nn.Layer):
         x = x.flatten(2).transpose((0, 2, 1))  # [64, 8, 768]
         return x
 
-
+def calc_dropout(dropout, sample_embed_dim, super_embed_dim):
+    """calc_dropout
+    """
+    return dropout * 1.0 * sample_embed_dim / super_embed_dim
+    
 class VisionTransformer(nn.Layer):
     """ Vision Transformer
     """
@@ -292,6 +298,7 @@ class VisionTransformer(nn.Layer):
                  depth=12, num_heads=12, mlp_ratio=4., qkv_bias=False, qk_scale=None,
                  drop_rate=0., attn_drop_rate=0., camera=0, drop_path_rate=0., hybrid_backbone=None,
                  norm_layer=partial(nn.LayerNorm, epsilon=1e-6), sie_xishu=1.0,
+                 predefined_head_dim=64,
                  use_checkpointing=False, share_last=True):
         """Init
         """
@@ -306,7 +313,9 @@ class VisionTransformer(nn.Layer):
                 embed_dim=embed_dim)
 
         num_patches = self.patch_embed.num_patches
-
+        self.super_dropout = drop_rate
+        self.super_attn_dropout = attn_drop_rate
+        self.super_embed_dim = embed_dim
         self.cls_token = self.create_parameter(
             shape=(1, 1, embed_dim), default_initializer=zeros_)
         self.pos_embed = self.create_parameter(
@@ -328,7 +337,8 @@ class VisionTransformer(nn.Layer):
         self.blocks = nn.LayerList([
             Block(
                 dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
-                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, use_checkpointing=False)
+                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer, use_checkpointing=False,
+                predefined_head_dim=predefined_head_dim)
             for i in range(depth)])
 
         if self.share_last:
@@ -341,6 +351,34 @@ class VisionTransformer(nn.Layer):
 
         self.use_checkpointing = use_checkpointing
 
+    def set_sample_config(self, config):
+        """set_sample_config
+        """
+        self.sample_embed_dim = config['embed_dim']
+        self.sample_mlp_ratio = config['mlp_ratio']
+        self.sample_layer_num = config['layer_num']
+        self.sample_num_heads = config['num_heads']
+        self.sample_dropout = calc_dropout(self.super_dropout, self.sample_embed_dim[0], self.super_embed_dim)
+        # self.patch_embed_super.set_sample_config(self.sample_embed_dim[0])
+        self.sample_output_dim = [out_dim for out_dim in self.sample_embed_dim[1:]] + [self.sample_embed_dim[-1]]
+        for i, blocks in enumerate(self.blocks):
+            # not exceed sample layer number
+            if i < (len(self.blocks) if (self.training and self.use_checkpointing) else self.sample_layer_num):
+                sample_dropout = calc_dropout(self.super_dropout, self.sample_embed_dim[i], self.super_embed_dim)
+                sample_attn_dropout = calc_dropout(self.super_attn_dropout, 
+                                                    self.sample_embed_dim[i], 
+                                                    self.super_embed_dim)
+                blocks.set_sample_config(is_identity_layer=False,
+                                        sample_embed_dim=self.sample_embed_dim[i],
+                                        sample_mlp_ratio=self.sample_mlp_ratio[i],
+                                        sample_num_heads=self.sample_num_heads[i],
+                                        sample_dropout=sample_dropout,
+                                        sample_out_dim=self.sample_output_dim[i],
+                                        sample_attn_dropout=sample_attn_dropout)
+            # exceeds sample layer number
+            else:
+                blocks.set_sample_config(is_identity_layer=True)
+    
     def _init_weights(self, m):
         if isinstance(m, nn.Linear):
             trunc_normal_(m.weight)
@@ -371,11 +409,26 @@ class VisionTransformer(nn.Layer):
 
         x = self.pos_drop(x)
 
-        for blk in self.blocks:
-            if self.use_checkpointing:
-                x = recompute(blk, x)
+        for idx, blk in enumerate(self.blocks):
+            if idx < self.sample_layer_num:
+                if self.use_checkpointing:
+                    x = recompute(blk, x)
+                else:
+                    x = blk(x)
             else:
-                x = blk(x)
+                if self.training:
+                # In training mode, the checkpointing technique requires calculating the gradients in last unused blocks.
+                # Thus, we make forward calculation of last unused blocks, 
+                # but set a ZERO mask to the results of last unused blocks to eliminate theirs effect on final features
+                # Note, the checkpointing technique is activated in DEFAULT. 
+                    if self.use_checkpointing:
+                        x_pesudo = recompute(blk, x)
+                        x = 0 * x_pesudo + x
+                    else:
+                        x_pesudo = blk(x)
+                        x = 0 * x_pesudo + x
+                else:
+                    pass
 
         if self.share_last:
             x = self.norm(x)
@@ -406,9 +459,10 @@ def resize_pos_embed(posemb, posemb_new, hight, width):
     return posemb
 
 
-def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False, patch_size=16, 
+def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False,
                             input_size=[256, 128], depth='base', sie_xishu=3.0, stride_size=[16, 16],
-                            drop_ratio=0.0, drop_path_ratio=0.1, attn_drop_rate=0.0,
+                            patch_size=14, drop_ratio=0.0, drop_path_ratio=0.1, attn_drop_rate=0.0,
+                            predefined_head_dim=64,
                             use_checkpointing=False, share_last=True):
     """
     Create a Vision Transformer instance from config.
@@ -457,9 +511,12 @@ def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False
         'large': None,
         'huge': None,
     }[depth]
-    model = VisionTransformer(img_size=input_size, sie_xishu=sie_xishu, patch_size=patch_size, stride_size=stride_size, depth=num_depth,
+
+    model = VisionTransformer(img_size=input_size, sie_xishu=sie_xishu, stride_size=stride_size, depth=num_depth,
+                             patch_size=patch_size,
                               num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
                               drop_path_rate=drop_path_ratio, drop_rate=drop_ratio, attn_drop_rate=attn_drop_rate,
+                              predefined_head_dim=predefined_head_dim,
                               embed_dim=embed_dim, use_checkpointing=use_checkpointing, share_last=share_last)
 
     if pretrain:
@@ -481,7 +538,7 @@ def build_vit_backbone_lazy(pretrain=False, pretrain_path='', pretrain_npz=False
             if 'patch_embed.proj.weight' in k and len(v.shape) < 4:
                 # For old models that I trained prior to conv based patchification
                 O, I, H, W = model.patch_embed.proj.weight.shape
-                v = v.reshape((O, -1, H, W))
+                v = v.reshape(O, -1, H, W)
             elif k == 'pos_embed' and v.shape != model.pos_embed.shape:
                 # To resize pos embedding when using model at different size from pretrained weights
                 if 'distilled' in pretrain_path:
