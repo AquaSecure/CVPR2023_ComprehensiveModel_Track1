@@ -64,4 +64,55 @@ class LastLevelMaxPool(nn.Layer):
     """
 
     def __init__(self):
-        super().__init
+        super().__init__()
+        self.num_levels = 1
+        self.in_feature = "p5"
+
+    def forward(self, x):
+        return F.max_pool2d(x, kernel_size=1, stride=2, padding=0)
+
+
+class Mlp(nn.Layer):
+    def __init__(self, in_features, hidden_features=None, out_features=None, act_layer=nn.GELU, drop=0., lr=1.0):
+        super().__init__()
+        out_features = out_features or in_features
+        hidden_features = hidden_features or in_features
+        self.fc1 = nn.Linear(in_features, hidden_features, weight_attr=ParamAttr(learning_rate=lr), bias_attr=ParamAttr(learning_rate=lr))
+        self.act = act_layer()
+        self.fc2 = nn.Linear(hidden_features, out_features, weight_attr=ParamAttr(learning_rate=lr), bias_attr=ParamAttr(learning_rate=lr))
+        self.drop = nn.Dropout(drop)
+
+    def forward(self, x):
+        x = self.fc1(x)
+        x = self.act(x)
+        # x = self.drop(x)
+        # commit this for the orignal BERT implement 
+        x = self.fc2(x)
+        x = self.drop(x)
+        return x
+
+
+class Attention(nn.Layer):
+    def __init__(
+            self, dim, num_heads=8, qkv_bias=False, qk_scale=None, attn_drop=0.,
+            proj_drop=0., window_size=None, attn_head_dim=None, lr=1.0):
+        super().__init__()
+        self.num_heads = num_heads
+        head_dim = dim // num_heads
+        if attn_head_dim is not None:
+            head_dim = attn_head_dim
+        all_head_dim = head_dim * self.num_heads
+        # NOTE scale factor was wrong in my original version, can set manually to be compat with prev weights
+        self.scale = qk_scale or head_dim ** -0.5
+
+        self.qkv = nn.Linear(dim, all_head_dim * 3, bias_attr=qkv_bias, weight_attr=ParamAttr(learning_rate=lr))
+        self.window_size = window_size
+        assert len(self.window_size) == 2, "window_size must include two-dimension information"
+        q_size = window_size[0]
+        kv_size = q_size
+        rel_sp_dim = 2 * q_size - 1
+
+        self.rel_pos_h = self.create_parameter(
+            shape=(2 * window_size[0] - 1, head_dim), default_initializer=zeros_,  attr=ParamAttr(learning_rate=lr))
+        self.rel_pos_w = self.create_parameter(
+            shape=(2 * window_size[1] - 1, head_dim), default_initializer=zeros_,
