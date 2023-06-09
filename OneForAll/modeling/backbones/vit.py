@@ -115,4 +115,56 @@ class Attention(nn.Layer):
         self.rel_pos_h = self.create_parameter(
             shape=(2 * window_size[0] - 1, head_dim), default_initializer=zeros_,  attr=ParamAttr(learning_rate=lr))
         self.rel_pos_w = self.create_parameter(
-            shape=(2 * window_size[1] - 1, head_dim), default_initializer=zeros_,
+            shape=(2 * window_size[1] - 1, head_dim), default_initializer=zeros_,  attr=ParamAttr(learning_rate=lr))
+
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(all_head_dim, dim, weight_attr=ParamAttr(learning_rate=lr), bias_attr=ParamAttr(learning_rate=lr))
+        self.proj_drop = nn.Dropout(proj_drop)
+
+    def forward(self, x, H, W, rel_pos_bias=None):
+        B, N, C = x.shape
+
+        qkv = self.qkv(x)
+        qkv = qkv.reshape((B, N, 3, self.num_heads, -1)).transpose((2, 0, 3, 1, 4))
+        q, k, v = qkv[0], qkv[1], qkv[2]   # make paddlescript happy (cannot use tensor as tuple)
+
+        q = q * self.scale
+        attn = q.matmul(k.transpose((0, 1, 3, 2)))
+        # attn = calc_rel_pos_spatial(attn, q, self.window_size, self.window_size, self.rel_pos_h, self.rel_pos_w)
+        _, _, q_length, _ = q.shape
+        q_size = int(q_length ** 0.5)
+        
+
+        # if q_size == self.window_size[0]:
+        if (H, W) == self.window_size:
+            attn = calc_rel_pos_spatial(attn, q, self.window_size, self.window_size, self.rel_pos_h, self.rel_pos_w)
+        else:
+            rel_pos_h = F.interpolate(self.rel_pos_h.unsqueeze(axis=0), size=(2 * H - 1,), align_corners=False, mode='linear', data_format='NWC').squeeze(axis=0)
+            rel_pos_w = F.interpolate(self.rel_pos_w.unsqueeze(axis=0), size=(2 * W - 1,), align_corners=False, mode='linear', data_format='NWC').squeeze(axis=0)
+            attn = calc_rel_pos_spatial(attn, q, (H, W), (H, W), rel_pos_h, rel_pos_w)
+        
+        attn = F.softmax(attn, axis=-1)
+        attn = self.attn_drop(attn)
+
+        x = (attn.matmul(v)).transpose((0, 2, 1, 3)).reshape((B, N, C))
+        x = self.proj(x)
+        x = self.proj_drop(x)
+        return x
+
+
+def window_partition(x, window_size):
+    """
+    Args:
+        x: (B, H, W, C)
+        window_size (int): window size
+    Returns:
+        windows: (num_windows*B, window_size, window_size, C)
+    """
+    B, H, W, C = x.shape
+    x = x.reshape((B, H // window_size, window_size, W // window_size, window_size, C))
+    # windows = x.permute(0, 1, 3, 2, 4, 5).contiguous().view(-1, window_size, window_size, C)
+    windows = x.transpose((0, 1, 3, 2, 4, 5)).reshape((-1, window_size, window_size, C))
+    return windows
+
+
+def window_reverse(windows, window_size, 
