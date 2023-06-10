@@ -238,4 +238,56 @@ class WindowAttention(nn.Layer):
         window_size (tuple[int]): The height and width of the window.
         num_heads (int): Number of attention heads.
         qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
-        qk_scale (float | None, optional): Override default qk scale of head_dim **
+        qk_scale (float | None, optional): Override default qk scale of head_dim ** -0.5 if set
+        attn_drop (float, optional): Dropout ratio of attention weight. Default: 0.0
+        proj_drop (float, optional): Dropout ratio of output. Default: 0.0
+    """
+
+    def __init__(
+        self, dim, window_size, num_heads, qkv_bias=True, qk_scale=None, 
+        attn_drop=0., proj_drop=0., attn_head_dim=None, lr=1.0):
+
+        super().__init__()
+        self.dim = dim
+        self.window_size = window_size  # Wh, Ww
+        self.num_heads = num_heads
+        head_dim = dim // num_heads
+        self.scale = qk_scale or head_dim ** -0.5
+
+        q_size = window_size[0]
+        kv_size = window_size[1]
+        rel_sp_dim = 2 * q_size - 1
+
+        self.rel_pos_h = self.create_parameter(
+            shape=(rel_sp_dim, head_dim), default_initializer=zeros_, attr=ParamAttr(learning_rate=lr))
+        self.rel_pos_w = self.create_parameter(
+            shape=(rel_sp_dim, head_dim), default_initializer=zeros_, attr=ParamAttr(learning_rate=lr))
+
+        self.qkv = nn.Linear(dim, dim * 3, bias_attr=qkv_bias, weight_attr=ParamAttr(learning_rate=lr))
+        self.attn_drop = nn.Dropout(attn_drop)
+        self.proj = nn.Linear(dim, dim, weight_attr=ParamAttr(learning_rate=lr), bias_attr=ParamAttr(learning_rate=lr))
+        self.proj_drop = nn.Dropout(proj_drop)
+
+        self.softmax = nn.Softmax(axis=-1)
+
+    def forward(self, x, H, W):
+        """ Forward function.
+        Args:
+            x: input features with shape of (num_windows*B, N, C)
+            mask: (0/-inf) mask with shape of (num_windows, Wh*Ww, Wh*Ww) or None
+        """
+        B_, N, C = x.shape
+        x = x.reshape((B_, H, W, C))
+        pad_l = pad_t = 0
+        pad_r = (self.window_size[1] - W % self.window_size[1]) % self.window_size[1]
+        pad_b = (self.window_size[0] - H % self.window_size[0]) % self.window_size[0]
+
+        x = F.pad(x, (pad_l, pad_r, pad_t, pad_b), data_format='NHWC')
+        _, Hp, Wp, _ = x.shape
+
+        x = window_partition(x, self.window_size[0])  # nW*B, window_size, window_size, C
+        x = x.reshape((-1, self.window_size[1] * self.window_size[0], C))  # nW*B, window_size*window_size, C
+        B_w = x.shape[0]
+        N_w = x.shape[1]
+        # qkv = self.qkv(x).reshape(B_w, N_w, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
+        qkv = self.qkv(x).reshape((B
