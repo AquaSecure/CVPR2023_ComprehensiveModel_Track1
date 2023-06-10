@@ -338,4 +338,61 @@ class Block(nn.Layer):
         mlp_hidden_dim = int(dim * mlp_ratio)
         self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop, lr=lr)
 
-        if init_values is not N
+        if init_values is not None:
+            # self.gamma_1 = nn.Parameter(init_values * paddle.ones((dim)),requires_grad=True)
+            # self.gamma_2 = nn.Parameter(init_values * paddle.ones((dim)),requires_grad=True)
+
+            self.gamma_1 = self.create_parameter(shape=(dim), default_initializer=ones_) * init_values
+            self.gamma_2 = self.create_parameter(shape=(dim), default_initializer=ones_) * init_values
+            
+        else:
+            self.gamma_1, self.gamma_2 = None, None
+
+    def forward(self, x, H, W):
+        if self.gamma_1 is None:
+            x = x + self.drop_path(self.attn(self.norm1(x), H, W))
+            x = x + self.drop_path(self.mlp(self.norm2(x)))
+        else:
+            x = x + self.drop_path(self.gamma_1 * self.attn(self.norm1(x), H, W))
+            x = x + self.drop_path(self.gamma_2 * self.mlp(self.norm2(x)))
+        return x
+
+
+class PatchEmbed(nn.Layer):
+    """ Image to Patch Embedding
+    """
+    def __init__(self, img_size=224, patch_size=16, in_chans=3, embed_dim=768, lr=1.0):
+        super().__init__()
+        img_size = to_2tuple(img_size)
+        patch_size = to_2tuple(patch_size)
+        num_patches = (img_size[1] // patch_size[1]) * (img_size[0] // patch_size[0])
+        self.patch_shape = (img_size[0] // patch_size[0], img_size[1] // patch_size[1])
+        self.img_size = img_size
+        self.patch_size = patch_size
+        self.num_patches = num_patches
+
+        self.proj = nn.Conv2D(in_chans, embed_dim, kernel_size=patch_size, stride=patch_size,
+                    weight_attr=ParamAttr(learning_rate=lr), bias_attr=ParamAttr(learning_rate=lr))
+
+    def forward(self, x, **kwargs):
+        x = self.proj(x)
+        _, _, Hp, Wp = x.shape
+        x = x.flatten(2).transpose((0, 2, 1))
+        return x, (Hp, Wp)
+
+
+class HybridEmbed(nn.Layer):
+    """ CNN Feature Map Embedding
+    Extract feature map from CNN, flatten, project to embedding dim.
+    """
+    def __init__(self, backbone, img_size=224, feature_size=None, in_chans=3, embed_dim=768):
+        super().__init__()
+        assert isinstance(backbone, nn.Layer)
+        img_size = to_2tuple(img_size)
+        self.img_size = img_size
+        self.backbone = backbone
+        if feature_size is None:
+            with paddle.no_grad():
+                training = backbone.training
+                if training:
+                    backbone.ev
