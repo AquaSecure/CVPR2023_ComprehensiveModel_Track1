@@ -290,4 +290,52 @@ class WindowAttention(nn.Layer):
         B_w = x.shape[0]
         N_w = x.shape[1]
         # qkv = self.qkv(x).reshape(B_w, N_w, 3, self.num_heads, C // self.num_heads).permute(2, 0, 3, 1, 4)
-        qkv = self.qkv(x).reshape((B
+        qkv = self.qkv(x).reshape((B_w, N_w, 3, self.num_heads, C // self.num_heads)).transpose((2, 0, 3, 1, 4))
+        q, k, v = qkv[0], qkv[1], qkv[2]  # make paddlescript happy (cannot use tensor as tuple)
+        
+        q = q * self.scale
+        # attn = (q @ k.transpose(-2, -1))
+        attn = q.matmul(k.transpose((0, 1, 3, 2)))
+
+        attn = calc_rel_pos_spatial(attn, q, self.window_size, self.window_size, self.rel_pos_h, self.rel_pos_w)
+
+        attn = self.softmax(attn)
+        attn = self.attn_drop(attn)
+
+        x = (attn.matmul(v)).transpose((0, 2, 1, 3)).reshape((B_w, N_w, C))
+        # x = (attn @ v).transpose(1, 2).reshape((B_w, N_w, C))
+        x = self.proj(x)
+        x = self.proj_drop(x)
+
+        x = x.reshape((-1, self.window_size[1], self.window_size[0], C))
+        x = window_reverse(x, self.window_size[0], Hp, Wp)  # B H' W' C
+
+        if pad_r > 0 or pad_b > 0:
+            x = x[:, :H, :W, :]
+
+        x = x.reshape((B_, H * W, C))
+
+        return x
+
+class Block(nn.Layer):
+
+    def __init__(self, dim, num_heads, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop=0., attn_drop=0.,
+                 drop_path=0., init_values=None, act_layer=nn.GELU, norm_layer=nn.LayerNorm,
+                 window_size=None, attn_head_dim=None, window=False, lr=1.0):
+        super().__init__()
+        self.norm1 = norm_layer(dim)
+        if not window:
+            self.attn = Attention(
+            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale,
+            attn_drop=attn_drop, proj_drop=drop, window_size=window_size, attn_head_dim=attn_head_dim, lr=lr)
+        else:
+            self.attn = WindowAttention(
+            dim, num_heads=num_heads, qkv_bias=qkv_bias, qk_scale=qk_scale,
+            attn_drop=attn_drop, proj_drop=drop, window_size=window_size, attn_head_dim=attn_head_dim, lr=lr)
+        # NOTE: drop path for stochastic depth, we shall see if this is better than dropout here
+        self.drop_path = DropPath(drop_path) if drop_path > 0. else nn.Identity()
+        self.norm2 = norm_layer(dim)
+        mlp_hidden_dim = int(dim * mlp_ratio)
+        self.mlp = Mlp(in_features=dim, hidden_features=mlp_hidden_dim, act_layer=act_layer, drop=drop, lr=lr)
+
+        if init_values is not N
