@@ -167,4 +167,75 @@ def window_partition(x, window_size):
     return windows
 
 
-def window_reverse(windows, window_size, 
+def window_reverse(windows, window_size, H, W):
+    """
+    Args:
+        windows: (num_windows*B, window_size, window_size, C)
+        window_size (int): Window size
+        H (int): Height of image
+        W (int): Width of image
+    Returns:
+        x: (B, H, W, C)
+    """
+    B = int(windows.shape[0] / (H * W / window_size / window_size))
+    x = windows.reshape((B, H // window_size, W // window_size, window_size, window_size, -1))
+    x = x.transpose((0, 1, 3, 2, 4, 5)).reshape((B, H, W, -1))
+    return x
+
+
+def calc_rel_pos_spatial(
+    attn,
+    q,
+    q_shape,
+    k_shape,
+    rel_pos_h,
+    rel_pos_w,
+    ):
+    """
+    Spatial Relative Positional Embeddings.
+    """
+    sp_idx = 0
+    q_h, q_w = q_shape
+    k_h, k_w = k_shape
+
+    # Scale up rel pos if shapes for q and k are different.
+    q_h_ratio = max(k_h / q_h, 1.0)
+    k_h_ratio = max(q_h / k_h, 1.0)
+    dist_h = (
+        paddle.arange(q_h)[:, None] * q_h_ratio - paddle.arange(k_h)[None, :] * k_h_ratio
+    )
+    dist_h += (k_h - 1) * k_h_ratio
+    q_w_ratio = max(k_w / q_w, 1.0)
+    k_w_ratio = max(q_w / k_w, 1.0)
+    dist_w = (
+        paddle.arange(q_w)[:, None] * q_w_ratio - paddle.arange(k_w)[None, :] * k_w_ratio
+    )
+    dist_w += (k_w - 1) * k_w_ratio
+
+    Rh = rel_pos_h[paddle.to_tensor(dist_h, 'int64')]
+    Rw = rel_pos_w[paddle.to_tensor(dist_w, 'int64')]
+
+    B, n_head, q_N, dim = q.shape
+
+    r_q = q[:, :, sp_idx:].reshape((B, n_head, q_h, q_w, dim))
+    rel_h = paddle.einsum("byhwc,hkc->byhwk", r_q, Rh)
+    rel_w = paddle.einsum("byhwc,wkc->byhwk", r_q, Rw)
+
+    attn[:, :, sp_idx:, sp_idx:] = (
+        attn[:, :, sp_idx:, sp_idx:].reshape((B, -1, q_h, q_w, k_h, k_w))
+        + rel_h[:, :, :, :, :, None]
+        + rel_w[:, :, :, :, None, :]
+    ).reshape((B, -1, q_h * q_w, k_h * k_w))
+
+    return attn
+
+
+class WindowAttention(nn.Layer):
+    """ Window based multi-head self attention (W-MSA) module with relative position bias.
+    It supports both of shifted and non-shifted window.
+    Args:
+        dim (int): Number of input channels.
+        window_size (tuple[int]): The height and width of the window.
+        num_heads (int): Number of attention heads.
+        qkv_bias (bool, optional):  If True, add a learnable bias to query, key, value. Default: True
+        qk_scale (float | None, optional): Override default qk scale of head_dim **
