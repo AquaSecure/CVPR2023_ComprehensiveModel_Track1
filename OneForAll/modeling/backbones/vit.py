@@ -395,4 +395,55 @@ class HybridEmbed(nn.Layer):
             with paddle.no_grad():
                 training = backbone.training
                 if training:
-                    backbone.ev
+                    backbone.eval()
+                o = self.backbone(paddle.zeros((1, in_chans, img_size[0], img_size[1])))[-1]
+                feature_size = o.shape[-2:]
+                feature_dim = o.shape[1]
+                backbone.train(training)
+        else:
+            feature_size = to_2tuple(feature_size)
+            feature_dim = self.backbone.feature_info.channels()[-1]
+        self.num_patches = feature_size[0] * feature_size[1]
+        self.proj = nn.Linear(feature_dim, embed_dim)
+
+    def forward(self, x):
+        x = self.backbone(x)[-1]
+        x = x.flatten(2).transpose((0, 2, 1))
+        x = self.proj(x)
+        return x
+
+
+class Norm2d(nn.Layer):
+    def __init__(self, embed_dim):
+        super().__init__()
+        self.ln = nn.LayerNorm(embed_dim, epsilon=1e-6)
+
+    def forward(self, x):
+        x = x.transpose((0, 2, 3, 1))
+        x = self.ln(x)
+        x = x.transpose((0, 3, 1, 2))
+        return x
+
+
+class ViT(nn.Layer):
+    """ Vision Transformer with support for patch or hybrid CNN input stage
+    """
+    def __init__(self, img_size=224, patch_size=16, in_chans=3, num_classes=80, embed_dim=768, depth=12,
+                 num_heads=12, mlp_ratio=4., qkv_bias=False, qk_scale=None, drop_rate=0., attn_drop_rate=0.,
+                 drop_path_rate=0., hybrid_backbone=None, norm_layer=None, init_values=None, use_checkpoint=False, 
+                 use_abs_pos_emb=False, use_rel_pos_bias=False, use_shared_rel_pos_bias=False,
+                 out_indices=[11], pretrained=None, out_shape=None, lr_mult=1.0, extra_level=0, grainity=4):
+        super().__init__()
+        norm_layer = norm_layer or partial(nn.LayerNorm, epsilon=1e-6)
+        self.num_classes = num_classes
+        self.num_features = self.embed_dim = embed_dim  # num_features for consistency with other models
+
+        if hybrid_backbone is not None:
+            self.patch_embed = HybridEmbed(
+                hybrid_backbone, img_size=img_size, in_chans=in_chans, embed_dim=embed_dim)
+        else:
+            self.patch_embed = PatchEmbed(
+                img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim, lr=lr_mult)
+
+        self.patch_size = patch_size
+        self.out_indices = out
