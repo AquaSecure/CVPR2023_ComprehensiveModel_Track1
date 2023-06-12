@@ -446,4 +446,58 @@ class ViT(nn.Layer):
                 img_size=img_size, patch_size=patch_size, in_chans=in_chans, embed_dim=embed_dim, lr=lr_mult)
 
         self.patch_size = patch_size
-        self.out_indices = out
+        self.out_indices = out_indices
+        self.extra_level = extra_level
+
+        self._out_shape = out_shape
+        self._out_strides = [4, 8, 16, 32]
+
+        if use_abs_pos_emb:
+            num_patches = self.patch_embed.num_patches
+            self.pos_embed = self.create_parameter(
+                shape=(1, num_patches, embed_dim), default_initializer=zeros_, attr=ParamAttr(learning_rate=lr_mult))
+            
+            self.pos_embed_x = img_size // patch_size
+            self.pos_embed_y = img_size // patch_size
+        else:
+            self.pos_embed = None
+
+        self.pos_drop = nn.Dropout(p=drop_rate)
+
+        dpr = [x.item() for x in paddle.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
+        self.use_rel_pos_bias = use_rel_pos_bias
+        self.use_checkpoint = use_checkpoint
+        interval = depth // grainity
+        self.blocks = nn.LayerList([
+            Block(
+                dim=embed_dim, num_heads=num_heads, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[i], norm_layer=norm_layer,
+                init_values=init_values, 
+                lr=lr_mult,
+                window_size=(14, 14) if ((i + 1) % interval != 0) else self.patch_embed.patch_shape, 
+                window=((i + 1) % interval != 0))
+            for i in range(depth)])
+
+        if self.pos_embed is not None:
+            trunc_normal_(self.pos_embed)
+
+        self.norm = norm_layer(embed_dim)
+
+        if self.patch_size == 16:
+            self.fpn1 = nn.Sequential(
+                nn.Conv2DTranspose(embed_dim, embed_dim, kernel_size=2, stride=2),
+                Norm2d(embed_dim),
+                nn.GELU(),
+                nn.Conv2DTranspose(embed_dim, embed_dim, kernel_size=2, stride=2),
+            )
+            self.fpn2 = nn.Sequential(nn.Conv2DTranspose(embed_dim, embed_dim, kernel_size=2, stride=2))
+            self.fpn3 = nn.Identity()
+            self.fpn4 = nn.MaxPool2D(kernel_size=2, stride=2)
+        elif self.patch_size == 8:
+            self.fpn1 = nn.Sequential(
+                nn.Conv2DTranspose(embed_dim, embed_dim, kernel_size=2, stride=2),
+                Norm2d(embed_dim),
+                nn.GELU(),
+            )
+            self.fpn2 = nn.Identity()
+     
