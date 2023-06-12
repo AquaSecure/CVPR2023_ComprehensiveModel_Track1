@@ -500,4 +500,68 @@ class ViT(nn.Layer):
                 nn.GELU(),
             )
             self.fpn2 = nn.Identity()
-     
+            self.fpn3 = nn.MaxPool2D(kernel_size=2, stride=2)
+            self.fpn4 = nn.MaxPool2D(kernel_size=4, stride=4)
+        else:
+            raise NotImplementedError("your patch size {} is not supported yet.".format(self.patch_size))
+        
+        extra_level_module_list = []
+        for i in range(self.extra_level):
+            extra_level_module_list.append(LastLevelMaxPool())
+        self.extra_level_module_list = nn.LayerList(extra_level_module_list)
+
+        self.apply(self._init_weights)
+        self.fix_init_weight()
+        self.pretrained = pretrained
+        self.init_weights()
+
+    def fix_init_weight(self):
+        def rescale(param, layer_id):
+            param = param / math.sqrt(2.0 * layer_id)
+
+        for layer_id, layer in enumerate(self.blocks):
+            rescale(layer.attn.proj.weight, layer_id + 1)
+            rescale(layer.mlp.fc2.weight, layer_id + 1)
+
+    def _init_weights(self, m):
+        if isinstance(m, nn.Linear):
+            trunc_normal_(m.weight)
+            if isinstance(m, nn.Linear) and m.bias is not None:
+                zeros_(m.bias)
+        elif isinstance(m, nn.LayerNorm):
+            zeros_(m.bias)
+            ones_(m.weight)
+
+    def init_weights(self, pretrained=None):
+        """Initialize the weights in backbone.
+
+        Args:
+            pretrained (str, optional): Path to pre-trained weights.
+                Defaults to None.
+        """
+        pretrained = pretrained or self.pretrained
+        def _init_weights(m):
+            if isinstance(m, nn.Linear):
+                trunc_normal_(m.weight)
+                if isinstance(m, nn.Linear) and m.bias is not None:
+                    zeros_(m.bias)
+            elif isinstance(m, nn.LayerNorm):
+                zeros_(m.bias)
+                ones_(m.weight)
+
+        if isinstance(pretrained, str):
+            self.apply(_init_weights)
+            print(f"load from {pretrained}")
+            load_checkpoint(self, pretrained)
+        elif pretrained is None:
+            self.apply(_init_weights)
+        else:
+            raise TypeError('pretrained must be a str or None')
+
+    def get_num_layers(self):
+        return len(self.blocks)
+
+    def no_weight_decay(self):
+        return {'pos_embed', 'cls_token'}
+
+    de
