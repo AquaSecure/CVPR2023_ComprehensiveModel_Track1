@@ -564,4 +564,59 @@ class ViT(nn.Layer):
     def no_weight_decay(self):
         return {'pos_embed', 'cls_token'}
 
-    de
+    def forward_features(self, x):
+        B, C, H, W = x.shape
+        x, (Hp, Wp) = self.patch_embed(x)
+
+        if self.pos_embed is not None:
+            _, num_patches, embedding_size = x.shape
+            _, pos_num_patches, _ = self.pos_embed.shape
+            # if num_patches != pos_num_patches:
+            #     orig_size = int(pos_num_patches ** 0.5)
+            #     target_size = int(num_patches ** 0.5)
+            #     pos_tokens = self.pos_embed.reshape((-1, orig_size, orig_size, embedding_size)).transpose((0, 3, 1, 2))
+            #     pos_tokens = F.interpolate(pos_tokens, size=(target_size, target_size), mode='bicubic', align_corners=False)
+            #     new_pos_embed = pos_tokens.transpose((0, 2, 3, 1)).flatten(1, 2)
+            #     x = x + new_pos_embed
+            if (self.pos_embed_x, self.pos_embed_y) != (Hp, Wp):
+                pos_tokens = self.pos_embed.reshape((-1, self.pos_embed_x, self.pos_embed_y, embedding_size)).transpose((0, 3, 1, 2))
+                pos_tokens = F.interpolate(pos_tokens, size=(Hp, Wp), mode='bicubic', align_corners=False)
+                new_pos_embed = pos_tokens.transpose((0, 2, 3, 1)).flatten(1, 2)
+                x = x + new_pos_embed
+            else:
+                x = x + self.pos_embed
+        x = self.pos_drop(x)
+
+        det_features = []
+        all_features = []
+        for i, blk in enumerate(self.blocks):
+            blk.H = Hp
+            blk.W = Wp
+            if self.use_checkpoint:
+                x = recompute(blk, x, Hp, Wp) #TODO add checkpointing of paddle
+            else:
+                x = blk(x, Hp, Wp)
+            all_features.append(x)
+        
+        x = self.norm(x)
+        
+        xp = x.transpose((0, 2, 1)).reshape((B, -1, Hp, Wp))
+
+        ops = [self.fpn1, self.fpn2, self.fpn3, self.fpn4]
+        for i in range(len(ops)):
+            if i in self.out_indices:
+                det_features.append(ops[i](xp))
+        p5_feature = det_features[-1]
+
+        for i in range(self.extra_level):
+            det_features.append(self.extra_level_module_list[i](p5_feature))
+
+        return [tuple(det_features), all_features]
+
+    def forward(self, inputs):
+        x = inputs['image']
+        x = self.forward_features(x)
+        return x
+
+    @property
+    def out_shape
