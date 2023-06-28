@@ -94,4 +94,76 @@ def expand_bbox(bboxes, scale):
     bboxes_exp = np.zeros(bboxes.shape, dtype=np.float32)
     bboxes_exp[:, 0] = x_c - w_half
     bboxes_exp[:, 2] = x_c + w_half
-    b
+    bboxes_exp[:, 1] = y_c - h_half
+    bboxes_exp[:, 3] = y_c + h_half
+
+    return bboxes_exp
+
+
+def clip_bbox(boxes, im_shape):
+    h, w = im_shape[0], im_shape[1]
+    x1 = boxes[:, 0].clip(0, w)
+    y1 = boxes[:, 1].clip(0, h)
+    x2 = boxes[:, 2].clip(0, w)
+    y2 = boxes[:, 3].clip(0, h)
+    return paddle.stack([x1, y1, x2, y2], axis=1)
+
+
+def nonempty_bbox(boxes, min_size=0, return_mask=False):
+    w = boxes[:, 2] - boxes[:, 0]
+    h = boxes[:, 3] - boxes[:, 1]
+    mask = paddle.logical_and(h > min_size, w > min_size)
+    if return_mask:
+        return mask
+    keep = paddle.nonzero(mask).flatten()
+    return keep
+
+
+def bbox_area(boxes):
+    return (boxes[:, 2] - boxes[:, 0]) * (boxes[:, 3] - boxes[:, 1])
+
+
+def bbox_overlaps(boxes1, boxes2):
+    """
+    Calculate overlaps between boxes1 and boxes2
+
+    Args:
+        boxes1 (Tensor): boxes with shape [M, 4]
+        boxes2 (Tensor): boxes with shape [N, 4]
+
+    Return:
+        overlaps (Tensor): overlaps between boxes1 and boxes2 with shape [M, N]
+    """
+    M = boxes1.shape[0]
+    N = boxes2.shape[0]
+    if M * N == 0:
+        return paddle.zeros([M, N], dtype='float32')
+    area1 = bbox_area(boxes1)
+    area2 = bbox_area(boxes2)
+
+    xy_max = paddle.minimum(
+        paddle.unsqueeze(boxes1, 1)[:, :, 2:], boxes2[:, 2:])
+    xy_min = paddle.maximum(
+        paddle.unsqueeze(boxes1, 1)[:, :, :2], boxes2[:, :2])
+    width_height = xy_max - xy_min
+    width_height = width_height.clip(min=0)
+    inter = width_height.prod(axis=2)
+
+    overlaps = paddle.where(inter > 0, inter /
+                            (paddle.unsqueeze(area1, 1) + area2 - inter),
+                            paddle.zeros_like(inter))
+    return overlaps
+
+
+def batch_bbox_overlaps(bboxes1,
+                        bboxes2,
+                        mode='iou',
+                        is_aligned=False,
+                        eps=1e-6):
+    """Calculate overlap between two set of bboxes.
+    If ``is_aligned `` is ``False``, then calculate the overlaps between each
+    bbox of bboxes1 and bboxes2, otherwise the overlaps between each aligned
+    pair of bboxes1 and bboxes2.
+    Args:
+        bboxes1 (Tensor): shape (B, m, 4) in <x1, y1, x2, y2> format or empty.
+        bboxes2 (Tensor): shape (B, n
