@@ -219,4 +219,69 @@ def batch_bbox_overlaps(bboxes1,
     else:
         lt = paddle.maximum(bboxes1[:, :2].reshape([rows, 1, 2]),
                             bboxes2[:, :2])  # [B, rows, cols, 2]
-        rb = paddle.minimum(bboxes1[:, 2:
+        rb = paddle.minimum(bboxes1[:, 2:].reshape([rows, 1, 2]),
+                            bboxes2[:, 2:])  # [B, rows, cols, 2]
+
+        wh = (rb - lt).clip(min=0)  # [B, rows, cols, 2]
+        overlap = wh[:, :, 0] * wh[:, :, 1]
+
+        if mode in ['iou', 'giou']:
+            union = area1.reshape([rows,1]) \
+                    + area2.reshape([1,cols]) - overlap
+        else:
+            union = area1[:, None]
+        if mode == 'giou':
+            enclosed_lt = paddle.minimum(bboxes1[:, :2].reshape([rows, 1, 2]),
+                                         bboxes2[:, :2])
+            enclosed_rb = paddle.maximum(bboxes1[:, 2:].reshape([rows, 1, 2]),
+                                         bboxes2[:, 2:])
+
+    eps = paddle.to_tensor([eps])
+    union = paddle.maximum(union, eps)
+    ious = overlap / union
+    if mode in ['iou', 'iof']:
+        return ious
+    # calculate gious
+    enclose_wh = (enclosed_rb - enclosed_lt).clip(min=0)
+    enclose_area = enclose_wh[:, :, 0] * enclose_wh[:, :, 1]
+    enclose_area = paddle.maximum(enclose_area, eps)
+    gious = ious - (enclose_area - union) / enclose_area
+    return 1 - gious
+
+
+def xywh2xyxy(box):
+    x, y, w, h = box
+    x1 = x - w * 0.5
+    y1 = y - h * 0.5
+    x2 = x + w * 0.5
+    y2 = y + h * 0.5
+    return [x1, y1, x2, y2]
+
+
+def make_grid(h, w, dtype):
+    yv, xv = paddle.meshgrid([paddle.arange(h), paddle.arange(w)])
+    return paddle.stack((xv, yv), 2).cast(dtype=dtype)
+
+
+def decode_yolo(box, anchor, downsample_ratio):
+    """decode yolo box
+
+    Args:
+        box (list): [x, y, w, h], all have the shape [b, na, h, w, 1]
+        anchor (list): anchor with the shape [na, 2]
+        downsample_ratio (int): downsample ratio, default 32
+        scale (float): scale, default 1.
+
+    Return:
+        box (list): decoded box, [x, y, w, h], all have the shape [b, na, h, w, 1]
+    """
+    x, y, w, h = box
+    na, grid_h, grid_w = x.shape[1:4]
+    grid = make_grid(grid_h, grid_w, x.dtype).reshape((1, 1, grid_h, grid_w, 2))
+    x1 = (x + grid[:, :, :, :, 0:1]) / grid_w
+    y1 = (y + grid[:, :, :, :, 1:2]) / grid_h
+
+    anchor = paddle.to_tensor(anchor)
+    anchor = paddle.cast(anchor, x.dtype)
+    anchor = anchor.reshape((1, na, 1, 1, 2))
+    w1 = paddle.exp(w) * anchor[:, :, :, :, 0:1] / (downsample_ratio 
