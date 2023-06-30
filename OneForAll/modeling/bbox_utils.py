@@ -422,4 +422,84 @@ def delta2rbox(rrois,
     dw = paddle.clip(dw, min=-max_ratio, max=max_ratio)
     dh = paddle.clip(dh, min=-max_ratio, max=max_ratio)
 
-    rroi_x = rrois[:
+    rroi_x = rrois[:, 0]
+    rroi_y = rrois[:, 1]
+    rroi_w = rrois[:, 2]
+    rroi_h = rrois[:, 3]
+    rroi_angle = rrois[:, 4]
+
+    gx = dx * rroi_w * paddle.cos(rroi_angle) - dy * rroi_h * paddle.sin(
+        rroi_angle) + rroi_x
+    gy = dx * rroi_w * paddle.sin(rroi_angle) + dy * rroi_h * paddle.cos(
+        rroi_angle) + rroi_y
+    gw = rroi_w * dw.exp()
+    gh = rroi_h * dh.exp()
+    ga = np.pi * dangle + rroi_angle
+    ga = (ga + np.pi / 4) % np.pi - np.pi / 4
+    ga = paddle.to_tensor(ga)
+
+    gw = paddle.to_tensor(gw, dtype='float32')
+    gh = paddle.to_tensor(gh, dtype='float32')
+    bboxes = paddle.stack([gx, gy, gw, gh, ga], axis=-1)
+    return bboxes
+
+
+def rbox2delta(proposals, gt, means=[0, 0, 0, 0, 0], stds=[1, 1, 1, 1, 1]):
+    """
+
+    Args:
+        proposals:
+        gt:
+        means: 1x5
+        stds: 1x5
+
+    Returns:
+
+    """
+    proposals = proposals.astype(np.float64)
+
+    PI = np.pi
+
+    gt_widths = gt[..., 2]
+    gt_heights = gt[..., 3]
+    gt_angle = gt[..., 4]
+
+    proposals_widths = proposals[..., 2]
+    proposals_heights = proposals[..., 3]
+    proposals_angle = proposals[..., 4]
+
+    coord = gt[..., 0:2] - proposals[..., 0:2]
+    dx = (np.cos(proposals[..., 4]) * coord[..., 0] + np.sin(proposals[..., 4])
+          * coord[..., 1]) / proposals_widths
+    dy = (-np.sin(proposals[..., 4]) * coord[..., 0] + np.cos(proposals[..., 4])
+          * coord[..., 1]) / proposals_heights
+    dw = np.log(gt_widths / proposals_widths)
+    dh = np.log(gt_heights / proposals_heights)
+    da = (gt_angle - proposals_angle)
+
+    da = (da + PI / 4) % PI - PI / 4
+    da /= PI
+
+    deltas = np.stack([dx, dy, dw, dh, da], axis=-1)
+    means = np.array(means, dtype=deltas.dtype)
+    stds = np.array(stds, dtype=deltas.dtype)
+    deltas = (deltas - means) / stds
+    deltas = deltas.astype(np.float32)
+    return deltas
+
+
+def bbox_decode(bbox_preds,
+                anchors,
+                means=[0, 0, 0, 0, 0],
+                stds=[1, 1, 1, 1, 1]):
+    """decode bbox from deltas
+    Args:
+        bbox_preds: [N,H,W,5]
+        anchors: [H*W,5]
+    return:
+        bboxes: [N,H,W,5]
+    """
+    means = paddle.to_tensor(means)
+    stds = paddle.to_tensor(stds)
+    num_imgs, H, W, _ = bbox_preds.shape
+    bboxes_list = 
