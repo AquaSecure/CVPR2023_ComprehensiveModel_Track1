@@ -284,4 +284,71 @@ def decode_yolo(box, anchor, downsample_ratio):
     anchor = paddle.to_tensor(anchor)
     anchor = paddle.cast(anchor, x.dtype)
     anchor = anchor.reshape((1, na, 1, 1, 2))
-    w1 = paddle.exp(w) * anchor[:, :, :, :, 0:1] / (downsample_ratio 
+    w1 = paddle.exp(w) * anchor[:, :, :, :, 0:1] / (downsample_ratio * grid_w)
+    h1 = paddle.exp(h) * anchor[:, :, :, :, 1:2] / (downsample_ratio * grid_h)
+
+    return [x1, y1, w1, h1]
+
+
+def iou_similarity(box1, box2, eps=1e-9):
+    """Calculate iou of box1 and box2
+
+    Args:
+        box1 (Tensor): box with the shape [N, M1, 4]
+        box2 (Tensor): box with the shape [N, M2, 4]
+
+    Return:
+        iou (Tensor): iou between box1 and box2 with the shape [N, M1, M2]
+    """
+    box1 = box1.unsqueeze(2)  # [N, M1, 4] -> [N, M1, 1, 4]
+    box2 = box2.unsqueeze(1)  # [N, M2, 4] -> [N, 1, M2, 4]
+    px1y1, px2y2 = box1[:, :, :, 0:2], box1[:, :, :, 2:4]
+    gx1y1, gx2y2 = box2[:, :, :, 0:2], box2[:, :, :, 2:4]
+    x1y1 = paddle.maximum(px1y1, gx1y1)
+    x2y2 = paddle.minimum(px2y2, gx2y2)
+    overlap = (x2y2 - x1y1).clip(0).prod(-1)
+    area1 = (px2y2 - px1y1).clip(0).prod(-1)
+    area2 = (gx2y2 - gx1y1).clip(0).prod(-1)
+    union = area1 + area2 - overlap + eps
+    return overlap / union
+
+
+def bbox_iou(box1, box2, giou=False, diou=False, ciou=False, eps=1e-9):
+    """calculate the iou of box1 and box2
+
+    Args:
+        box1 (list): [x, y, w, h], all have the shape [b, na, h, w, 1]
+        box2 (list): [x, y, w, h], all have the shape [b, na, h, w, 1]
+        giou (bool): whether use giou or not, default False
+        diou (bool): whether use diou or not, default False
+        ciou (bool): whether use ciou or not, default False
+        eps (float): epsilon to avoid divide by zero
+
+    Return:
+        iou (Tensor): iou of box1 and box1, with the shape [b, na, h, w, 1]
+    """
+    px1, py1, px2, py2 = box1
+    gx1, gy1, gx2, gy2 = box2
+    x1 = paddle.maximum(px1, gx1)
+    y1 = paddle.maximum(py1, gy1)
+    x2 = paddle.minimum(px2, gx2)
+    y2 = paddle.minimum(py2, gy2)
+
+    overlap = ((x2 - x1).clip(0)) * ((y2 - y1).clip(0))
+
+    area1 = (px2 - px1) * (py2 - py1)
+    area1 = area1.clip(0)
+
+    area2 = (gx2 - gx1) * (gy2 - gy1)
+    area2 = area2.clip(0)
+
+    union = area1 + area2 - overlap + eps
+    iou = overlap / union
+
+    if giou or ciou or diou:
+        # convex w, h
+        cw = paddle.maximum(px2, gx2) - paddle.minimum(px1, gx1)
+        ch = paddle.maximum(py2, gy2) - paddle.minimum(py1, gy1)
+        if giou:
+            c_area = cw * ch + eps
+            re
