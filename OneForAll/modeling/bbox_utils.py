@@ -639,4 +639,64 @@ def rbox2poly(rrects):
 
     normal_rects = paddle.stack(
         [tl_x, br_x, br_x, tl_x, tl_y, tl_y, br_y, br_y], axis=0)
-    normal_rects = paddle.reshape(normal_
+    normal_rects = paddle.reshape(normal_rects, [2, 4, N])
+    normal_rects = paddle.transpose(normal_rects, [2, 0, 1])
+
+    sin, cos = paddle.sin(angle), paddle.cos(angle)
+    # M.shape=[N,2,2]
+    M = paddle.stack([cos, -sin, sin, cos], axis=0)
+    M = paddle.reshape(M, [2, 2, N])
+    M = paddle.transpose(M, [2, 0, 1])
+
+    # polys:[N,8]
+    polys = paddle.matmul(M, normal_rects)
+    polys = paddle.transpose(polys, [2, 1, 0])
+    polys = paddle.reshape(polys, [-1, N])
+    polys = paddle.transpose(polys, [1, 0])
+
+    tmp = paddle.stack(
+        [x_ctr, y_ctr, x_ctr, y_ctr, x_ctr, y_ctr, x_ctr, y_ctr], axis=1)
+    polys = polys + tmp
+    return polys
+
+
+def bbox_iou_np_expand(box1, box2, x1y1x2y2=True, eps=1e-16):
+    """
+    Calculate the iou of box1 and box2 with numpy.
+
+    Args:
+        box1 (ndarray): [N, 4]
+        box2 (ndarray): [M, 4], usually N != M
+        x1y1x2y2 (bool): whether in x1y1x2y2 stype, default True
+        eps (float): epsilon to avoid divide by zero
+    Return:
+        iou (ndarray): iou of box1 and box2, [N, M]
+    """
+    N, M = len(box1), len(box2)  # usually N != M
+    if x1y1x2y2:
+        b1_x1, b1_y1 = box1[:, 0], box1[:, 1]
+        b1_x2, b1_y2 = box1[:, 2], box1[:, 3]
+        b2_x1, b2_y1 = box2[:, 0], box2[:, 1]
+        b2_x2, b2_y2 = box2[:, 2], box2[:, 3]
+    else:
+        # cxcywh style
+        # Transform from center and width to exact coordinates
+        b1_x1, b1_x2 = box1[:, 0] - box1[:, 2] / 2, box1[:, 0] + box1[:, 2] / 2
+        b1_y1, b1_y2 = box1[:, 1] - box1[:, 3] / 2, box1[:, 1] + box1[:, 3] / 2
+        b2_x1, b2_x2 = box2[:, 0] - box2[:, 2] / 2, box2[:, 0] + box2[:, 2] / 2
+        b2_y1, b2_y2 = box2[:, 1] - box2[:, 3] / 2, box2[:, 1] + box2[:, 3] / 2
+
+    # get the coordinates of the intersection rectangle
+    inter_rect_x1 = np.zeros((N, M), dtype=np.float32)
+    inter_rect_y1 = np.zeros((N, M), dtype=np.float32)
+    inter_rect_x2 = np.zeros((N, M), dtype=np.float32)
+    inter_rect_y2 = np.zeros((N, M), dtype=np.float32)
+    for i in range(len(box2)):
+        inter_rect_x1[:, i] = np.maximum(b1_x1, b2_x1[i])
+        inter_rect_y1[:, i] = np.maximum(b1_y1, b2_y1[i])
+        inter_rect_x2[:, i] = np.minimum(b1_x2, b2_x2[i])
+        inter_rect_y2[:, i] = np.minimum(b1_y2, b2_y2[i])
+    # Intersection area
+    inter_area = np.maximum(inter_rect_x2 - inter_rect_x1, 0) * np.maximum(
+        inter_rect_y2 - inter_rect_y1, 0)
+    
