@@ -502,4 +502,74 @@ def bbox_decode(bbox_preds,
     means = paddle.to_tensor(means)
     stds = paddle.to_tensor(stds)
     num_imgs, H, W, _ = bbox_preds.shape
-    bboxes_list = 
+    bboxes_list = []
+    for img_id in range(num_imgs):
+        bbox_pred = bbox_preds[img_id]
+        # bbox_pred.shape=[5,H,W]
+        bbox_delta = bbox_pred
+        anchors = paddle.to_tensor(anchors)
+        bboxes = delta2rbox(
+            anchors, bbox_delta, means, stds, wh_ratio_clip=1e-6)
+        bboxes = paddle.reshape(bboxes, [H, W, 5])
+        bboxes_list.append(bboxes)
+    return paddle.stack(bboxes_list, axis=0)
+
+
+def poly2rbox(polys):
+    """
+    poly:[x0,y0,x1,y1,x2,y2,x3,y3]
+    to
+    rotated_boxes:[x_ctr,y_ctr,w,h,angle]
+    """
+    rotated_boxes = []
+    for poly in polys:
+        poly = np.array(poly[:8], dtype=np.float32)
+
+        pt1 = (poly[0], poly[1])
+        pt2 = (poly[2], poly[3])
+        pt3 = (poly[4], poly[5])
+        pt4 = (poly[6], poly[7])
+
+        edge1 = np.sqrt((pt1[0] - pt2[0]) * (pt1[0] - pt2[0]) + (pt1[1] - pt2[
+            1]) * (pt1[1] - pt2[1]))
+        edge2 = np.sqrt((pt2[0] - pt3[0]) * (pt2[0] - pt3[0]) + (pt2[1] - pt3[
+            1]) * (pt2[1] - pt3[1]))
+
+        width = max(edge1, edge2)
+        height = min(edge1, edge2)
+
+        rbox_angle = 0
+        if edge1 > edge2:
+            rbox_angle = np.arctan2(
+                float(pt2[1] - pt1[1]), float(pt2[0] - pt1[0]))
+        elif edge2 >= edge1:
+            rbox_angle = np.arctan2(
+                float(pt4[1] - pt1[1]), float(pt4[0] - pt1[0]))
+
+        def norm_angle(angle, range=[-np.pi / 4, np.pi]):
+            return (angle - range[0]) % range[1] + range[0]
+
+        rbox_angle = norm_angle(rbox_angle)
+
+        x_ctr = float(pt1[0] + pt3[0]) / 2
+        y_ctr = float(pt1[1] + pt3[1]) / 2
+        rotated_box = np.array([x_ctr, y_ctr, width, height, rbox_angle])
+        rotated_boxes.append(rotated_box)
+    ret_rotated_boxes = np.array(rotated_boxes)
+    assert ret_rotated_boxes.shape[1] == 5
+    return ret_rotated_boxes
+
+
+def cal_line_length(point1, point2):
+    import math
+    return math.sqrt(
+        math.pow(point1[0] - point2[0], 2) + math.pow(point1[1] - point2[1], 2))
+
+
+def get_best_begin_point_single(coordinate):
+    x1, y1, x2, y2, x3, y3, x4, y4 = coordinate
+    xmin = min(x1, x2, x3, x4)
+    ymin = min(y1, y2, y3, y4)
+    xmax = max(x1, x2, x3, x4)
+    ymax = max(y1, y2, y3, y4)
+    combinate = [[[x1, y1], [x2, y2], [x3, y3], [x4, y4]],
