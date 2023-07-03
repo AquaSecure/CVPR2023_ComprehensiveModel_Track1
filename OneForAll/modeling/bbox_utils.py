@@ -761,4 +761,60 @@ def bbox_center(boxes):
         Tensor: boxes centers with shape (..., 2), "cx, cy" format.
     """
     boxes_cx = (boxes[..., 0] + boxes[..., 2]) / 2
-    boxes_cy = (boxes[.
+    boxes_cy = (boxes[..., 1] + boxes[..., 3]) / 2
+    return paddle.stack([boxes_cx, boxes_cy], axis=-1)
+
+
+def batch_distance2bbox(points, distance, max_shapes=None):
+    """Decode distance prediction to bounding box for batch.
+    Args:
+        points (Tensor): [B, ..., 2], "xy" format
+        distance (Tensor): [B, ..., 4], "ltrb" format
+        max_shapes (Tensor): [B, 2], "h,w" format, Shape of the image.
+    Returns:
+        Tensor: Decoded bboxes, "x1y1x2y2" format.
+    """
+    lt, rb = paddle.split(distance, 2, -1)
+    # while tensor add parameters, parameters should be better placed on the second place
+    x1y1 = -lt + points
+    x2y2 = rb + points
+    out_bbox = paddle.concat([x1y1, x2y2], -1)
+    if max_shapes is not None:
+        max_shapes = max_shapes.flip(-1).tile([1, 2])
+        delta_dim = out_bbox.ndim - max_shapes.ndim
+        for _ in range(delta_dim):
+            max_shapes.unsqueeze_(1)
+        out_bbox = paddle.where(out_bbox < max_shapes, out_bbox, max_shapes)
+        out_bbox = paddle.where(out_bbox > 0, out_bbox,
+                                paddle.zeros_like(out_bbox))
+    return out_bbox
+
+
+def delta2bbox_v2(rois,
+                  deltas,
+                  means=(0.0, 0.0, 0.0, 0.0),
+                  stds=(1.0, 1.0, 1.0, 1.0),
+                  max_shape=None,
+                  wh_ratio_clip=16.0 / 1000.0,
+                  ctr_clip=None):
+    """Transform network output(delta) to bboxes.
+    Based on https://github.com/open-mmlab/mmdetection/blob/master/mmdet/core/
+             bbox/coder/delta_xywh_bbox_coder.py
+    Args:
+        rois (Tensor): shape [..., 4], base bboxes, typical examples include
+            anchor and rois
+        deltas (Tensor): shape [..., 4], offset relative to base bboxes
+        means (list[float]): the mean that was used to normalize deltas,
+            must be of size 4
+        stds (list[float]): the std that was used to normalize deltas,
+            must be of size 4
+        max_shape (list[float] or None): height and width of image, will be
+            used to clip bboxes if not None
+        wh_ratio_clip (float): to clip delta wh of decoded bboxes
+        ctr_clip (float or None): whether to clip delta xy of decoded bboxes
+    """
+    if rois.size == 0:
+        return paddle.empty_like(rois)
+    means = paddle.to_tensor(means)
+    stds = paddle.to_tensor(stds)
+    delta
