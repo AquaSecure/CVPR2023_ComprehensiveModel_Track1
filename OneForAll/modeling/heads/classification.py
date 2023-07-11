@@ -19,4 +19,76 @@ import paddle.nn as nn
 import paddle.nn.functional as F
 from collections import OrderedDict
 import pycocotools.mask as mask_util
-from modeling.i
+from modeling.initializer import linear_init_, constant_
+from modeling.losses import triplet_loss, cross_entropy_loss, log_accuracy
+from paddle.nn.initializer import TruncatedNormal, Constant, Normal
+from paddle import ParamAttr
+from layers import any_softmax
+import random
+
+trunc_normal_ = TruncatedNormal(std=.02)
+zeros_ = Constant(value=0.)
+ones_ = Constant(value=1.)
+normal_ = Normal
+BIAS_LR_FACTOR=2.0
+
+class ClassificationNeck(nn.Layer):
+    """d
+    """
+    def __init__(self):
+        super().__init__()
+        pass
+    
+    def forward(self, x):
+        """d
+        """
+        if isinstance(x, (list, tuple)):
+            return x[-1]
+        else:
+            return x
+
+class GlobalAvgPool(nn.AdaptiveAvgPool2D):
+    """
+    GlobalAvgPool
+    """
+    def __init__(self, output_size=1, *args, **kwargs):
+        """Init
+        """
+        super().__init__(output_size)
+
+class ClassificationHead(nn.Layer):
+    """d
+    """
+    def __init__(self, feat_dim, num_classes, neck, scale=1,
+            margin=0, load_head=False, pretrain_path='', **loss_kwargs,
+            ):
+        super().__init__()
+        self.neck = neck
+        self.pool_layer = GlobalAvgPool()
+        assert num_classes > 0
+        self.linear = paddle.nn.Linear(feat_dim, num_classes, 
+            bias_attr=ParamAttr(learning_rate=0.1 * BIAS_LR_FACTOR),
+            weight_attr=ParamAttr(learning_rate=0.1)
+            )
+        self.cls_layer = getattr(any_softmax, "Linear")(num_classes, scale, margin)
+        if load_head:
+            # pretrain_path
+            state_dict = paddle.load(pretrain_path)
+            print("Loading Head from {}".format(pretrain_path))
+            if 'model' in state_dict:
+                state_dict = state_dict.pop('model')
+            if 'state_dict' in state_dict:
+                state_dict = state_dict.pop('state_dict')
+            state_dict_new = OrderedDict()
+            for k, v in state_dict.items():
+                if 'head' in k:
+                    k_new = k[5:]
+                    state_dict_new[k_new] = state_dict[k]
+            self.linear.set_state_dict(state_dict_new)
+        
+        self.ce_kwargs = loss_kwargs.get('ce', {})
+    
+    def forward(self, body_feats, inputs):
+        """d
+        """
+        neck_feat = self.nec
