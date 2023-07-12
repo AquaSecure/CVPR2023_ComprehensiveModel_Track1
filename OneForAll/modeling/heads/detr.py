@@ -31,4 +31,55 @@ class DETR(nn.Layer):
     def forward(self, body_feats, inputs):
         """d"""
         # body_feats = self.backbone(inputs)
- 
+        # if self.start == 0:
+        #     self.transformer.set_state_dict(paddle.load('self.transformer.pddet.pdparams'))
+        #     self.start += 1
+        if isinstance(body_feats, list):
+            body_feats = body_feats[0]
+        else:
+            body_feats = body_feats
+        # Transformer
+        if 'gt_bbox' in inputs:
+            #hard code
+            gt_bbox = [paddle.cast(inputs['gt_bbox'][i], 'float32') for i in range(len(inputs['gt_bbox']))]
+            inputs['gt_bbox'] = gt_bbox
+        pad_mask = inputs['pad_mask'] if self.training else None
+        out_transformer = self.transformer(body_feats, pad_mask, inputs)
+        #
+        # out_transformer = paddle.load('out_transformer.pddata')
+        # body_feats = paddle.load('body_feats.pddata')
+        # inputs = paddle.load('inputs.pddata')
+        # d = self.detr_head(out_transformer, body_feats, inputs)
+        # self.transformer.eval()
+        # with paddle.no_grad():
+        #     e1 = self.transformer(body_feats, inputs['pad_mask'], inputs)
+        #     e2 = self.transformer(body_feats, inputs['pad_mask'], inputs)
+        # paddle.save(self.transformer.state_dict(), 'self.transformer.pdparams')
+        # with paddle.no_grad():
+        #     e1 = self.transformer._get_encoder_input(body_feats, inputs['pad_mask'])
+        #     e2 = self.transformer._get_encoder_input(body_feats, inputs['pad_mask'])
+        # with paddle.no_grad():
+        #     m1 = self.transformer.encoder(*e1)
+        #     m2 = self.transformer.encoder(*e2)
+        # DETR Head
+        if self.training:
+            losses = self.detr_head(out_transformer, body_feats, inputs)
+            new_losses = {}
+            new_losses.update({
+                'loss':
+            paddle.add_n([v for k, v in losses.items() if 'log' not in k])
+            })
+            return new_losses
+        else:
+            preds = self.detr_head(out_transformer, body_feats)
+            if self.exclude_post_process:
+                bboxes, logits, masks = preds
+                bbox_pred, bbox_num = bboxes, logits
+            else:
+                bbox, bbox_num = self.post_process(
+                    preds, inputs['im_shape'], inputs['scale_factor'])
+                bbox_pred, bbox_num = bbox, bbox_num
+            
+            output = {
+                "bbox": bbox_pred,
+                
