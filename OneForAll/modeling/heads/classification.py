@@ -91,4 +91,28 @@ class ClassificationHead(nn.Layer):
     def forward(self, body_feats, inputs):
         """d
         """
-        neck_feat = self.nec
+        neck_feat = self.neck(body_feats)
+        feat = self.pool_layer(neck_feat)
+        feat = feat[:, :, 0, 0]
+        targets = inputs["targets"]
+        if self.training:
+            loss_dict = {}
+            logits = self.linear(feat)
+            pred_class_logits = logits * self.cls_layer.s
+            cls_outputs = self.cls_layer(logits, targets)
+            # Log prediction accuracy
+            # acc = log_accuracy(pred_class_logits, gt_labels)
+            ce_prob = self.ce_kwargs.get('prob', 1.0)
+            if random.random() < ce_prob:
+                loss_exist = 1.0
+            else:
+                loss_exist = 0.0
+            loss_dict['loss_cls'] = cross_entropy_loss(
+                cls_outputs,
+                targets,
+                self.ce_kwargs.get('eps', 0.0),
+                self.ce_kwargs.get('alpha', 0.2)
+            ) * self.ce_kwargs.get('scale', 1.0) * loss_exist
+            return loss_dict
+        else:
+            return self.linear(feat)
