@@ -82,4 +82,6 @@ class DETR(nn.Layer):
             
             output = {
                 "bbox": bbox_pred,
-                
+                "bbox_num": bbox_num,
+            }
+            return output
