@@ -64,4 +64,58 @@ class MultiHeadAttentionMap(nn.Layer):
         weight_attr = paddle.ParamAttr(
             initializer=paddle.nn.initializer.XavierUniform())
         bias_attr = paddle.framework.ParamAttr(
-       
+            initializer=paddle.nn.initializer.Constant()) if bias else False
+
+        self.q_proj = nn.Linear(query_dim, hidden_dim, weight_attr, bias_attr)
+        self.k_proj = nn.Conv2D(
+            query_dim,
+            hidden_dim,
+            1,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr)
+
+        self.normalize_fact = float(hidden_dim / self.num_heads)**-0.5
+
+    def forward(self, q, k, mask=None):
+        q = self.q_proj(q)
+        k = self.k_proj(k)
+        bs, num_queries, n, c, h, w = q.shape[0], q.shape[1], self.num_heads,\
+                                      self.hidden_dim // self.num_heads, k.shape[-2], k.shape[-1]
+        qh = q.reshape([bs, num_queries, n, c])
+        kh = k.reshape([bs, n, c, h, w])
+        # weights = paddle.einsum("bqnc,bnchw->bqnhw", qh * self.normalize_fact, kh)
+        qh = qh.transpose([0, 2, 1, 3]).reshape([-1, num_queries, c])
+        kh = kh.reshape([-1, c, h * w])
+        weights = paddle.bmm(qh * self.normalize_fact, kh).reshape(
+            [bs, n, num_queries, h, w]).transpose([0, 2, 1, 3, 4])
+
+        if mask is not None:
+            weights += mask
+        # fix a potenial bug: https://github.com/facebookresearch/detr/issues/247
+        weights = F.softmax(weights.flatten(3), axis=-1).reshape(weights.shape)
+        weights = self.dropout(weights)
+        return weights
+
+
+class MaskHeadFPNConv(nn.Layer):
+    """This code is based on
+        https://github.com/facebookresearch/detr/blob/main/models/segmentation.py
+
+        Simple convolutional head, using group norm.
+        Upsampling is done using a FPN approach
+    """
+
+    def __init__(self, input_dim, fpn_dims, context_dim, num_groups=8):
+        super().__init__()
+
+        inter_dims = [input_dim,
+                      ] + [context_dim // (2**i) for i in range(1, 5)]
+        weight_attr = paddle.ParamAttr(
+            initializer=paddle.nn.initializer.KaimingUniform())
+        bias_attr = paddle.framework.ParamAttr(
+            initializer=paddle.nn.initializer.Constant())
+
+        self.conv0 = self._make_layers(input_dim, input_dim, 3, num_groups,
+                                       weight_attr, bias_attr)
+        self.conv_inter = nn.LayerList()
+        for in_dims, out_dims in zip(inter_dims[:-1], int
