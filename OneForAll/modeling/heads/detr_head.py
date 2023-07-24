@@ -118,4 +118,74 @@ class MaskHeadFPNConv(nn.Layer):
         self.conv0 = self._make_layers(input_dim, input_dim, 3, num_groups,
                                        weight_attr, bias_attr)
         self.conv_inter = nn.LayerList()
-        for in_dims, out_dims in zip(inter_dims[:-1], int
+        for in_dims, out_dims in zip(inter_dims[:-1], inter_dims[1:]):
+            self.conv_inter.append(
+                self._make_layers(in_dims, out_dims, 3, num_groups, weight_attr,
+                                  bias_attr))
+
+        self.conv_out = nn.Conv2D(
+            inter_dims[-1],
+            1,
+            3,
+            padding=1,
+            weight_attr=weight_attr,
+            bias_attr=bias_attr)
+
+        self.adapter = nn.LayerList()
+        for i in range(len(fpn_dims)):
+            self.adapter.append(
+                nn.Conv2D(
+                    fpn_dims[i],
+                    inter_dims[i + 1],
+                    1,
+                    weight_attr=weight_attr,
+                    bias_attr=bias_attr))
+
+    def _make_layers(self,
+                     in_dims,
+                     out_dims,
+                     kernel_size,
+                     num_groups,
+                     weight_attr=None,
+                     bias_attr=None):
+        return nn.Sequential(
+            nn.Conv2D(
+                in_dims,
+                out_dims,
+                kernel_size,
+                padding=kernel_size // 2,
+                weight_attr=weight_attr,
+                bias_attr=bias_attr),
+            nn.GroupNorm(num_groups, out_dims),
+            nn.ReLU())
+
+    def forward(self, x, bbox_attention_map, fpns):
+        x = paddle.concat([
+            x.tile([bbox_attention_map.shape[1], 1, 1, 1]),
+            bbox_attention_map.flatten(0, 1)
+        ], 1)
+        x = self.conv0(x)
+        for inter_layer, adapter_layer, feat in zip(self.conv_inter[:-1],
+                                                    self.adapter, fpns):
+            feat = adapter_layer(feat).tile(
+                [bbox_attention_map.shape[1], 1, 1, 1])
+            x = inter_layer(x)
+            x = feat + F.interpolate(x, size=feat.shape[-2:])
+
+        x = self.conv_inter[-1](x)
+        x = self.conv_out(x)
+        return x
+
+
+class DETRHead(nn.Layer):
+    __shared__ = ['num_classes', 'hidden_dim', 'use_focal_loss']
+    __inject__ = ['loss']
+
+    def __init__(self,
+                 num_classes=80,
+                 hidden_dim=256,
+                 nhead=8,
+                 num_mlp_layers=3,
+                 loss=None,
+                 fpn_dims=[1024, 512, 256],
+        
