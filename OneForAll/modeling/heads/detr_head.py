@@ -244,4 +244,49 @@ class DETRHead(nn.Layer):
         r"""
         Args:
             out_transformer (Tuple): (feats: [num_levels, batch_size,
-                                    
+                                                num_queries, hidden_dim],
+                            memory: [batch_size, hidden_dim, h, w],
+                            src_proj: [batch_size, h*w, hidden_dim],
+                            src_mask: [batch_size, 1, 1, h, w])
+            body_feats (List(Tensor)): list[[B, C, H, W]]
+            inputs (dict): dict(inputs)
+        """
+        feats, memory, src_proj, src_mask = out_transformer
+        outputs_logit = self.score_head(feats)
+        outputs_bbox = F.sigmoid(self.bbox_head(feats))
+        outputs_seg = None
+        if self.with_mask_head:
+            bbox_attention_map = self.bbox_attention(feats[-1], memory,
+                                                     src_mask)
+            fpn_feats = [a for a in body_feats[::-1]][1:]
+            outputs_seg = self.mask_head(src_proj, bbox_attention_map,
+                                         fpn_feats)
+            outputs_seg = outputs_seg.reshape([
+                feats.shape[1], feats.shape[2], outputs_seg.shape[-2],
+                outputs_seg.shape[-1]
+            ])
+
+        if self.training:
+            assert inputs is not None
+            assert 'gt_bbox' in inputs and 'gt_class' in inputs
+            gt_mask = self.get_gt_mask_from_polygons(
+                inputs['gt_poly'],
+                inputs['pad_mask']) if 'gt_poly' in inputs else None
+            return self.loss(
+                outputs_bbox,
+                outputs_logit,
+                inputs['gt_bbox'],
+                inputs['gt_class'],
+                masks=outputs_seg,
+                gt_mask=gt_mask)
+        else:
+            return (outputs_bbox[-1], outputs_logit[-1], outputs_seg)
+
+
+def build_head_detr_lazy(num_mlp_layers=3, fpn_dims=[2048], nhead=8, hidden_dim=256, loss=None, **kwargs):
+    """
+    Create a detr head instance from config
+    """
+    model = DETRHead(num_mlp_layers=num_mlp_layers, fpn_dims=fpn_dims, nhead=nhead, 
+        hidden_dim=hidden_dim, loss=loss)
+    return model
