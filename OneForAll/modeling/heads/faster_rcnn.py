@@ -57,4 +57,5 @@ class FasterRCNNHead(nn.Layer):
             # rescale the prediction back to origin image
             bboxes, bbox_pred, bbox_num = self.bbox_post_process.get_pred(
                 bbox, bbox_num, im_shape, scale_factor)
-            output = {'bbox': bbox_pred, 'bbox_num': bbox_n
+            output = {'bbox': bbox_pred, 'bbox_num': bbox_num}
+            return output
