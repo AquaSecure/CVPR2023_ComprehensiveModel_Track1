@@ -190,4 +190,36 @@ class MultiHeadAttention(nn.Layer):
         key = query if key is None else key
         value = query if value is None else value
         # compute q ,k ,v
-        q, k, v = (self.compute
+        q, k, v = (self.compute_qkv(t, i)
+                   for i, t in enumerate([query, key, value]))
+
+        # scale dot product attention
+        product = paddle.matmul(x=q, y=k, transpose_y=True)
+        scaling = float(self.head_dim)**-0.5
+        product = product * scaling
+
+        if attn_mask is not None:
+            # Support bool or int mask
+            attn_mask = _convert_attention_mask(attn_mask, product.dtype)
+            product = product + attn_mask
+        weights = F.softmax(product)
+        if self.dropout:
+            weights = F.dropout(
+                weights,
+                self.dropout,
+                training=self.training,
+                mode="upscale_in_train")
+
+        out = paddle.matmul(weights, v)
+
+        # combine heads
+        out = paddle.transpose(out, perm=[0, 2, 1, 3])
+        out = paddle.reshape(x=out, shape=[0, 0, out.shape[2] * out.shape[3]])
+
+        # project to output
+        out = self.out_proj(out)
+
+        outs = [out]
+        if self.need_weights:
+            outs.append(weights)
+        return out if len(outs) == 1 else tuple(outs)
