@@ -10,4 +10,80 @@
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
-# limitations under 
+# limitations under the License.
+
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
+import numpy as np
+
+import paddle
+
+from modeling.bbox_utils import bbox_iou
+
+
+__all__ = ['IouLoss', 'GIoULoss', 'DIouLoss']
+
+
+class IouLoss(object):
+    """
+    iou loss, see https://arxiv.org/abs/1908.03851
+    loss = 1.0 - iou * iou
+    Args:
+        loss_weight (float): iou loss weight, default is 2.5
+        max_height (int): max height of input to support random shape input
+        max_width (int): max width of input to support random shape input
+        ciou_term (bool): whether to add ciou_term
+        loss_square (bool): whether to square the iou term
+    """
+
+    def __init__(self,
+                 loss_weight=2.5,
+                 giou=False,
+                 diou=False,
+                 ciou=False,
+                 loss_square=True):
+        self.loss_weight = loss_weight
+        self.giou = giou
+        self.diou = diou
+        self.ciou = ciou
+        self.loss_square = loss_square
+
+    def __call__(self, pbox, gbox):
+        iou = bbox_iou(
+            pbox, gbox, giou=self.giou, diou=self.diou, ciou=self.ciou)
+        if self.loss_square:
+            loss_iou = 1 - iou * iou
+        else:
+            loss_iou = 1 - iou
+
+        loss_iou = loss_iou * self.loss_weight
+        return loss_iou
+
+
+class GIoULoss(object):
+    """
+    Generalized Intersection over Union, see https://arxiv.org/abs/1902.09630
+    Args:
+        loss_weight (float): giou loss weight, default as 1
+        eps (float): epsilon to avoid divide by zero, default as 1e-10
+        reduction (string): Options are "none", "mean" and "sum". default as none
+    """
+
+    def __init__(self, loss_weight=1., eps=1e-10, reduction='none'):
+        self.loss_weight = loss_weight
+        self.eps = eps
+        assert reduction in ('none', 'mean', 'sum')
+        self.reduction = reduction
+
+    def bbox_overlap(self, box1, box2, eps=1e-10):
+        """calculate the iou of box1 and box2
+        Args:
+            box1 (Tensor): box1 with the shape (..., 4)
+            box2 (Tensor): box1 with the shape (..., 4)
+            eps (float): epsilon to avoid divide by zero
+        Return:
+            iou (Tensor): iou of box1 and box2
+            overlap (Tensor): overlap of box1 and box2
+        
