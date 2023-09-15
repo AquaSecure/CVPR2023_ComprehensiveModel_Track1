@@ -86,4 +86,67 @@ class GIoULoss(object):
         Return:
             iou (Tensor): iou of box1 and box2
             overlap (Tensor): overlap of box1 and box2
-        
+            union (Tensor): union of box1 and box2
+        """
+        x1, y1, x2, y2 = box1
+        x1g, y1g, x2g, y2g = box2
+
+        xkis1 = paddle.maximum(x1, x1g)
+        ykis1 = paddle.maximum(y1, y1g)
+        xkis2 = paddle.minimum(x2, x2g)
+        ykis2 = paddle.minimum(y2, y2g)
+        w_inter = (xkis2 - xkis1).clip(0)
+        h_inter = (ykis2 - ykis1).clip(0)
+        overlap = w_inter * h_inter
+
+        area1 = (x2 - x1) * (y2 - y1)
+        area2 = (x2g - x1g) * (y2g - y1g)
+        union = area1 + area2 - overlap + eps
+        iou = overlap / union
+
+        return iou, overlap, union
+
+    def __call__(self, pbox, gbox, iou_weight=1., loc_reweight=None):
+        x1, y1, x2, y2 = paddle.split(pbox, num_or_sections=4, axis=-1)
+        x1g, y1g, x2g, y2g = paddle.split(gbox, num_or_sections=4, axis=-1)
+        box1 = [x1, y1, x2, y2]
+        box2 = [x1g, y1g, x2g, y2g]
+        iou, overlap, union = self.bbox_overlap(box1, box2, self.eps)
+        xc1 = paddle.minimum(x1, x1g)
+        yc1 = paddle.minimum(y1, y1g)
+        xc2 = paddle.maximum(x2, x2g)
+        yc2 = paddle.maximum(y2, y2g)
+
+        area_c = (xc2 - xc1) * (yc2 - yc1) + self.eps
+        miou = iou - ((area_c - union) / area_c)
+        if loc_reweight is not None:
+            loc_reweight = paddle.reshape(loc_reweight, shape=(-1, 1))
+            loc_thresh = 0.9
+            giou = 1 - (1 - loc_thresh
+                        ) * miou - loc_thresh * miou * loc_reweight
+        else:
+            giou = 1 - miou
+        if self.reduction == 'none':
+            loss = giou
+        elif self.reduction == 'sum':
+            loss = paddle.sum(giou * iou_weight)
+        else:
+            loss = paddle.mean(giou * iou_weight)
+        return loss * self.loss_weight
+
+
+class DIouLoss(GIoULoss):
+    """
+    Distance-IoU Loss, see https://arxiv.org/abs/1911.08287
+    Args:
+        loss_weight (float): giou loss weight, default as 1
+        eps (float): epsilon to avoid divide by zero, default as 1e-10
+        use_complete_iou_loss (bool): whether to use complete iou loss
+    """
+
+    def __init__(self, loss_weight=1., eps=1e-10, use_complete_iou_loss=True):
+        super(DIouLoss, self).__init__(loss_weight=loss_weight, eps=eps)
+        self.use_complete_iou_loss = use_complete_iou_loss
+
+    def __call__(self, pbox, gbox, iou_weight=1.):
+ 
