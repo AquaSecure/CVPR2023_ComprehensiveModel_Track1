@@ -149,4 +149,56 @@ class DIouLoss(GIoULoss):
         self.use_complete_iou_loss = use_complete_iou_loss
 
     def __call__(self, pbox, gbox, iou_weight=1.):
- 
+        x1, y1, x2, y2 = paddle.split(pbox, num_or_sections=4, axis=-1)
+        x1g, y1g, x2g, y2g = paddle.split(gbox, num_or_sections=4, axis=-1)
+        cx = (x1 + x2) / 2
+        cy = (y1 + y2) / 2
+        w = x2 - x1
+        h = y2 - y1
+
+        cxg = (x1g + x2g) / 2
+        cyg = (y1g + y2g) / 2
+        wg = x2g - x1g
+        hg = y2g - y1g
+
+        x2 = paddle.maximum(x1, x2)
+        y2 = paddle.maximum(y1, y2)
+
+        # A and B
+        xkis1 = paddle.maximum(x1, x1g)
+        ykis1 = paddle.maximum(y1, y1g)
+        xkis2 = paddle.minimum(x2, x2g)
+        ykis2 = paddle.minimum(y2, y2g)
+
+        # A or B
+        xc1 = paddle.minimum(x1, x1g)
+        yc1 = paddle.minimum(y1, y1g)
+        xc2 = paddle.maximum(x2, x2g)
+        yc2 = paddle.maximum(y2, y2g)
+
+        intsctk = (xkis2 - xkis1) * (ykis2 - ykis1)
+        intsctk = intsctk * paddle.greater_than(
+            xkis2, xkis1) * paddle.greater_than(ykis2, ykis1)
+        unionk = (x2 - x1) * (y2 - y1) + (x2g - x1g) * (y2g - y1g
+                                                        ) - intsctk + self.eps
+        iouk = intsctk / unionk
+
+        # DIOU term
+        dist_intersection = (cx - cxg) * (cx - cxg) + (cy - cyg) * (cy - cyg)
+        dist_union = (xc2 - xc1) * (xc2 - xc1) + (yc2 - yc1) * (yc2 - yc1)
+        diou_term = (dist_intersection + self.eps) / (dist_union + self.eps)
+
+        # CIOU term
+        ciou_term = 0
+        if self.use_complete_iou_loss:
+            ar_gt = wg / hg
+            ar_pred = w / h
+            arctan = paddle.atan(ar_gt) - paddle.atan(ar_pred)
+            ar_loss = 4. / np.pi / np.pi * arctan * arctan
+            alpha = ar_loss / (1 - iouk + ar_loss + self.eps)
+            alpha.stop_gradient = True
+            ciou_term = alpha * ar_loss
+
+        diou = paddle.mean((1 - iouk + ciou_term + diou_term) * iou_weight)
+
+        return diou * self.loss_weight
