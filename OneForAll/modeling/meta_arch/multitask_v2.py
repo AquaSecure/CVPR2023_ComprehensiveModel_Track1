@@ -99,4 +99,38 @@ class MultiTaskBatchFuse(nn.Layer):
             features = self.backbone(self.preprocess_image(batched_inputs))
 
             if self.training:
-                # assert "targets"
+                # assert "targets" in batched_inputs, "Person ID annotation are missing in training!"
+                # targets = batched_inputs["targets"]
+
+                # PreciseBN flag, When do preciseBN on different dataset, the number of classes in new dataset
+                # may be larger than that in the original dataset, so the circle/arcface will
+                # throw an error. We just set all the targets to 0 to avoid this problem.
+                # if targets.sum() < 0: targets.zero_()
+
+                task_outputs = self.heads[self.task2head_mapping[task_name]](features, batched_inputs)
+                losses.update(**{task_name + "_" + key: val for key, val in task_outputs.items()})
+            else:
+                task_outputs = self.heads[self.task2head_mapping[task_name]](features, batched_inputs)
+                outputs[task_name] = task_outputs
+
+        if self.training:
+            return losses
+        else:
+            return outputs
+
+    def preprocess_image(self, batched_inputs):
+        """
+        Normalize and batch the input images.
+        """
+        if isinstance(batched_inputs, dict):
+            if 'image' in batched_inputs:
+                images = batched_inputs['image']
+            if 'images' in batched_inputs:
+                images = batched_inputs['images']
+        elif isinstance(batched_inputs, paddle.Tensor):
+            images = batched_inputs
+        else:
+            raise TypeError("batched_inputs must be dict or Tensor, but get {}".format(type(batched_inputs)))
+
+        # images.sub_(self.pixel_mean).div_(self.pixel_std)
+        return {'image': images}
