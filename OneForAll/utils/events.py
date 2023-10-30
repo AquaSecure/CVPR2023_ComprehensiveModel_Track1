@@ -75,3 +75,18 @@ class CommonMetricSacredWriter(EventWriter):
         try:
             lr = storage.history("lr").latest()
         except KeyError:
+            lr = None
+        if lr is not None:
+            self._run.log_scalar('lr', lr, iteration)
+
+        eta = self._get_eta(storage)
+        if eta is not None:
+            self._run.log_scalar('eta', eta, iteration)
+
+        max_mem_mb = None
+        if eta is not None:
+            self._run.log_scalar('max_mem_mb', max_mem_mb, iteration)
+
+        for k, v in storage.histories().items():
+            if "loss" in k:
+                self._run.log_scalar(k, v.median(self._window_size), iteration)
